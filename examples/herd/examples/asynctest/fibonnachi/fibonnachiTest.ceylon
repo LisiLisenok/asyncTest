@@ -11,7 +11,8 @@ import herd.asynctest {
 }
 
 
-"test parameters"
+"Fibonnachi test parameters."
+see( `function runFibonnachiTest` )
 {[Integer, Integer]*} fibonnachiNumbers =>
 		{
 			[3, 2], [4, 3], [5, 5], [6, 8], [7, 13], [8, 21], [9, 34], [10, 55]
@@ -20,17 +21,17 @@ import herd.asynctest {
 
 "Runs test of Fibonnachi numbers calculations.  
  Testing:
- * compare expected value to calculated one
- * compare calculated index of Fibonnachi number with passed one - this will fail if pass index `2`
+ * comparison of expected value to calculated one
+ * comparison of calculated index of Fibonnachi number with passed one - this will fail if pass index `2`
  
- The function is marked with `testExecutor` annotation to perform asynchronous test.
- Alternatively `testExecutor` annotation can be used at module level"
+ The function is marked with `testExecutor` annotation in order to perform asynchronous test.
+ Alternatively `testExecutor` annotation can be used at module level."
 test parameters( `value fibonnachiNumbers` )
 testExecutor( `class AsyncTestExecutor` )
 shared void runFibonnachiTest (
-	"context to send test results" AsyncTestContext context,
-	"index of fibonnachi number to be calculated" Integer indexOfFibonnachiNumber,
-	"expected results of the calculations" Integer expectedFibonnachiNumber
+	"Context to send test results." AsyncTestContext context,
+	"Index of fibonnachi number to be calculated." Integer indexOfFibonnachiNumber,
+	"Expected results of the calculations." Integer expectedFibonnachiNumber
 ) {
 	// starts testing on context
 	context.start();
@@ -60,7 +61,7 @@ shared void runFibonnachiTest (
 			}
 			
 			// completes the test when results reported
-			context.complete();
+			context.complete( "Fibonnachi number is ``calculatedFibonnachiNumber``" );
 		},
 		( Throwable reason ) {
 			// fail the test with error
@@ -71,5 +72,5 @@ shared void runFibonnachiTest (
 		}
 	);
 	
-	// just return whithout completion - the test will be completed later when promise will be resolved
+	// just return whithout completion - the test will be completed later when promise is resolved
 }

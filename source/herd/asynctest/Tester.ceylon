@@ -29,7 +29,7 @@ import ceylon.test.engine {
 
 "performs a one test execution"
 by( "Lis" )
-class Tester( Anything() beforeCallback, Anything() afterCallback ) satisfies AsyncTestContext
+class Tester( InitStorage inits ) satisfies AsyncTestContext
 {
 	
 	"`true` if currently run"
@@ -64,15 +64,12 @@ class Tester( Anything() beforeCallback, Anything() afterCallback ) satisfies As
 		if ( running.get() ) {
 			startTime = system.milliseconds;
 			completeTime = startTime;
-			try { beforeCallback(); }
-			catch ( Throwable err ) {}
 		}
 	}
 	
-	shared actual void complete() {
+	shared actual void complete( String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			try { afterCallback(); }
-			catch ( Throwable err ) {}
+			if ( output.empty && !title.empty ) { addOutput( TestState.success, null, title ); }
 			completeTime = system.milliseconds;
 			if ( startTime == 0 ) { startTime = completeTime; }
 			if ( locker.tryLock() ) {
@@ -81,6 +78,11 @@ class Tester( Anything() beforeCallback, Anything() afterCallback ) satisfies As
 			}
 		}
 	}
+
+
+	shared actual Item? get<Item>( String name ) => inits.retrieve<Item>( name );
+	
+	shared actual Item[] getAll<Item>() => inits.retrieveAll<Item>();
 
 	
 	shared actual void assertTrue( Boolean condition, String message, String title ) {

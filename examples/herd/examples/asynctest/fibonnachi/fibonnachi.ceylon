@@ -29,7 +29,8 @@ shared Integer positiveFibonnachiNumber( Integer indexOfFibonnachiNumber ) {
 	return ret;
 }
 
-"Calculates index of positive Fibonnachi number"
+"Calculates index of positive Fibonnachi number. That's may not be correct for index 1 and 2,
+ which corresponds to equals Fibonnachi numbers."
 throws( `class AssertionError`, "passed `fibonnachiNumber` is not a Fibonnachi number" )
 shared Integer fibonnachiNumberIndex( Integer fibonnachiNumber ) {
 	"fibonnachi number must be positive"
@@ -50,7 +51,8 @@ shared Integer fibonnachiNumberIndex( Integer fibonnachiNumber ) {
 }
 
 
-"Calculates Fibonnachi number by its index in separated thread and returns result as promise"
+"Calculates Fibonnachi number by its index in separated thread and returns result as promise.
+ This is function to be tested."
 shared Promise<Integer> asyncPositiveFibonnachiNumber( Integer indexOfFibonnachiNumber ) {
 	Deferred<Integer> ret = Deferred<Integer>();
 	

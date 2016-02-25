@@ -4,41 +4,30 @@ import ceylon.test {
 	TestListener,
 	TestResult,
 	TestState,
-	testExtension,
-	parameters,
-	afterTest,
-	beforeTest,
-	test,
-	testExecutor,
-	ignore
+	testExecutor
 }
 import ceylon.test.engine.spi {
 
 	TestExecutor,
-	TestExecutionContext,
-	ArgumentProviderContext
+	TestExecutionContext
 }
 import ceylon.language.meta.declaration {
 
 	FunctionDeclaration,
-	ClassDeclaration,
-	OpenInterfaceType
+	ClassDeclaration
 }
 import ceylon.test.event {
 
 	TestStartedEvent,
 	TestFinishedEvent,
 	TestSkippedEvent,
-	TestErrorEvent
+	TestErrorEvent,
+	TestAbortedEvent
 }
 import ceylon.test.engine {
 
 	DefaultTestExecutor,
 	TestSkippedException
-}
-import ceylon.test.annotation {
-
-	ParametersAnnotation
 }
 import ceylon.collection {
 
@@ -50,10 +39,10 @@ import ceylon.collection {
  
  #### capabilities
  * testing both classes and top level functions
- * parameterized testing with a set of function arguments, see [[parameters]] annotation
+ * parameterized testing with a set of function arguments, see [[ceylon.test::parameters]] annotation
  * testing asynchronous multithread code
    (only one test function is run at the moment, main test thread waits when execution completes)
- * functions marked with [[afterTest]] and [[beforeTest]] annotations are executed <i>synchronously</i>.
+ * functions marked with [[ceylon.test::afterTest]] and [[ceylon.test::beforeTest]] annotations are executed <i>synchronously</i>.
    So put asynchrnous initialization logic into test function directly or perform initialization in
    separated thread and block tested thread while initialization completed
  * reporting several failures for a one particular test function
@@ -65,7 +54,7 @@ import ceylon.collection {
  The other arguments have to be in accordance with `ceylon.test::parameters` annotation. 
  
  #### running
- To run the test using this executor [[testExecutor]] annotation to be applied:
+ To run the test using this executor [[ceylon.test::testExecutor]] annotation to be applied:
  * at module level to apply to every functions / classes marked with test in the given module
  		testExecutor(\`class AsyncTestExecutor\`)
  		native(\"jvm\")
@@ -74,7 +63,7 @@ import ceylon.collection {
  		testExecutor(\`class AsyncTestExecutor\`)
  		test void doTesting(AsyncTestContext context) {...}
  
- Following procedure is as usual for SDK `ceylon.test` module - mark tested functions with [[test]] annotation
+ Following procedure is as usual for SDK `ceylon.test` module - mark tested functions with [[ceylon.test::test]] annotation
  and run test in IDE or command line.
  
  
@@ -82,10 +71,10 @@ import ceylon.collection {
  There are four cases of tested function type:
  1. `Anything(AsyncTestContext)` - executed using this test executor.  
  2. `parameters(`...`) Anything(AsyncTestContext, ...)` -
- executed using this test executor with several variants provided by [[parameters]] annotation.  
+ executed using this test executor with several variants provided by [[ceylon.test::parameters]] annotation.  
  3. `Anything()` - executed using `ceylon.test` SDK [[DefaultTestExecutor]].  
- 4. `parameters(`...`) Anything(...)` - executed using `ceylon.test` SDK [[DefaultTestExecutor]]
- with several variants provided by [[parameters]] annotation.  
+ 4. `parameters(`...`) Anything(...)` - executed using `ceylon.test` SDK [[ceylon.test.engine::DefaultTestExecutor]]
+ with several variants provided by [[ceylon.test::parameters]] annotation.  
  
  
  When test function taking [[AsyncTestContext]] as first argument is executed it is expected the function will do following steps:
@@ -101,11 +90,11 @@ import ceylon.collection {
  
  
  #### ceylon.test features
- * After / before test hooks can be used by applying [[afterTest]] and [[beforeTest]] annotations.
+ * After / before test hooks can be used by applying [[ceylon.test::afterTest]] and [[ceylon.test::beforeTest]] annotations.
    Functions marked by these annotations are executed <i>synchronously</i> after and before test correspondently.
- * Parametrized test with a set of variants can be performed using [[parameters]] annotation.
- * Test can be skipped marking it by [[ignore]] annotation.
- * Hooks the test with [[TestListener]] can be used. But all events except `TestRunStartedEvent` are raised after
+ * Parametrized test with a set of variants can be performed using [[ceylon.test::parameters]] annotation.
+ * Test can be skipped marking it by [[ceylon.test::ignore]] annotation.
+ * Hooks the test with [[ceylon.test::TestListener]] can be used. But all events except `TestRunStartedEvent` are raised after
    actual testing is completed. 
  * It is <i>not</i> recommended to use `ceylon.test::assertXXX` functions together with [[AsyncTestContext]],
    since this functions simply throws an exception which leads to testing completion.
@@ -113,7 +102,7 @@ import ceylon.collection {
  
  "
 by( "Lis" )
-see( `function testExtension` )
+see( `function testExecutor` )
 see( `interface AsyncTestContext` )
 shared class AsyncTestExecutor (
 	FunctionDeclaration functionDeclaration,
@@ -143,9 +132,9 @@ shared class AsyncTestExecutor (
 			for ( item in results.rest ) {
 				if ( item.state > state ) { state = item.state; }
 			}
-			context.fire().testFinished( TestFinishedEvent(
-				TestResult( runDescription, state, true, null, runInterval )
-			) );
+			context.fire().testFinished (
+				TestFinishedEvent( TestResult( runDescription, state, true, null, runInterval ) )
+			);
 		}
 		else {
 			context.fire().testFinished (
@@ -161,12 +150,20 @@ shared class AsyncTestExecutor (
 	
 	"Executes one variant.
 	 Returns output from this variant."
-	VariantTestOutput executeVariant( TestExecutionContext context, Anything[] args ) {
+	VariantTestOutput executeVariant( InitStorage inits, TestExecutionContext context, Anything[] args ) {
+		// object test to perform on
 		Object? instance = getInstance( context );
-		Tester tester = Tester (
-			handleBeforeCallbacks( context, instance, emptyExecute ),
-			handleAfterCallbacks( context, instance, emptyExecute ) 
-		);
+		
+		// run before callback and return aborted if failed
+		try {
+			handleBeforeCallbacks( context, instance, emptyExecute )();
+		}
+		catch ( Throwable err ) {
+			return VariantTestOutput( [TestOutput( TestState.aborted, err, 0, "beforeTest" )], 0 );
+		}
+		
+		// run test
+		Tester tester = Tester( inits );
 		value output = tester.run (
 			( AsyncTestContext asyncContext ) {
 				// invoke tested function
@@ -182,22 +179,35 @@ shared class AsyncTestExecutor (
 				}
 			}
 		);
+		
+		// run after callbacks
+		try {
+			handleAfterCallbacks( context, instance, emptyExecute )();
+		}
+		catch ( Throwable err ) {
+			return VariantTestOutput (
+				output.append( [TestOutput( TestState.error, err, 0, "afterTest" )] ),
+				tester.runInterval
+			);
+		}
+		
+		// test results
 		return VariantTestOutput( output, tester.runInterval );
 	}
 	
 	
 	"Executes variant and fills results"
-	void executeAndFillVariant( TestExecutionContext context, Anything[] args ) {
-		value res = executeVariant( context, args );
+	void executeAndFillVariant( InitStorage inits, TestExecutionContext context, Anything[] args ) {
+		value res = executeVariant( inits, context, args );
 		fillResults( context, res.outs, res.totalElapsedTime );
 	}
 	
 	"Executes a number of variants."
-	void executeVariants( TestExecutionContext context, {Anything[]*} argsVariants ) {
+	void executeVariants( InitStorage inits, TestExecutionContext context, {Anything[]*} argsVariants ) {
 		variable Integer elapsedTime = 0;
 		ArrayList<TestOutput> outs = ArrayList<TestOutput>(); 
 		for ( args in argsVariants ) {
-			value res = executeVariant( context, args );
+			value res = executeVariant( inits, context, args );
 			elapsedTime += res.totalElapsedTime;
 			String preamble = variantName( args );
 			if ( res.outs.empty ) {
@@ -216,49 +226,65 @@ shared class AsyncTestExecutor (
 		fillResults( context, outs.sequence(), elapsedTime );
 	}
 	
-	"Extracts test parameters from `parameters` annotation of tested function."
-	{Anything[]*} resolveParameters() {
-		if ( nonempty params = functionDeclaration.annotations<ParametersAnnotation>() ) {
-			return params.first.argumentLists( ArgumentProviderContext( description, functionDeclaration, null ) );
+	void executeWithInits( InitStorage inits, TestExecutionContext parent ) {
+		TestExecutionContext context = parent.childContext( description );
+		try {
+			// verify test
+			verify( context );
+			// check if test conditions are met
+			evaluateTestConditions( context );
+			
+			// test parameters - series of arguments
+			value argLists = resolveArgumentList( functionDeclaration );
+			Integer size = argLists.size;
+			
+			// execute test
+			if ( size == 0 ) {
+				executeAndFillVariant( inits, context, [] );
+			}
+			else if ( size == 1, exists args = argLists.first ) {
+				executeAndFillVariant( inits, context, args );
+			}
+			else {
+				executeVariants( inits, context, argLists );
+			}
 		}
-		return [];
+		catch ( TestSkippedException e ) {
+			context.fire().testSkipped( TestSkippedEvent( TestResult( description, TestState.skipped, false, e ) ) );
+		}
+		catch ( Throwable e ) {
+			context.fire().testError( TestErrorEvent( TestResult( description, TestState.error, false, e ) ) );
+		}
+	}
+	
+	
+	"aborts test filling error as variant with title"
+	void abortWithInitError( InitError inits, TestExecutionContext parent ) {
+		TestExecutionContext context = parent.childContext( description );
+		TestDescription runDescription = context.description;
+		context.fire().testStarted( TestStartedEvent( runDescription ) );
+		TestDescription variant = runDescription.forVariant( inits.title, 1 );
+		TestExecutionContext child = context.childContext( variant );
+		child.fire().testAborted (
+			TestAbortedEvent( TestResult( variant, TestState.aborted, false, inits.reason ) )
+		);
+		context.fire().testFinished (
+			TestFinishedEvent( TestResult( runDescription, TestState.aborted, true, null ) )
+		);
 	}
 	
 	
 	shared actual void execute( TestExecutionContext parent ) {
-		if ( nonempty argDeclarations = functionDeclaration.parameterDeclarations,
-			 is OpenInterfaceType argType = argDeclarations.first.openType,
-			 argType.declaration == `interface AsyncTestContext`
-		) {
-			TestExecutionContext context = parent.childContext( description );
-			try {
-				// verify test
-				verify( context );
-				// check if test conditions are met
-				evaluateTestConditions( context );
-				
-				// test parameters - series of arguments
-				value argLists = resolveParameters();
-				Integer size = argLists.size;
-				
-				// execute test
-				if ( size == 0 ) {
-					executeAndFillVariant( context, [] );
-				}
-				else if ( size == 1, exists args = argLists.first ) {
-					executeAndFillVariant( context, args );
-				}
-				else {
-					executeVariants( context, argLists );
-				}
-				
+		if ( initializer.isAsyncDeclaration( functionDeclaration ) ) {
+			value inits = initializer.testStarted( parent, functionDeclaration );
+			switch ( inits )
+			case ( is InitStorage ) {
+				executeWithInits( inits, parent );
 			}
-			catch ( TestSkippedException e ) {
-				context.fire().testSkipped( TestSkippedEvent( TestResult( description, TestState.skipped, false, e ) ) );
+			case ( is InitError ) {
+				abortWithInitError( inits, parent );
 			}
-			catch ( Throwable e ) {
-				context.fire().testError( TestErrorEvent( TestResult( description, TestState.error, false, e ) ) );
-			}
+			initializer.testCompleted();
 		}
 		else {
 			super.execute( parent );
