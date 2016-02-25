@@ -57,7 +57,7 @@
  		[String, Integer] serverParameters => [\"host\", 123]; 
  		
  		// initializer - binds to server specified by host:port,
- 		// if successfull proceeds with test or aborted if some error occured
+ 		// if successful proceeds with test or aborted if some error occured
  		parameters(`value serverParameters`)
  		void setupServer(TestInitContext context, String host, Integer port) {
  			Server server = Server();
@@ -74,7 +74,7 @@
  			);
  		}
  		
- 		// test functions, setupServer is called just once - neveretheless the actual number of test functions 
+ 		// test functions, setupServer is called just once - nevertheless the actual number of test functions 
  		test init(`function setupServer`) void firstTest AsyncTestContext context) {
  			String serverName = serverParameters.host + \":\`\`port\`\`\";
  			assert ( exists server = context.get<Server>(\"serverName\") );
