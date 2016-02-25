@@ -18,7 +18,8 @@
  ### test procedure
  1. Declare test function, which accepts [[AsyncTestContext]] as the first argument:
  			test void doTesting(AsyncTestContext context) {...}
-    The other arguments have to be in accordance with `ceylon.test::parameters` annotation.
+    The other arguments have to be in accordance with `ceylon.test::parameters` annotation
+    or other satisfied [[ceylon.test.engine.spi::ArgumentProvider]].
     Mark test function with `ceylon.test::test` annotation.
  2. Code test function according to [[AsyncTestContext]] specification:
  	* call [[AsyncTestContext.start]] before start testing
@@ -30,8 +31,8 @@
  			native(\"jvm\")
  			module mymodule \"1.0.0\"
  	* at function level to execute the given function only
- 			testExecutor(\`class AsyncTestExecutor\`)
- 			test void doTesting(AsyncTestContext context) {...}
+ 			test testExecutor(\`class AsyncTestExecutor\`)
+ 			void doTesting(AsyncTestContext context) {...}
  4. Run test in IDE or command line.
  
  Also see some details in documentation on [[AsyncTestExecutor]] and [[AsyncTestContext]].
