@@ -117,7 +117,7 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.asynctest "0.2.0" {
+module herd.asynctest "0.3.0" {
 	import org.jboss.modules "1.4.4.Final";
 	import java.base "8";
 	shared import ceylon.test "1.2.1";
