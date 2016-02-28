@@ -2,7 +2,8 @@ import herd.asynctest {
 
 	AsyncTestContext,
 	AsyncTestExecutor,
-	init
+	init,
+	alone
 }
 import ceylon.test {
 
@@ -41,7 +42,7 @@ import java.util {
 "Runs HashMap test. Compares Ceylon map to Java one.  
  Test is performed using `chartMapTest`.  
  Results are reported using `fillTestResult`."
-test
+test alone
 testExecutor( `class AsyncTestExecutor` )
 init( `function plotInitialization` )
 parameters( `value mapTestParams` )
@@ -71,7 +72,7 @@ shared void runHashMapTest (
 "Runs TreeMap test. Compares Ceylon map to Java one.  
  Test is performed using `chartMapTest`.  
  Results are reported using `fillTestResult`."
-test
+test alone
 testExecutor( `class AsyncTestExecutor` )
 init( `function plotInitialization` )
 parameters( `value mapTestParams` )

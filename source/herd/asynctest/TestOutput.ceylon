@@ -4,13 +4,13 @@ import ceylon.test {
 }
 
 
-"results of the test"
+"Results of the test execution."
 by( "Lis" )
 class TestOutput (
-	shared TestState state,
-	shared Throwable? error,
-	shared Integer elapsedTime,
-	shared String title,
-	shared String preamble = ""
+	"Final test state." shared TestState state,
+	"Error if occured." shared Throwable? error,
+	"Total time elapsed on the test." shared Integer elapsedTime,
+	"Output title." shared String title,
+	"Output prefix." shared String prefix = ""
 )
 {}

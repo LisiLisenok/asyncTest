@@ -1,23 +1,20 @@
 import ceylon.language.meta.declaration {
-
 	FunctionDeclaration
 }
-import java.util.concurrent.locks {
+import ceylon.language.meta.model {
+	IncompatibleTypeException
+}
 
+import java.util.concurrent.atomic {
+	AtomicBoolean
+}
+import java.util.concurrent.locks {
 	ReentrantLock,
 	Condition
 }
-import ceylon.language.meta.model {
-
-	IncompatibleTypeException
-}
-import java.util.concurrent.atomic {
-
-	AtomicBoolean
-}
 
 
-"performs initialization and stores initialized context"
+"Performs initialization and stores initialized values."
 by( "Lis" )
 class InitializerContext()
 		satisfies TestInitContext
@@ -61,8 +58,11 @@ class InitializerContext()
 	shared actual void put<Item>( String name, Item item, Anything() dispose )
 			=> inits.store( name, Container<Item>( item, dispose ) );
 	
+	shared actual void addTestRunFinishedCallback( Anything() callback )
+			=> inits.addTestRunFinishedCallback( callback );
+
 	
-	"run initialization process"
+	"Runs initialization process."
 	shared InitStorage | InitError run( FunctionDeclaration declaration ) {
 		if ( declaration.toplevel ) {
 			locker.lock();
@@ -92,4 +92,5 @@ class InitializerContext()
 			);
 		}
 	}
+	
 }

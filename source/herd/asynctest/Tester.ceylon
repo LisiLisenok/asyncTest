@@ -1,33 +1,28 @@
 import ceylon.collection {
-
 	ArrayList
 }
-import java.util.concurrent.atomic {
-
-	AtomicBoolean
-}
-import java.util.concurrent.locks {
-
-	ReentrantLock,
-	Condition
-}
-import ceylon.test {
-
-	TestState
-}
 import ceylon.language.meta.model {
-
 	IncompatibleTypeException,
 	InvocationException
 }
+import ceylon.test {
+	TestState
+}
 import ceylon.test.engine {
-
 	TestAbortedException,
 	TestSkippedException
 }
 
+import java.util.concurrent.atomic {
+	AtomicBoolean
+}
+import java.util.concurrent.locks {
+	ReentrantLock,
+	Condition
+}
 
-"performs a one test execution"
+
+"Performs a one test execution."
 by( "Lis" )
 class Tester( InitStorage inits ) satisfies AsyncTestContext
 {
@@ -85,27 +80,53 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	shared actual Item[] getAll<Item>() => inits.retrieveAll<Item>();
 
 	
-	shared actual void assertTrue( Boolean condition, String message, String title ) {
-		if ( running.get() && !condition ) {
-			addOutput( TestState.failure, AssertionError( message ), title );
+	shared actual void succeed( String message ) {
+		if ( running.get() ) {
+			addOutput( TestState.success, null, message );
 		}
 	}
 	
-	shared actual void assertFalse( Boolean condition, String message, String title ) {
-		if ( running.get() && condition ) {
-			addOutput( TestState.failure, AssertionError( message ), title );
+	shared actual void assertTrue( Boolean condition, String message, String title, String? successMessage ) {
+		if ( running.get() ) {
+			if ( !condition ) {
+				addOutput( TestState.failure, AssertionError( message ), title );
+			}
+			else if ( exists str = successMessage ) {
+				succeed( message );
+			}
 		}
 	}
 	
-	shared actual void assertNull( Anything val, String message, String title ) {
-		if ( running.get() && val exists ) {
-			addOutput( TestState.failure, AssertionError( message ), title );
+	shared actual void assertFalse( Boolean condition, String message, String title, String? successMessage ) {
+		if ( running.get() ) {
+			if ( condition ) {
+				addOutput( TestState.failure, AssertionError( message ), title );
+			}
+			else if ( exists str = successMessage ) {
+				succeed( message );
+			}
 		}
 	}
 	
-	shared actual void assertNotNull( Anything val, String message, String title ) {
-		if ( running.get() && !val exists ) {
-			addOutput( TestState.failure, AssertionError( message ), title );
+	shared actual void assertNull( Anything val, String message, String title, String? successMessage ) {
+		if ( running.get() ) {
+			if ( !val exists ) {
+				addOutput( TestState.failure, AssertionError( message ), title );
+			}
+			else if ( exists str = successMessage ) {
+				succeed( message );
+			}
+		}
+	}
+	
+	shared actual void assertNotNull( Anything val, String message, String title, String? successMessage ) {
+		if ( running.get() ) {
+			if ( val exists ) {
+				addOutput( TestState.failure, AssertionError( message ), title );
+			}
+			else if ( exists str = successMessage ) {
+				succeed( message );
+			}
 		}
 	}
 

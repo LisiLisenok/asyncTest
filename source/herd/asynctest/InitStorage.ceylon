@@ -4,11 +4,12 @@ import java.util.concurrent.locks {
 }
 import ceylon.collection {
 
-	HashMap
+	HashMap,
+	ArrayList
 }
 
 
-"map of containers"
+"Map of values stored on context."
 by( "Lis" )
 interface InitStorage {
 	
@@ -24,7 +25,7 @@ interface InitStorage {
 }
 
 
-"empty container map"
+"Storage contains nothing."
 class EmptyInitStorage() satisfies InitStorage
 {
 	shared actual Item? retrieve<Item>(String name) => null;
@@ -33,7 +34,7 @@ class EmptyInitStorage() satisfies InitStorage
 }
 
 
-"stores containers"
+"Base `InitStorage`."
 by( "Lis" )
 class ContainerStorage() satisfies InitStorage
 {
@@ -42,6 +43,9 @@ class ContainerStorage() satisfies InitStorage
 	
 	"containers stored here"
 	HashMap<String, Container<Anything>> containers = HashMap<String, Container<Anything>>(); 
+	
+	"callbacks called when test run is finished"
+	ArrayList<Anything()> callbacks = ArrayList<Anything()>();
 	
 	
 	"returns item from container"
@@ -55,13 +59,16 @@ class ContainerStorage() satisfies InitStorage
 	"stores item"
 	shared void store( String name, Container<Anything> container ) {
 		locker.lock();
-		try {
-			containers.put( name, container );
-		}
-		finally {
-			locker.unlock();
-		}
+		try { containers.put( name, container ); }
+		finally { locker.unlock(); }
 	}
+	
+	shared void addTestRunFinishedCallback( Anything() callback ) {
+		locker.lock();
+		try { callbacks.add( callback ); }
+		finally { locker.unlock(); }
+	}
+	
 
 	"returns stored item"
 	shared actual Item? retrieve<Item>( String name ) {
@@ -94,10 +101,16 @@ class ContainerStorage() satisfies InitStorage
 	shared actual void dispose() {
 		locker.lock();
 		try {
+			// dispose containers
 			for ( con in containers.items ) {
 				con.dispose();
 			}
 			containers.clear();
+			// call test run finished callbacks
+			for ( callback in callbacks ) {
+				callback();
+			}
+			callbacks.clear();
 		}
 		finally {
 			locker.unlock();

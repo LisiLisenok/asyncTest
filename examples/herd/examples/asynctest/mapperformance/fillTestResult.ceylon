@@ -40,14 +40,14 @@ String fillTestResult (
 		
 		// fail the test if ratio is greater then target
 		String putMessage = "'put' Ceylon / Java ratio of ``putRatioStr`` is greater than target ``targetRatio``";
-		String putSuceed = "'put' Ceylon / Java ratio of ``putRatioStr`` is not greater than target ``targetRatio``";
-		context.assertFalse( putRatio > targetRatio, putMessage, putMessage, putSuceed );
+		String putSucceed = "'put' Ceylon / Java ratio of ``putRatioStr`` is not greater than target ``targetRatio``";
+		context.assertFalse( putRatio > targetRatio, putMessage, putMessage, putSucceed );
 		String getMessage = "'get' Ceylon / Java ratio of ``getRatioStr`` is greater than target ``targetRatio``";
-		String getSuceed = "'get' Ceylon / Java ratio of ``getRatioStr`` is not greater than target ``targetRatio``";
-		context.assertFalse( getRatio > targetRatio, getMessage, getMessage, getSuceed );
+		String getSucceed = "'get' Ceylon / Java ratio of ``getRatioStr`` is not greater than target ``targetRatio``";
+		context.assertFalse( getRatio > targetRatio, getMessage, getMessage, getSucceed );
 		String removeMessage = "'remove' Ceylon / Java ratio of ``removeRatioStr`` is greater than target ``targetRatio``";
-		String removeSuceed = "'remove' Ceylon / Java ratio of ``removeRatioStr`` is not greater than target ``targetRatio``";
-		context.assertFalse( removeRatio > targetRatio, removeMessage, removeMessage, removeSuceed );
+		String removeSucceed = "'remove' Ceylon / Java ratio of ``removeRatioStr`` is not greater than target ``targetRatio``";
+		context.assertFalse( removeRatio > targetRatio, removeMessage, removeMessage, removeSucceed );
 		
 		String putPlotterName = ratioChartTitle + titles.titlesDelimiter + titles.put;
 		String getPlotterName = ratioChartTitle + titles.titlesDelimiter + titles.get;

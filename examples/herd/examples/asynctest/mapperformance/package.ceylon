@@ -1,11 +1,11 @@
 "
  Comparative Ceylon vs Java performance test on HashMap and TreeMap.  
  
- ####Test functions:
+ #### Test functions:
  * [[runHashMapTest]] - Ceylon vs Java HashMap test
  * [[runTreeMapTest]] - Ceylon vs Java TreeMap test
  
- ####Test strategy
+ #### Test strategy
  1. `String` keys and `Integer` items are used.
  2. Operations to be tested: `put`, `get`, `remove`.
  3. Given: total number of items in the map, percent of get / removed items.
@@ -16,7 +16,7 @@
  7. 4 - 6 are repeated for a given number of test repeats.
  8. 3 - 7 are repeated with another total number of items.
  
- ####Output
+ #### Output
  Results of the test are reported using charts 'Spent Time vs Total Number Of Items'
  and 'Ceylon to Java Time Ratio vs Total Number Of Items'.
  See [[package herd.asynctest.chart]] with charts description.
