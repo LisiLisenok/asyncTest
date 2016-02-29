@@ -37,4 +37,7 @@ class PlotBuilder (
 		finally { locker.unlock(); }
 	}
 	
+	
+	shared actual String string => "Plots to plot '``title``'";
+	
 }

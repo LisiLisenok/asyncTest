@@ -8,9 +8,7 @@ import ceylon.language.meta.declaration {
 }
 import ceylon.test {
 	TestState,
-	TestResult,
-	TestListener,
-	TestDescription
+	TestResult
 }
 import ceylon.test.engine {
 	DefaultTestExecutor,
@@ -20,9 +18,7 @@ import ceylon.test.engine.spi {
 	TestExecutionContext
 }
 import ceylon.test.event {
-	TestStartedEvent,
 	TestSkippedEvent,
-	TestFinishedEvent,
 	TestErrorEvent
 }
 
@@ -37,44 +33,7 @@ class DeferredTestContext (
 )
 		extends DefaultTestExecutor( functionDeclaration, classDeclaration )
 		satisfies RunnableTestContext
-{
-	
-	"Fills results of the test to execution context."
-	void fillResults (
-		"Context to be filled with results." TestExecutionContext context,
-		"Test results." TestOutput[] results,
-		"Total test elapsed time." Integer runInterval
-	) {
-		TestDescription runDescription = context.description;
-		context.fire().testStarted( TestStartedEvent( runDescription ) );
-		if ( nonempty results ) {
-			variable Integer index = 0;
-			for ( res in results ) {
-				String str = if ( res.title.empty ) then res.state.string else res.state.string + ": " + res.title;
-				String title = if ( res.prefix.empty ) then str else res.prefix + " - " + str;
-				TestDescription variant = runDescription.forVariant( title, ++ index );
-				TestExecutionContext child = context.childContext( variant );
-				TestListener listener = child.fire();
-				listener.testStarted( TestStartedEvent( variant ) );
-				listener.testFinished( TestFinishedEvent(
-					TestResult( variant, res.state, false, res.error, res.elapsedTime )
-				) );
-			}
-			variable TestState state = results.first.state;
-			for ( item in results.rest ) {
-				if ( item.state > state ) { state = item.state; }
-			}
-			context.fire().testFinished (
-				TestFinishedEvent( TestResult( runDescription, state, true, null, runInterval ) )
-			);
-		}
-		else {
-			context.fire().testFinished (
-				TestFinishedEvent( TestResult( runDescription, TestState.success, false, null, runInterval ) )
-			);
-		}
-	}
-	
+{	
 	
 	"dummy function used to after / before handles"
 	void emptyExecute() {}
@@ -131,7 +90,7 @@ class DeferredTestContext (
 	"Executes variant and fills results."
 	void executeAndFillVariant( InitStorage inits, TestExecutionContext context, Anything[] args ) {
 		value res = executeVariant( inits, context, args );
-		fillResults( context, res.outs, res.totalElapsedTime );
+		fillTestResults( context, res.outs, res.totalElapsedTime );
 	}
 	
 	"Executes a number of variants."
@@ -141,31 +100,30 @@ class DeferredTestContext (
 		for ( args in argsVariants ) {
 			value res = executeVariant( inits, context, args );
 			elapsedTime += res.totalElapsedTime;
-			String preamble = variantName( args );
+			String prefix = variantName( args );
 			if ( res.outs.empty ) {
-				outs.add( TestOutput ( TestState.success, null, res.totalElapsedTime, "", preamble ) );
+				outs.add( TestOutput ( TestState.success, null, res.totalElapsedTime, "", prefix ) );
 			}
 			else {
 				outs.addAll (
 					res.outs.map (
 						( TestOutput testOutput ) => TestOutput (
-							testOutput.state, testOutput.error, testOutput.elapsedTime, testOutput.title, preamble
+							testOutput.state, testOutput.error, testOutput.elapsedTime, testOutput.title, prefix
 						)
 					)
 				);
 			}
 		}
-		fillResults( context, outs.sequence(), elapsedTime );
+		fillTestResults( context, outs.sequence(), elapsedTime );
 	}
 	
+	
 	"Executes this test with initializations `inits` and parent execution context `parent`"
-	void executeWithInits( InitStorage inits, TestExecutionContext parent ) {
+	void executeAsyncTest() {
 		TestExecutionContext context = parent.childContext( description );
 		try {
 			// verify test
 			verify( context );
-			// check if test conditions are met
-			evaluateTestConditions( context );
 			
 			// test parameters - series of arguments
 			value argLists = resolveArgumentList( functionDeclaration );
@@ -193,7 +151,7 @@ class DeferredTestContext (
 	
 	shared actual void runTest() {
 		if ( isAsyncDeclaration( functionDeclaration ) ) {
-			executeWithInits( inits, parent );
+			executeAsyncTest();
 		}
 		else {
 			super.execute( parent );
@@ -201,7 +159,7 @@ class DeferredTestContext (
 	}
 	
 	
-	"Do nothing!"
+	"Do nothing! use [[runTest]] instead"
 	shared actual void execute( TestExecutionContext parent ) {
 	}
 	

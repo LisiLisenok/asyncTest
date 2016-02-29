@@ -1,8 +1,10 @@
 
 
 "Allows initializer function to interract with test executor.  
+ 
  Initializer can fill in some values using [[put]]. The values can be retrieved late from [[AsyncTestContext]].  
- Additionally callback to listen when test run is finished can be added using [[addTestRunFinishedCallback]].  
+ Additionally callback to listen test run finishing can be added using [[addTestRunFinishedCallback]].  
+ 
  Initializer has to call [[TestInitContext.proceed]] or [[TestInitContext.abort]] when initialization is completed or errored
  since executor blocks execution thread until [[TestInitContext.proceed]] or [[TestInitContext.abort]] is called.
  "

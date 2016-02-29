@@ -4,7 +4,6 @@ import ceylon.collection {
 }
 import ceylon.language.meta.declaration {
 	FunctionDeclaration,
-	NestableDeclaration,
 	ClassDeclaration
 }
 import ceylon.test {
@@ -32,7 +31,8 @@ by( "Lis" )
 object asyncTestRunner {
 	
 	"initialized values"
-	HashMap<FunctionDeclaration, InitStorage | InitError> inits = HashMap<FunctionDeclaration, InitStorage | InitError>(); 
+	HashMap<FunctionDeclaration, InitStorage | VariantTestOutput> inits
+			= HashMap<FunctionDeclaration, InitStorage | VariantTestOutput>(); 
 	
 	"sequentially executed tests"
 	ArrayList<RunnableTestContext> sequentialTests = ArrayList<RunnableTestContext>();
@@ -49,7 +49,7 @@ object asyncTestRunner {
 	
 	
 	"performs initialization"
-	InitStorage | InitError runInitialization( FunctionDeclaration declaration ) {
+	InitStorage | VariantTestOutput runInitialization( FunctionDeclaration declaration ) {
 		if ( exists ret = inits.get( declaration ) ) {
 			return ret;
 		}
@@ -61,10 +61,24 @@ object asyncTestRunner {
 		}
 	}
 	
-	"Returns initialization for the given function declaration."
-	InitStorage | InitError getInits( FunctionDeclaration functionDeclaration ) {
+	"Evaluates test initialization and conditions."
+	InitStorage | VariantTestOutput evaluateTestInits (
+		FunctionDeclaration functionDeclaration, TestExecutionContext context
+	) {
+		value conditionsResult = evaluateAnnotatedConditions( functionDeclaration, context );
 		if ( exists initAnn = annotationFromChain<InitAnnotation>( functionDeclaration ) ) {
-			return runInitialization( initAnn.initializer );
+			value inits = runInitialization( initAnn.initializer );
+			switch ( inits )
+			case ( is InitStorage ) {
+				if ( nonempty conditionsResult ) { return VariantTestOutput( conditionsResult, 0 ); }
+				else { return inits; }
+			}
+			case ( is VariantTestOutput ) {
+				return VariantTestOutput( inits.outs.append( conditionsResult ), inits.totalElapsedTime );
+			}
+		}
+		else if ( nonempty conditionsResult ) {
+			return VariantTestOutput( conditionsResult, 0 );
 		}
 		else {
 			return EmptyInitStorage();
@@ -131,9 +145,10 @@ object asyncTestRunner {
 			testNumber = numberOfAsyncTest( parent.runner.description );
 		}
 		
-		value inits = getInits( functionDeclaration );
+		value inits = evaluateTestInits( functionDeclaration, parent );
 		switch ( inits )
 		case ( is InitStorage ) {
+			// test will be executed
 			value addedContext = DeferredTestContext( functionDeclaration, classDeclaration, parent, inits );
 			// add test to appropriate list based on `alone` annotation
 			if ( annotationFromChain<AloneAnnotation>( functionDeclaration ) exists ) {
@@ -143,8 +158,8 @@ object asyncTestRunner {
 				concurrentTests.add( addedContext );
 			}
 		}
-		case ( is InitError ) {
-			sequentialTests.add( InitAbortedContext( parent, description, inits ) );
+		case ( is VariantTestOutput ) {
+			sequentialTests.add( CompletedTestContext( parent, description, inits ) );
 		}
 		
 		// if it is last test - execute them
@@ -161,29 +176,6 @@ object asyncTestRunner {
 		}
 		else {
 			return false;
-		}
-	}
-	
-	"Extracts the first annotation from a chain in order - function declaration, class declaration, package, module."
-	AnnotationType? annotationFromChain<AnnotationType>( FunctionDeclaration functionDeclaration ) 
-			given AnnotationType satisfies Annotation
-	{
-		if ( nonempty ann = functionDeclaration.annotations<AnnotationType>() ) {
-			return ann.first;
-		}
-		else if ( is NestableDeclaration cont = functionDeclaration.container,
-				  nonempty ann = cont.annotations<AnnotationType>()
-		) {
-			return ann.first;
-		}
-		else if ( nonempty ann = functionDeclaration.containingPackage.annotations<AnnotationType>() ) {
-			return ann.first;
-		}
-		else if ( nonempty ann = functionDeclaration.containingModule.annotations<AnnotationType>() ) {
-			return ann.first;
-		}
-		else {
-			return null;
 		}
 	}
 		

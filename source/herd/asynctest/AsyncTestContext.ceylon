@@ -33,13 +33,11 @@
  >Common initialization for a set of test functions can be performed using [[init]] annotation and [[TestInitContext]].
  
  >It is <i>not</i> required to notify with success,
-  if test function doesn't notify on failure the test is considered as successfull
+  if test function doesn't notify on failure the test is considered as successfull.
 
  "
 by( "Lis" )
-see( `class AsyncTestExecutor` )
-see( `interface TestInitContext` )
-see( `function init` )
+see( `class AsyncTestExecutor`, `interface TestInitContext`, `function init` )
 shared interface AsyncTestContext
 {
 	
@@ -48,7 +46,9 @@ shared interface AsyncTestContext
 	
 	"Completes the testing. To be called by test function when testing is completed.
 	 This wakes up test thread and allows to continue testing and store results."
-	shared formal void complete( "Optional title which is added to test variant name only if test is succeeded" String title = "" );
+	shared formal void complete (
+		"Optional title which is added to test variant name only if test is succeeded." String title = ""
+	);
 	
 	
 	"Returns item stored on init context."
@@ -60,7 +60,7 @@ shared interface AsyncTestContext
 	shared formal Item[] getAll<Item>();
 	
 	
-	"Succeeds the test with the given `message`"
+	"Succeeds the test with the given `message`."
 	shared formal void succeed( String message );
 	
 	"Fails the test if the `condition` is `false`
@@ -105,7 +105,7 @@ shared interface AsyncTestContext
 		"Title to be shown at test name." String title = ""
 	);
 	
-	"Aborts the test . Which means that some test conditions are not met"
+	"Aborts the test, which means that some test conditions are not met."
 	shared formal void abort (
 		"Optional error of the aborting." Throwable? reason = null,
 		"Title to be shown at test name." String title = ""

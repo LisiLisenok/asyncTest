@@ -27,4 +27,7 @@ shared class Point
 		return hash;
 	}
 	
+	
+	shared actual String string => "Point of x=``category``, y=``val``";
+	
 }

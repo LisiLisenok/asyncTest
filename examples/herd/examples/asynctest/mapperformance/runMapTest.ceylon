@@ -25,17 +25,17 @@ import java.util {
 
 "Test parameters: 
  * total items test map has to contain
- * number of test repeats
+ * number of test repeats (test is repeated several times and reported values are mean values)
  * percent of total items to calculate number of items in get / remove tests
- * target ratio Ceylon to Java
+ * target ratio Ceylon to Java (if actual ratio exceeded test considered as failured otherwise it is successfull)
  "
 {[Integer, Integer, Float, Float]*} mapTestParams
 		=> {
-			[10000, 100, 0.3, 1.25],
-			[50000, 100, 0.3, 1.25],
-			[100000, 100, 0.3, 1.25],
-			[150000, 100, 0.3, 1.25],
-			[200000, 100, 0.3, 1.25]
+			[10000, 50, 0.3, 1.25],
+			[50000, 50, 0.3, 1.25],
+			[100000, 50, 0.3, 1.25],
+			[150000, 50, 0.3, 1.25],
+			[200000, 50, 0.3, 1.25]
 		};
 
 

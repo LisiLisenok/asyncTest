@@ -6,7 +6,7 @@ import java.util.concurrent {
 }
 
 
-"Runs test on another thread and notifies when test is completed"
+"Runs test on another thread and notifies when test is completed."
 by( "Lis" )
 class ConcurrentTestRunner( RunnableTestContext context, CountDownLatch latch )
 		satisfies Runnable

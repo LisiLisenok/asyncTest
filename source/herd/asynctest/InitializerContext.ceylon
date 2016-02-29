@@ -12,12 +12,15 @@ import java.util.concurrent.locks {
 	ReentrantLock,
 	Condition
 }
+import ceylon.test {
+
+	TestState
+}
 
 
 "Performs initialization and stores initialized values."
 by( "Lis" )
-class InitializerContext()
-		satisfies TestInitContext
+class InitializerContext() satisfies TestInitContext
 {
 	
 	"locks concurent access"
@@ -32,13 +35,15 @@ class InitializerContext()
 	AtomicBoolean running = AtomicBoolean( true );
 	
 	"non-null if aborted"
-	variable InitError? reason = null;
+	variable VariantTestOutput? abortOuts = null;
 	
 	
 	shared actual void abort( Throwable reason, String title ) {
 		if ( running.compareAndSet( true, false ) ) {
 			inits.dispose();
-			this.reason = InitError( reason, title );
+			String prefix = if ( title.empty ) then "initialization" else "";
+			String msg = if ( title.empty ) then "" else "inittialization '``title``'";
+			abortOuts = VariantTestOutput( [TestOutput( TestState.aborted, reason, 0, msg, prefix )], 0 );
 			if ( locker.tryLock() ) {
 				try { condition.signal(); }
 				finally { locker.unlock(); }
@@ -63,7 +68,7 @@ class InitializerContext()
 
 	
 	"Runs initialization process."
-	shared InitStorage | InitError run( FunctionDeclaration declaration ) {
+	shared InitStorage | VariantTestOutput run( FunctionDeclaration declaration ) {
 		if ( declaration.toplevel ) {
 			locker.lock();
 			try {
@@ -75,22 +80,33 @@ class InitializerContext()
 				// await initialization completion
 				if ( running.get() ) { condition.await(); }
 				
-				if ( exists ret = reason ) { return ret; }
+				if ( exists ret = abortOuts ) { return ret; }
 				else { return inits; }
 			}
 			catch ( Throwable err ) {
-				return InitError( err, "init invoking" );
+				return VariantTestOutput( [TestOutput( TestState.aborted, err, 0, "", "init" )], 0 );
 			}
 			finally {
 				locker.unlock();
 			}
 		}
 		else {
-			return InitError (
-				IncompatibleTypeException( "initialized function ``declaration`` has to be top level" ),
-				"init invoking"
+			return VariantTestOutput (
+				[TestOutput (
+					TestState.aborted,
+					IncompatibleTypeException( "initialized function ``declaration`` has to be top level" )
+					, 0, "", "init"
+				)],
+				0
 			);
 		}
 	}
+	
+	
+	shared actual String string {
+		String compl = if ( running.get() ) then "running" else "completed";
+		return "TestInitContext, status: '``compl``'";
+	}
+	
 	
 }

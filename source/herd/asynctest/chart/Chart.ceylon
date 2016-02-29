@@ -23,4 +23,23 @@ shared class Chart (
 			return Rectangle( 0.0, 0.0, 0.0, 0.0 );
 		}
 	}
+	
+	
+	shared actual String string {
+		StringBuilder plotTitles = StringBuilder();
+		variable Integer index = 0;
+		Integer lastIndex = plots.size - 1;
+		String delim = ", ";
+		for ( plot in plots ) {
+			plotTitles.append( "'" );
+			plotTitles.append( plot.title );
+			plotTitles.append( "'" );
+			if ( index != lastIndex ) {
+				plotTitles.append( delim );
+			}
+			index ++;
+		}
+		return "Chart '``title``' with category '``categoryTitle``', value '``valueTitle``' and plots: ``plotTitles.string``";
+	}
+	
 }

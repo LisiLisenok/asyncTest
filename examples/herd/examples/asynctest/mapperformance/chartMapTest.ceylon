@@ -8,15 +8,17 @@ import herd.asynctest.chart {
 }
 
 
-"Runs map test and stores results in charts corresponding to [[mapTitle]]."
+"Runs map test and stores results in charts corresponding to [[mapTitle]].
+ The test is repeated [[repeats]] times and reported values are averaged by the number of repeats.  
+ After each repeat initial map is cleared and reused.
+ "
 Float[3] | Throwable chartMapTest (
 	"Context the test is run on." AsyncTestContext context,
 	"Total items in the map." Integer totalItems,
 	"Total number of test repeats." Integer repeats,
-	"Percent from total used in get / remove tests." Float removePercent,
-	"Title of map to retrieve charts from context." String mapTitle,
-	"Creating new map test is performed on." MapWrapper<String, Integer> map
-	
+	"Percent from total items -> items used in get / remove tests." Float removePercent,
+	"Title of map used to retrieve charts from context." String mapTitle,
+	"Map test is performed on." MapWrapper<String, Integer> map
 ) {
 	
 	"total number of items to be > 0"

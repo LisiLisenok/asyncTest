@@ -2,15 +2,15 @@
 "Rectangle in 2D."
 by( "Lis" )
 shared class Rectangle (
-	shared Float left,
-	shared Float right,
-	shared Float bottom,
-	shared Float top
+	"Leftmost position." shared Float left,
+	"Rightmost position" shared Float right,
+	"Bottommost position." shared Float bottom,
+	"Topmost position." shared Float top
 )
 		extends Object()
 {
-	shared Float width => right - left;
-	shared Float height => top - bottom;
+	"Rectangle width as `right - left`" shared Float width => right - left;
+	"Rectangle height as `top - bottom`" shared Float height => top - bottom;
 	
 	"Returns rectangle which contains both this and other"
 	shared Rectangle union( Rectangle other )
@@ -21,6 +21,8 @@ shared class Rectangle (
 		if ( top > other.top ) then top else other.top
 	);
 	
+	
+	shared actual String string => "Rectangle, left = ``left``, right = ``right``, bottom = ``bottom``, top = ``top``";
 	
 	shared actual Boolean equals( Object that ) {
 		if ( is Rectangle that ) {

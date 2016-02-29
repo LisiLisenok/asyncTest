@@ -28,4 +28,24 @@ shared class Plot (
 			return Rectangle( 0.0, 0.0, 0.0, 0.0 );
 		}
 	}
+	
+	
+	shared actual String string {
+		StringBuilder strBuilder = StringBuilder();
+		variable Integer index = 0;
+		Integer lastIndex = points.size - 1;
+		String delim = ", ";
+		for ( pt in points ) {
+			strBuilder.append( "'" );
+			strBuilder.append( pt.string );
+			strBuilder.append( "'" );
+			if ( index != lastIndex ) {
+				strBuilder.append( delim );
+			}
+			index ++;
+		}
+		return "Plot '``title``' of points: ``strBuilder.string``";
+		
+	}
+	
 }

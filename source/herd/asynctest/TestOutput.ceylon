@@ -6,7 +6,7 @@ import ceylon.test {
 
 "Results of the test execution."
 by( "Lis" )
-class TestOutput (
+final class TestOutput (
 	"Final test state." shared TestState state,
 	"Error if occured." shared Throwable? error,
 	"Total time elapsed on the test." shared Integer elapsedTime,

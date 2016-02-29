@@ -37,4 +37,7 @@ shared class ChartBuilder (
 				format
 			);
 	
+	
+	shared actual String string => "ChartBuilder '``chartTitle``'";
+	
 }

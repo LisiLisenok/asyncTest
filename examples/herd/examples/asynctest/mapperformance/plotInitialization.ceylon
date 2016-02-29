@@ -8,7 +8,9 @@ import herd.asynctest.chart {
 	ConsoleReporter,
 	ReportFormat,
 	initializeCharts,
-	ChartDescription
+	ChartDescription,
+	CombinedReporter,
+	CSVReporter
 }
 import ceylon.test {
 
@@ -16,14 +18,22 @@ import ceylon.test {
 }
 
 
+"Reporter used by `plotInitialization`"
 shared [Reporter] generalReporter = [
-	ConsoleReporter (
-		ReportFormat( ", ", 0, 0, 0, 0 )
-	)
+	CombinedReporter {	
+		ConsoleReporter (
+			ReportFormat( ", ", 0, 0, 0, 0 )
+		),
+		CSVReporter (
+			ReportFormat( ", ", 0, 0, 0, 0 ),
+			"../report.csv",
+			true
+		)
+	}
 ];
 
 
-"Performs plots initialization"
+"Performs plots initialization."
 parameters( `value generalReporter` )
 shared void plotInitialization( TestInitContext context, Reporter reporter ) {
 	initializeCharts (
