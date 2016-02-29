@@ -1,9 +1,8 @@
 
 
-"summary result of variant execution"
+"Summary result of variant execution."
 by( "Lis" )
-class VariantTestOutput (
-	"outputs from test" shared TestOutput[] outs,
-	"total time elapsed on this test" shared Integer totalElapsedTime
-	
+final class VariantTestOutput (
+	"Outputs from test." shared TestOutput[] outs,
+	"Total time elapsed on this test." shared Integer totalElapsedTime
 ) {}

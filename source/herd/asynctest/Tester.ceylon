@@ -1,33 +1,28 @@
 import ceylon.collection {
-
 	ArrayList
 }
-import java.util.concurrent.atomic {
-
-	AtomicBoolean
-}
-import java.util.concurrent.locks {
-
-	ReentrantLock,
-	Condition
-}
-import ceylon.test {
-
-	TestState
-}
 import ceylon.language.meta.model {
-
 	IncompatibleTypeException,
 	InvocationException
 }
+import ceylon.test {
+	TestState
+}
 import ceylon.test.engine {
-
 	TestAbortedException,
 	TestSkippedException
 }
 
+import java.util.concurrent.atomic {
+	AtomicBoolean
+}
+import java.util.concurrent.locks {
+	ReentrantLock,
+	Condition
+}
 
-"performs a one test execution"
+
+"Performs a one test execution."
 by( "Lis" )
 class Tester( InitStorage inits ) satisfies AsyncTestContext
 {
@@ -39,10 +34,11 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	"condition behind this running"
 	Condition condition = locker.newCondition();
 
-	
-	ArrayList<TestOutput> output = ArrayList<TestOutput>();
-	"tasks locking"
+
+	"outputs locking"
 	ReentrantLock outputLocker = ReentrantLock();
+	"storage for reports"
+	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 
 	
 	variable Integer startTime = 0;
@@ -52,10 +48,11 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	shared Integer runInterval => if ( completeTime > startTime ) then completeTime - startTime else 0;
 	
 	
+	"adds new output to `outputs`"
 	void addOutput(	TestState state, Throwable? error, String title, String preamble = "" ) {
 		Integer elapsed = if ( startTime > 0 ) then system.milliseconds - startTime else 0;
 		outputLocker.lock();
-		try { output.add( TestOutput( state, error, elapsed, title, preamble ) ); }
+		try { outputs.add( TestOutput( state, error, elapsed, title, preamble ) ); }
 		finally { outputLocker.unlock(); }
 	}
 	
@@ -69,7 +66,7 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	
 	shared actual void complete( String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			if ( output.empty && !title.empty ) { addOutput( TestState.success, null, title ); }
+			if ( outputs.empty && !title.empty ) { addOutput( TestState.success, null, title ); }
 			completeTime = system.milliseconds;
 			if ( startTime == 0 ) { startTime = completeTime; }
 			if ( locker.tryLock() ) {
@@ -85,27 +82,53 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	shared actual Item[] getAll<Item>() => inits.retrieveAll<Item>();
 
 	
-	shared actual void assertTrue( Boolean condition, String message, String title ) {
-		if ( running.get() && !condition ) {
-			addOutput( TestState.failure, AssertionError( message ), title );
+	shared actual void succeed( String message ) {
+		if ( running.get() ) {
+			addOutput( TestState.success, null, message );
 		}
 	}
 	
-	shared actual void assertFalse( Boolean condition, String message, String title ) {
-		if ( running.get() && condition ) {
-			addOutput( TestState.failure, AssertionError( message ), title );
+	shared actual void assertTrue( Boolean condition, String message, String title, String? successMessage ) {
+		if ( running.get() ) {
+			if ( !condition ) {
+				addOutput( TestState.failure, AssertionError( message ), title );
+			}
+			else if ( exists str = successMessage ) {
+				succeed( str );
+			}
 		}
 	}
 	
-	shared actual void assertNull( Anything val, String message, String title ) {
-		if ( running.get() && val exists ) {
-			addOutput( TestState.failure, AssertionError( message ), title );
+	shared actual void assertFalse( Boolean condition, String message, String title, String? successMessage ) {
+		if ( running.get() ) {
+			if ( condition ) {
+				addOutput( TestState.failure, AssertionError( message ), title );
+			}
+			else if ( exists str = successMessage ) {
+				succeed( str );
+			}
 		}
 	}
 	
-	shared actual void assertNotNull( Anything val, String message, String title ) {
-		if ( running.get() && !val exists ) {
-			addOutput( TestState.failure, AssertionError( message ), title );
+	shared actual void assertNull( Anything val, String message, String title, String? successMessage ) {
+		if ( running.get() ) {
+			if ( val exists ) {
+				addOutput( TestState.failure, AssertionError( message ), title );
+			}
+			else if ( exists str = successMessage ) {
+				succeed( str );
+			}
+		}
+	}
+	
+	shared actual void assertNotNull( Anything val, String message, String title, String? successMessage ) {
+		if ( running.get() ) {
+			if ( !val exists ) {
+				addOutput( TestState.failure, AssertionError( message ), title );
+			}
+			else if ( exists str = successMessage ) {
+				succeed( str );
+			}
 		}
 	}
 
@@ -155,8 +178,8 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 			
 			outputLocker.lock();
 			try {
-				value ret = output.sequence();
-				output.clear();
+				value ret = outputs.sequence();
+				outputs.clear();
 				return ret;
 			}
 			finally { outputLocker.unlock(); }
@@ -165,5 +188,11 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 			return [];
 		}
 	}	
+	
+	
+	shared actual String string {
+		String compl = if ( running.get() ) then "running" else "completed";
+		return "AsyncTestContext, status: '``compl``', current number of reports = ``outputs.size``, running time = ``runInterval``";
+	}
 	
 }

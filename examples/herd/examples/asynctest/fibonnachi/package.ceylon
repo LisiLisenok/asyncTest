@@ -1,5 +1,5 @@
 "
- Testing of asynchronous calculation of Fibonnschi numbers.  
+ Testing of asynchronous calculation of Fibonnachi numbers.  
  Test is performed on [[asyncPositiveFibonnachiNumber]] using [[runFibonnachiTest]] test function.
  >Function [[positiveFibonnachiNumber]] returns incorrect results in order to demonstrate test framework output.
  "
