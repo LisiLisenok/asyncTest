@@ -32,6 +32,7 @@
  
  >Common initialization for a set of test functions can be performed using [[init]] annotation and [[TestInitContext]].
  
+ 
  >It is <i>not</i> required to notify with success,
   if test function doesn't notify on failure the test is considered as successfull.
 

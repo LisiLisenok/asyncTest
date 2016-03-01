@@ -10,7 +10,7 @@ import ceylon.language.meta.declaration {
 shared final annotation class InitAnnotation (
 	"The function declaration called to init.  
 	 The function has to take first argument of [[TestInitContext]] type
-	 and other arguments as specified by [[ceylon.test::parameters]] annotation if marked with."
+	 and other arguments as specified by `ceylon.test::parameters` annotation if marked with."
 	shared FunctionDeclaration initializer 
 )
 		satisfies OptionalAnnotation<InitAnnotation, FunctionDeclaration | ClassDeclaration | Package | Module> 
@@ -19,11 +19,11 @@ shared final annotation class InitAnnotation (
 }
 
 
-"Marks a test function (marked with [[ceylon.test::test]] also) with initializer.  
+"Marks a test function (marked with `ceylon.test::test` also) with initializer.  
  
  Initializer function has to take first argument of [[TestInitContext]] type.
- If initializer takes more arguments it has to be marked with [[ceylon.test::parameters]] annotation
- or another annotation which supports [[ceylon.test.engine.spi::ArgumentProvider]].    
+ If initializer takes more arguments it has to be marked with `ceylon.test::parameters` annotation
+ or another annotation which supports `ceylon.test.engine.spi::ArgumentProvider`.    
  
  [[AsyncTestExecutor]] invokes initializers just a once for a test run before test execution started.
  "

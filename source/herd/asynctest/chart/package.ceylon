@@ -12,6 +12,7 @@
  * [[CombinedReporter]] - reports to a given list of reporters
  * [[ConsoleReporter]] - reports to console
  * [[CSVReporter]] - reports to a file
+ 
  Another reporter can be implemented using [[Reporter]] interface.
  
  Recommended usage:
