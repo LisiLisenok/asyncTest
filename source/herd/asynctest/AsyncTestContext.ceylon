@@ -1,3 +1,7 @@
+import herd.asynctest.match {
+
+	Matcher
+}
 
 "
  Provides interaction with asynchronous test executor.
@@ -69,7 +73,7 @@ shared interface AsyncTestContext
 	shared formal void assertTrue (
 		"The condition to be checked." Boolean condition,
 		"Message to be put to `AssertionError`." String message,
-		"Title to be shown at test name." String title = "",
+		"Optional title to be shown at test name." String title = "",
 		"Optional message if verification is accepted" String? successMessage = null
 	);
 	
@@ -78,7 +82,7 @@ shared interface AsyncTestContext
 	shared formal void assertFalse (
 		"The condition to be checked." Boolean condition,
 		"Message to be put to `AssertionError`." String message,
-		"Title to be shown at test name." String title = "",
+		"Optional title to be shown at test name." String title = "",
 		"Optional message if verification is accepted" String? successMessage = null
 	);
 	
@@ -87,7 +91,7 @@ shared interface AsyncTestContext
 	shared formal void assertNull (
 		"The value to be checked." Anything val,
 		"Message to be put to `AssertionError`." String message,
-		"Title to be shown at test name." String title = "",
+		"Optional title to be shown at test name." String title = "",
 		"Optional message if verification is accepted" String? successMessage = null
 	);
 	
@@ -96,20 +100,37 @@ shared interface AsyncTestContext
 	shared formal void assertNotNull (
 		"The value to be checked." Anything val,
 		"Message to be put to `AssertionError`." String message,
-		"Title to be shown at test name." String title = "",
+		"Optional title to be shown at test name." String title = "",
 		"Optional message if verification is accepted" String? successMessage = null
 	);
+	
+	
+	"Fails the test if `val` doesn't match `matcher` or succeds the test otherwise."
+	shared formal void assertThat<Value> (
+		"Value to be matched." Value val,
+		"Performs checking." Matcher<Value> matcher,
+		"Optional title to be shown at test name." String title = ""
+	);
+	
 	
 	"Fails the test with either `AssertionError` or `Exception`."
 	shared formal void fail (
 		"Reason fails this test." Throwable reason,
-		"Title to be shown at test name." String title = ""
+		"Optional title to be shown at test name." String title = ""
 	);
+	
 	
 	"Aborts the test, which means that some test conditions are not met."
 	shared formal void abort (
 		"Optional error of the aborting." Throwable? reason = null,
-		"Title to be shown at test name." String title = ""
+		"Optional title to be shown at test name." String title = ""
+	);
+	
+	"Aborts the test if `val` doesn't match `matcher` or succeds the test otherwise."
+	shared formal void abortThat<Value> (
+		"Value to be matched." Value val,
+		"Performs checking." Matcher<Value> matcher,
+		"Optional title to be shown at test name." String title = ""
 	);
 	
 }

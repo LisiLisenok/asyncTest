@@ -7,7 +7,10 @@ import ceylon.language.meta.declaration {
 	ClassDeclaration
 }
 import ceylon.test {
-	TestDescription
+	TestDescription,
+	TestResult,
+	TestState,
+	TestListener
 }
 import ceylon.test.annotation {
 	TestExecutorAnnotation
@@ -24,6 +27,15 @@ import java.util.concurrent {
 	Executors,
 	ExecutorService
 }
+import ceylon.test.event {
+
+	TestStartedEvent,
+	TestFinishedEvent
+}
+import java.util.concurrent.locks {
+
+	ReentrantLock
+}
 
 
 "Performs test initialization and execution."
@@ -39,6 +51,10 @@ object asyncTestRunner {
 	
 	"concurrently executed tests"
 	ArrayList<RunnableTestContext> concurrentTests = ArrayList<RunnableTestContext>();
+	
+	
+	"Locks results filling."
+	ReentrantLock fillLocker = ReentrantLock();
 	
 	
 	"total number of tests"
@@ -104,13 +120,11 @@ object asyncTestRunner {
 			}
 			concurrentTests.clear();
 		}
-		
 		// run sequential tests
 		for ( test in sequentialTests ) {
 			test.runTest();
 		}
 		sequentialTests.clear();
-		
 		testNumber = -1;
 		
 		// dispose all initis
@@ -168,6 +182,54 @@ object asyncTestRunner {
 		}
 	}
 	
+	
+	"Fills results of the test to execution context. Here in order to avoind race conditions when filling to test runner."
+	shared void fillTestResults (
+		"Context to be filled with results." TestExecutionContext context,
+		"Test results." TestOutput[] results,
+		"Total test elapsed time." Integer runInterval
+	) {
+		fillLocker.lock();
+		try { doFillTestResults( context, results, runInterval ); }
+		finally { fillLocker.unlock(); }
+	}
+	
+	"Performs results filling."	
+	void doFillTestResults (
+		"Context to be filled with results." TestExecutionContext context,
+		"Test results." TestOutput[] results,
+		"Total test elapsed time." Integer runInterval
+	) {
+		TestDescription runDescription = context.description;
+		context.fire().testStarted( TestStartedEvent( runDescription ) );
+		if ( nonempty results ) {
+			variable Integer index = 0;
+			for ( res in results ) {
+				String str = if ( res.title.empty ) then res.state.string else res.state.string + ": " + res.title;
+				String title = if ( res.prefix.empty ) then str else res.prefix + " - " + str;
+				TestDescription variant = runDescription.forVariant( title, ++ index );
+				TestExecutionContext child = context.childContext( variant );
+				TestListener listener = child.fire();
+				listener.testStarted( TestStartedEvent( variant ) );
+				listener.testFinished( TestFinishedEvent(
+					TestResult( variant, res.state, false, res.error, res.elapsedTime )
+				) );
+			}
+			variable TestState state = results.first.state;
+			for ( item in results.rest ) {
+				if ( item.state > state ) { state = item.state; }
+			}
+			context.fire().testFinished (
+				TestFinishedEvent( TestResult( runDescription, state, true, null, runInterval ) )
+			);
+		}
+		else {
+			context.fire().testFinished (
+				TestFinishedEvent( TestResult( runDescription, TestState.success, false, null, runInterval ) )
+			);
+		}
+	}
+
 	
 	"`true` if execution isperformed using `AsyncTestExecutor`"
 	Boolean isAsyncExecutedTest( FunctionDeclaration functionDeclaration ) {

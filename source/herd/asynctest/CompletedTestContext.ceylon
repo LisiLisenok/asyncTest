@@ -18,7 +18,7 @@ class CompletedTestContext(
 	
 	shared actual void runTest() {
 		TestExecutionContext context = parent.childContext( description );
-		fillTestResults( context, results.outs, results.totalElapsedTime );
+		asyncTestRunner.fillTestResults( context, results.outs, results.totalElapsedTime );
 	}
 	
 }

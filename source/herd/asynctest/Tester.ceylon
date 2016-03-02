@@ -20,6 +20,12 @@ import java.util.concurrent.locks {
 	ReentrantLock,
 	Condition
 }
+import herd.asynctest.match {
+
+	Matcher,
+	Accepted,
+	Rejected
+}
 
 
 "Performs a one test execution."
@@ -132,6 +138,17 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 		}
 	}
 
+	shared actual void assertThat<Value>( Value val, Matcher<Value> matcher, String title ) {
+		value m = matcher.match( val );
+		switch ( m )
+		case ( is Accepted ) {
+			addOutput( TestState.success, null, title + " - " + m.string );
+		}
+		case ( is Rejected ) {
+			addOutput( TestState.failure, AssertionError( m.string ), title );
+		}
+	}
+
 	
 	shared actual void fail( Throwable reason, String title ) {
 		if ( running.get() ) {
@@ -146,6 +163,12 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	
 	shared actual void abort( Throwable? reason, String title ) {
 		if ( running.get() ) { addOutput( TestState.aborted, reason, title ); }
+	}
+		
+	shared actual void abortThat<Value>( Value val, Matcher<Value> matcher, String title ) {
+		if ( is Rejected m = matcher.match( val ) ) {
+			addOutput( TestState.aborted, AssertionError( m.string ), title );
+		}
 	}
 	
 	

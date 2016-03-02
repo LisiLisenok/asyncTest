@@ -90,7 +90,7 @@ class DeferredTestContext (
 	"Executes variant and fills results."
 	void executeAndFillVariant( InitStorage inits, TestExecutionContext context, Anything[] args ) {
 		value res = executeVariant( inits, context, args );
-		fillTestResults( context, res.outs, res.totalElapsedTime );
+		asyncTestRunner.fillTestResults( context, res.outs, res.totalElapsedTime );
 	}
 	
 	"Executes a number of variants."
@@ -102,19 +102,23 @@ class DeferredTestContext (
 			elapsedTime += res.totalElapsedTime;
 			String prefix = variantName( args );
 			if ( res.outs.empty ) {
-				outs.add( TestOutput ( TestState.success, null, res.totalElapsedTime, "", prefix ) );
+				outs.add( TestOutput( TestState.success, null, res.totalElapsedTime, "", prefix ) );
 			}
 			else {
 				outs.addAll (
 					res.outs.map (
-						( TestOutput testOutput ) => TestOutput (
-							testOutput.state, testOutput.error, testOutput.elapsedTime, testOutput.title, prefix
-						)
+						( TestOutput testOutput ) {
+							String prefStr = if ( testOutput.prefix.empty )
+									then prefix else prefix + ", " + testOutput.prefix; 
+							return TestOutput (
+								testOutput.state, testOutput.error, testOutput.elapsedTime, testOutput.title, prefStr
+							);
+						}
 					)
 				);
 			}
 		}
-		fillTestResults( context, outs.sequence(), elapsedTime );
+		asyncTestRunner.fillTestResults( context, outs.sequence(), elapsedTime );
 	}
 	
 	
