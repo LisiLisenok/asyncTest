@@ -10,8 +10,23 @@ is an extension to SDK `ceylon.test` module with following capabilities:
 * reporting test results using charts (or graphs)
  
 The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/herd.asynctest)
+
  
- 
+#### Ceylon compiler
+
+Compiled with Ceylon 1.2.1  
+Available on JVM only
+
+
+#### Dependencies
+
+* ceylon.collection/1.2.1
+* ceylon.file/1.2.1
+* ceylon.language/1.2.1
+* ceylon.test/1.2.1 shared
+* java.base/8 JDK
+
+
 #### Usage and documentation
  
 The extension is aimed to be run using Ceylon test tool.  
@@ -20,7 +35,7 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
  
 #### Examples
  
-* Test of [Fibonnachi numbers calculation](examples/herd/examples/asynctest/fibonnachi).
+* Test of [Fibonacci numbers calculation](examples/herd/examples/asynctest/fibonacci).
   Calculation function is executed on separated thread and returns results using `ceylon.promise`.
 * [Time scheduler](examples/herd/examples/asynctest/scheduler) testing.
 * [Microbenchmark](examples/herd/examples/asynctest/mapperformance) -
