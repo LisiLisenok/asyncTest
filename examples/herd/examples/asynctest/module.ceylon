@@ -1,6 +1,6 @@
 
 "Contains some examples of `asyncTest` usage:
- * [[package herd.examples.asynctest.fibonnachi]] - test of calculation of Fibonnachi numbers in separated thread
+ * [[package herd.examples.asynctest.fibonacci]] - test of calculation of Fibonacci numbers in separated thread
  * [[package herd.examples.asynctest.scheduler]] - time scheduler testing
  * [[package herd.examples.asynctest.mapperformance]] - comparative performance test of Ceylon - Java HashMap and TreeMap
  "
