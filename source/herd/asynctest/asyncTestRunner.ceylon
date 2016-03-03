@@ -186,48 +186,70 @@ object asyncTestRunner {
 	"Fills results of the test to execution context. Here in order to avoind race conditions when filling to test runner."
 	shared void fillTestResults (
 		"Context to be filled with results." TestExecutionContext context,
-		"Test results." TestOutput[] results,
+		"Test results." TestOutput[] testOutputs,
 		"Total test elapsed time." Integer runInterval
 	) {
-		fillLocker.lock();
-		try { doFillTestResults( context, results, runInterval ); }
-		finally { fillLocker.unlock(); }
-	}
-	
-	"Performs results filling."	
-	void doFillTestResults (
-		"Context to be filled with results." TestExecutionContext context,
-		"Test results." TestOutput[] results,
-		"Total test elapsed time." Integer runInterval
-	) {
+		testStartEvent( context );
 		TestDescription runDescription = context.description;
-		context.fire().testStarted( TestStartedEvent( runDescription ) );
-		if ( nonempty results ) {
+		if ( nonempty testOutputs ) {
 			variable Integer index = 0;
-			for ( res in results ) {
-				String str = if ( res.title.empty ) then res.state.string else res.state.string + ": " + res.title;
-				String title = if ( res.prefix.empty ) then str else res.prefix + " - " + str;
-				TestDescription variant = runDescription.forVariant( title, ++ index );
-				TestExecutionContext child = context.childContext( variant );
-				TestListener listener = child.fire();
-				listener.testStarted( TestStartedEvent( variant ) );
-				listener.testFinished( TestFinishedEvent(
-					TestResult( variant, res.state, false, res.error, res.elapsedTime )
-				) );
+			for ( res in testOutputs ) {
+				testVariantResultEvent( context, res, ++ index );
 			}
-			variable TestState state = results.first.state;
-			for ( item in results.rest ) {
+			variable TestState state = testOutputs.first.state;
+			for ( item in testOutputs.rest ) {
 				if ( item.state > state ) { state = item.state; }
 			}
-			context.fire().testFinished (
-				TestFinishedEvent( TestResult( runDescription, state, true, null, runInterval ) )
+			testFinishEvent (
+				context,
+				TestResult( runDescription, state, true, null, runInterval )
 			);
 		}
 		else {
-			context.fire().testFinished (
-				TestFinishedEvent( TestResult( runDescription, TestState.success, false, null, runInterval ) )
+			testFinishEvent (
+				context,
+				TestResult( runDescription, TestState.success, false, null, runInterval )
 			);
 		}
+		
+	}
+	
+	"Fills test start event."
+	shared void testStartEvent( "Context to be filled with results." TestExecutionContext context ) {
+		fillLocker.lock();
+		try {
+			context.fire().testStarted( TestStartedEvent( context.description ) );
+		}
+		finally { fillLocker.unlock(); }
+	}
+	
+	"Fills with test variant results"
+	shared void testVariantResultEvent (
+		"Context to be filled with results." TestExecutionContext context,
+		"Test output to be filled as variant result." TestOutput testOutput,
+		"Variant index." Integer index
+	) {
+		fillLocker.lock();
+		try {
+			TestDescription variant = context.description.forVariant( testOutput.title, index );
+			TestExecutionContext child = context.childContext( variant );
+			TestListener listener = child.fire();
+			listener.testStarted( TestStartedEvent( variant ) );
+			listener.testFinished( TestFinishedEvent(
+				TestResult( variant, testOutput.state, false, testOutput.error, testOutput.elapsedTime )
+			) );
+		}
+		finally { fillLocker.unlock(); }
+	}
+	
+	"Fills with test finish event."
+	shared void testFinishEvent (
+		"Context to be filled with results." TestExecutionContext context,
+		"Results of the test." TestResult testResult
+	) {
+		fillLocker.lock();
+		try { context.fire().testFinished( TestFinishedEvent( testResult ) ); }
+		finally { fillLocker.unlock(); }
 	}
 
 	

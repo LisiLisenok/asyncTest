@@ -1,6 +1,3 @@
-import ceylon.collection {
-	ArrayList
-}
 import ceylon.language.meta.declaration {
 	FunctionDeclaration,
 	ClassDeclaration,
@@ -93,32 +90,41 @@ class DeferredTestContext (
 		asyncTestRunner.fillTestResults( context, res.outs, res.totalElapsedTime );
 	}
 	
-	"Executes a number of variants."
 	void executeVariants( InitStorage inits, TestExecutionContext context, {Anything[]*} argsVariants ) {
 		variable Integer elapsedTime = 0;
-		ArrayList<TestOutput> outs = ArrayList<TestOutput>(); 
+		asyncTestRunner.testStartEvent( context );
+		variable TestState state = TestState.skipped;
+		variable Integer index = 1;
 		for ( args in argsVariants ) {
-			value res = executeVariant( inits, context, args );
-			elapsedTime += res.totalElapsedTime;
-			String prefix = variantName( args );
-			if ( res.outs.empty ) {
-				outs.add( TestOutput( TestState.success, null, res.totalElapsedTime, "", prefix ) );
+			value executionResults = executeVariant( inits, context, args );
+			elapsedTime += executionResults.totalElapsedTime;
+			String varName = variantName( args );
+			if ( executionResults.outs.empty ) {
+				asyncTestRunner.testVariantResultEvent (
+					context,
+					TestOutput( TestState.success, null, executionResults.totalElapsedTime, "``varName`` - ``TestState.success``" ),
+					index ++
+				);
+				if ( state < TestState.success ) { state = TestState.success; }
 			}
 			else {
-				outs.addAll (
-					res.outs.map (
-						( TestOutput testOutput ) {
-							String prefStr = if ( testOutput.prefix.empty )
-									then prefix else prefix + ", " + testOutput.prefix; 
-							return TestOutput (
-								testOutput.state, testOutput.error, testOutput.elapsedTime, testOutput.title, prefStr
-							);
-						}
-					)
-				);
+				for ( variantOutput in executionResults.outs ) {
+					String strTitle =	if ( variantOutput.title.empty )
+										then " - ``variantOutput.state``"
+										else " - ``variantOutput.state``: ``variantOutput.title``";
+					asyncTestRunner.testVariantResultEvent (
+						context,
+						TestOutput (
+							variantOutput.state, variantOutput.error, variantOutput.elapsedTime,
+							"``varName````strTitle``"
+						),
+						index ++
+					);
+					if ( state < variantOutput.state ) { state = variantOutput.state; }
+				}
 			}
 		}
-		asyncTestRunner.fillTestResults( context, outs.sequence(), elapsedTime );
+		asyncTestRunner.testFinishEvent( context, TestResult( context.description, state, true, null, elapsedTime ) );
 	}
 	
 	
@@ -192,11 +198,12 @@ class DeferredTestContext (
 	
 	String variantName( Anything[] args ) {
 		StringBuilder builder = StringBuilder();
-		if ( args.size > 1 ) { builder.append( "parameters (" ); }
+		Integer size = args.size - 1;
+		if ( size > 0 ) { builder.append( "parameters (" ); }
 		else { builder.append( "parameter (" ); }
 		for( arg in args.indexed ) {
 			builder.append( stringify( arg.item ) );
-			if( arg.key < args.size - 1 ) {
+			if( arg.key < size ) {
 				builder.append(", ");
 			}
 		}

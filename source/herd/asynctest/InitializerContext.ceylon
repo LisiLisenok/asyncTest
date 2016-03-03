@@ -41,9 +41,8 @@ class InitializerContext() satisfies TestInitContext
 	shared actual void abort( Throwable reason, String title ) {
 		if ( running.compareAndSet( true, false ) ) {
 			inits.dispose();
-			String prefix = if ( title.empty ) then "initialization" else "";
-			String msg = if ( title.empty ) then "" else "inittialization '``title``'";
-			abortOuts = VariantTestOutput( [TestOutput( TestState.aborted, reason, 0, msg, prefix )], 0 );
+			String msg = if ( title.empty ) then "initialization" else "inittialization '``title``'";
+			abortOuts = VariantTestOutput( [TestOutput( TestState.aborted, reason, 0, msg )], 0 );
 			if ( locker.tryLock() ) {
 				try { condition.signal(); }
 				finally { locker.unlock(); }
@@ -84,7 +83,7 @@ class InitializerContext() satisfies TestInitContext
 				else { return inits; }
 			}
 			catch ( Throwable err ) {
-				return VariantTestOutput( [TestOutput( TestState.aborted, err, 0, "", "init" )], 0 );
+				return VariantTestOutput( [TestOutput( TestState.aborted, err, 0, "initialization" )], 0 );
 			}
 			finally {
 				locker.unlock();
@@ -94,8 +93,8 @@ class InitializerContext() satisfies TestInitContext
 			return VariantTestOutput (
 				[TestOutput (
 					TestState.aborted,
-					IncompatibleTypeException( "initialized function ``declaration`` has to be top level" )
-					, 0, "", "init"
+					IncompatibleTypeException( "initialized function ``declaration`` has to be top level" ),
+					0, "initialization"
 				)],
 				0
 			);
