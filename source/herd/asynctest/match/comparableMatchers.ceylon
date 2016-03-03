@@ -1,6 +1,6 @@
 
 
-"Matching value to be greater than given `merit`."
+"Verifies if matching value is greater than given `merit`."
 by( "Lis" )
 shared class Greater<Value> (
 	"Value to compare with matching one." Value merit
@@ -8,9 +8,7 @@ shared class Greater<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
- 	shared actual Matching match( Value val ) {
- 		return if ( val > merit ) then Accepted( "``val`` > ``merit``" ) else Rejected( "``val`` > ``merit``" );
- 	}
+ 	shared actual MatchResult match( Value val ) => MatchResult( "``val`` > ``merit``", val > merit );
 
  	shared actual String string {
  		value tVal = `Value`;
@@ -19,7 +17,7 @@ shared class Greater<Value> (
 }
 
 
-"Matching value to be less than given `merit`."
+"Verifies if matching value is less than given `merit`."
 by( "Lis" )
 shared class Less<Value> (
 	"Value to compare with matching one." Value merit
@@ -27,9 +25,7 @@ shared class Less<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual Matching match( Value val ) {
-		return if ( val < merit ) then Accepted( "``val`` < ``merit``" ) else Rejected( "``val`` < ``merit``" );
-	}
+	shared actual MatchResult match( Value val ) => MatchResult( "``val`` < ``merit``", val < merit );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -38,7 +34,7 @@ shared class Less<Value> (
 }
 
 
-"Matching value to be less or equal to given `merit`."
+"Verifies if matching value is less or equal to given `merit`."
 by( "Lis" )
 shared class LessOrEqual<Value> (
 	"Value to compare with matching one." Value merit
@@ -46,9 +42,7 @@ shared class LessOrEqual<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual Matching match( Value val ) {
-		return if ( val > merit ) then Rejected( "``val`` <= ``merit``" ) else Accepted( "``val`` <= ``merit``" );
-	}
+	shared actual MatchResult match( Value val ) => MatchResult( "``val`` <= ``merit``", val <= merit );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -57,7 +51,7 @@ shared class LessOrEqual<Value> (
 }
 
 
-"Matching value to be greater or equal to given `merit`."
+"Verifies if matching value is greater or equal to given `merit`."
 by( "Lis" )
 shared class GreaterOrEqual<Value> (
 	"Value to compare with matching one." Value merit
@@ -65,9 +59,7 @@ shared class GreaterOrEqual<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual Matching match( Value val ) {
-		return if ( val < merit ) then Rejected( "``val`` >= ``merit``" ) else Accepted( "``val`` >= ``merit``" );
-	}
+	shared actual MatchResult match( Value val ) => MatchResult( "``val`` >= ``merit``", val >= merit );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -76,7 +68,7 @@ shared class GreaterOrEqual<Value> (
 }
 
 
-"Matching value to be not within given range `lower` to `upper` excluding bounds.
+"Verifies if matching value is within given range of `lower` to `upper` excluding bounds.
  This is equal to greater(lower).and(less(upper))."
 by( "Lis" )
 shared class Within<Value> (
@@ -86,11 +78,8 @@ shared class Within<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual Matching match( Value val ) {
-		return	if ( val > lower && val < upper )
-				then Accepted( "``val`` is within ``lower`` to ``upper`` excluding bounds" )
-				else Rejected( "``val`` is within ``lower`` to ``upper`` excluding bounds" );
-	}
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``val`` is within ``lower`` to ``upper`` excluding bounds", val > lower && val < upper );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -99,7 +88,7 @@ shared class Within<Value> (
 }
 
 
-"Matching value to be not within given range `lower` to `upper` including bounds.
+"Verifies if matching value is within given range of `lower` to `upper` including bounds.
  This is equal to greaterOrEqual(lower).and(lessOrEqual(upper))."
 by( "Lis" )
 shared class Ranged<Value> (
@@ -109,11 +98,8 @@ shared class Ranged<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual Matching match( Value val ) {
-		return	if ( val >= lower && val <= upper )
-		then Accepted( "``val`` is within ``lower`` to ``upper`` including bounds" )
-		else Rejected( "``val`` is within ``lower`` to ``upper`` including bounds" );
-	}
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``val`` is within ``lower`` to ``upper`` including bounds", val >= lower && val <= upper );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -122,7 +108,7 @@ shared class Ranged<Value> (
 }
 
 
-"Matching value to be equal to `merit`."
+"Verifies if matching value is equal to `merit`."
 by( "Lis" )
 shared class EqualTo<Value> (
 	"Value to compare with matching one." Value merit
@@ -130,11 +116,8 @@ shared class EqualTo<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual Matching match( Value val ) {
-		return	if ( ( val <=> merit ) == equal )
-				then Accepted( "``val`` == ``merit``" )
-				else Rejected( "``val`` == ``merit``" );
-	}
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``val`` == ``merit``", ( val <=> merit ) == equal );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -143,7 +126,7 @@ shared class EqualTo<Value> (
 }
 
 
-"Matching value to be not equal to `merit`."
+"Verifies if matching value is not equal to `merit`."
 by( "Lis" )
 shared class NotEqualTo<Value> (
 	"Value to compare with matching one." Value merit
@@ -151,9 +134,8 @@ shared class NotEqualTo<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual Matching match( Value val ) {
-		return if ( val == merit ) then Rejected( "``val`` != ``merit``" ) else Accepted( "``val`` != ``merit``" );
-	}
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``val`` != ``merit``", ( val <=> merit ) != equal );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -162,7 +144,7 @@ shared class NotEqualTo<Value> (
 }
 
 
-"Matching value to be close to `merit` with the given `tolerance`."
+"Verifies if matching value is close to `merit` with the given `tolerance`."
 by( "Lis" )
 shared class CloseTo<Value> (
 	"Value to compare with matching one." Value merit,
@@ -171,11 +153,11 @@ shared class CloseTo<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value> & Number<Value>
 {
-	shared actual Matching match( Value val ) {
-		return	if ( ( val - merit ).magnitude < tolerance )
-				then Accepted( "``val`` close ``merit`` with tolerance ``tolerance``" )
-				else Rejected( "``val`` close ``merit`` with tolerance ``tolerance``" );
-	}
+	shared actual MatchResult match( Value val )
+			=> MatchResult (
+				"``val`` close ``merit`` with tolerance ``tolerance``",
+				( val - merit ).magnitude < tolerance
+			);
 
 	shared actual String string => "close with tolerance ``tolerance``";
 }

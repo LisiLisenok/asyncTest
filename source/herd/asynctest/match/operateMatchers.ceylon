@@ -1,11 +1,11 @@
 
 
-"Maps matching value to another one using `convert` and passes converted to the given `matcher`."
+"Maps matching value to another one using `convert` and passes converted value to the given `matcher`."
 by( "Lis" )
 shared class Mapping<From, To>( To convert( From val ), Matcher<To> matcher )
 		satisfies Matcher<From>
 {
-	shared actual Matching match( From val ) {
+	shared actual MatchResult match( From val ) {
 		return matcher.match( convert( val ) );
 	}
 	
@@ -23,12 +23,12 @@ by( "Lis" )
 shared class MapIfExists<From, To>( To convert( From&Object val ), Matcher<To> matcher )
 		satisfies Matcher<From>
 {
-	shared actual Matching match( From val ) {
+	shared actual MatchResult match( From val ) {
 		if ( exists from = val ) {
 			return matcher.match( convert( from ) );
 		}
 		else {
-			return Rejected( "``string`` got <null>" );
+			return MatchResult( "``string`` got <null>", false );
 		}
 	}
 	
@@ -40,19 +40,19 @@ shared class MapIfExists<From, To>( To convert( From&Object val ), Matcher<To> m
 }
 
 
-"Pass value matching to the given `matcher` if the value is not `null`.  
+"Pass matching value to the given `matcher` if the value is not `null`.  
  Rejects matching if the value is `null`."
 by( "Lis" )
 shared class PassExisted<Value>( Matcher<Value> matcher )
 		satisfies Matcher<Value?>
 		given Value satisfies Object
 {
-	shared actual Matching match( Value? val ) {
+	shared actual MatchResult match( Value? val ) {
 		if ( exists from = val ) {
 			return matcher.match( from );
 		}
 		else {
-			return Rejected( "``string`` got <null>" );
+			return MatchResult( "``string`` got <null>", false );
 		}
 	}
 	
@@ -63,7 +63,7 @@ shared class PassExisted<Value>( Matcher<Value> matcher )
 }
 
 
-"Matching value to be equal to `merit` using `==`."
+"Verifies if matching value equals to `merit` using operator `==`."
 by( "Lis" )
 shared class EqualObjects<Value> (
 	"Value to compare with matching one." Value merit
@@ -71,9 +71,7 @@ shared class EqualObjects<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Object
 {
-	shared actual Matching match( Value val ) {
-		return if ( val == merit ) then Accepted( "``val`` == ``merit``" ) else Rejected( "``val`` == ``merit``" );
-	}
+	shared actual MatchResult match( Value val ) => MatchResult( "``val`` == ``merit``", val == merit );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -82,7 +80,7 @@ shared class EqualObjects<Value> (
 }
 
 
-"Matching value to be equal to `merit` using `===`."
+"Verifies if matching value is identical to `merit` using operator `===`."
 by( "Lis" )
 shared class Identical<Value> (
 	"Value to compare with matching one." Value merit
@@ -90,9 +88,7 @@ shared class Identical<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Identifiable
 {
-	shared actual Matching match( Value val ) {
-		return if ( val === merit ) then Accepted( "``val`` == ``merit``" ) else Rejected( "``val`` == ``merit``" );
-	}
+	shared actual MatchResult match( Value val ) => MatchResult( "``val`` === ``merit``", val === merit );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -101,16 +97,14 @@ shared class Identical<Value> (
 }
 
 
-"Matching value to be of `Check` type."
+"Verifies if matching value is of `Check` type."
 by( "Lis" )
 shared class IsType<Value, Check>()
 		satisfies Matcher<Value>
 {
-	shared actual Matching match( Value val ) {
+	shared actual MatchResult match( Value val ) {
 		value tCheck = `Check`;
-		return	if ( is Check val )
-				then Accepted( "``val else "<null>"`` is ``tCheck``" )
-				else Rejected( "``val else "<null>"`` is ``tCheck``" );
+		return MatchResult( "``val else "<null>"`` is ``tCheck``", if ( is Check val ) then true else false );
 	}
 
 	shared actual String string {
@@ -120,54 +114,38 @@ shared class IsType<Value, Check>()
 }
 
 
-"Matching value to be `null`."
+"Verifies if matching value is `null`."
 by( "Lis" )
 shared class IsNull() satisfies Matcher<Anything>
 {
-	shared actual Matching match( Anything val ) {
-		return	if ( exists t = val )
-		then Rejected( "``t`` is not <null>" )
-		else Accepted( "is <null>" );
-	}
+	shared actual MatchResult match( Anything val ) => MatchResult( "``val else "<null>"`` is <null>", !val exists );
 	
 	shared actual String string => "is <null>";
 }
 
 
-"Matching value to be not `null`."
+"Verifies if matching value is not `null`."
 by( "Lis" )
 shared class IsNotNull() satisfies Matcher<Anything> {
-	shared actual Matching match( Anything val ) {
-		return	if ( exists t = val )
-		then Accepted( "``t`` is not <null>" )
-		else Rejected( "is <null>" );
-	}
+	shared actual MatchResult match( Anything val ) => MatchResult( "``val else "<null>"`` is not <null>", val exists );
 
 	shared actual String string => "is not <null>";
 }
 
 
-"Matching value to be `true`."
+"Verifies if matching value is `true`."
 by( "Lis" )
 shared class IsTrue() satisfies Matcher<Boolean> {
-	shared actual Matching match( Boolean val ) {
-		return	if ( val )
-		then Accepted( "is <true>" )
-		else Rejected( "is <false>" );
-	}
+	shared actual MatchResult match( Boolean val ) => MatchResult( "is <true>", val );
 
 	shared actual String string => "is <true>";
 }
 
 
-"Matching value to be `false`."
+"Verifies if matching value is `false`."
 by( "Lis" )
 shared class IsFalse() satisfies Matcher<Boolean> {
-	shared actual Matching match( Boolean val ) {
-		return	if ( val )
-		then Rejected( "is <true>" )
-		else Accepted( "is <false>" );
-	}
+	shared actual MatchResult match( Boolean val ) => MatchResult( "is <false>", !val );
 
 	shared actual String string => "is <false>";
 }

@@ -8,8 +8,6 @@ import herd.asynctest {
 }
 import herd.asynctest.match {
 
-	CloseTo,
-	Less,
 	Greater
 }
 

@@ -1,15 +1,13 @@
 
 
-"Matching `List` to start from the given `subList`."
+"Verifies if matching `List` value starts with the given `subList`."
 by( "Lis" )
-shared class StartsWith<Value>( List<Value> subList )
+shared class StartsWith<Value>( "Sublist matching value to start with." List<Value> subList )
 		satisfies Matcher<List<Value>>
 {
-	shared actual Matching match( List<Value> val ) {
+	shared actual MatchResult match( List<Value> val ) {
 		value tVal = `Value`;
-		return	if ( val.startsWith( subList ) )
-		then Accepted( "list of <``tVal``> starts with" )
-		else Rejected( "list of <``tVal``> starts with" );
+		return MatchResult( "list of <``tVal``> starts with", val.startsWith( subList ) );
 	}
 	
 	shared actual String string {
@@ -19,16 +17,14 @@ shared class StartsWith<Value>( List<Value> subList )
 }
 
 
-"Matching `List` to end by the given `subList`."
+"Verifies if matching `List` value ends with the given `subList`."
 by( "Lis" )
-shared class EndsWith<Value>( List<Value> subList )
+shared class EndsWith<Value>( "Sublist matching value to end with." List<Value> subList )
 		satisfies Matcher<List<Value>>
 {
-	shared actual Matching match( List<Value> val ) {
+	shared actual MatchResult match( List<Value> val ) {
 		value tVal = `Value`;
-		return	if ( val.endsWith( subList ) )
-		then Accepted( "list of <``tVal``> ends with" )
-		else Rejected( "list of <``tVal``> ends with" );
+		return MatchResult( "list of <``tVal``> ends with", val.endsWith( subList ) );
 	}
 	
 	shared actual String string {
@@ -38,16 +34,14 @@ shared class EndsWith<Value>( List<Value> subList )
 }
 
 
-"Matching `List` to be beginning of the given `list`."
+"Verifies if matching `List` value is beginning point of the given `list`."
 by( "Lis" )
-shared class Beginning<Value>( List<Value> list )
+shared class Beginning<Value>( "List to start with matching value." List<Value> list )
 		satisfies Matcher<List<Value>>
 {
-	shared actual Matching match( List<Value> val ) {
+	shared actual MatchResult match( List<Value> val ) {
 		value tVal = `Value`;
-		return	if ( list.startsWith( val ) )
-		then Accepted( "beginning list of <``tVal``>" )
-		else Rejected( "beginning list of <``tVal``>" );
+		return MatchResult( "beginning list of <``tVal``>", list.startsWith( val ) );
 	}
 	
 	shared actual String string {
@@ -57,16 +51,14 @@ shared class Beginning<Value>( List<Value> list )
 }
 
 
-"Matching `List` to be finishing of the given `list`."
+"Verifies if matching `List` value is finishing point of the given `list`."
 by( "Lis" )
 shared class Finishing<Value>( List<Value> list )
 		satisfies Matcher<List<Value>>
 {
-	shared actual Matching match( List<Value> val ) {
+	shared actual MatchResult match( "List to end with matching value."List<Value> val ) {
 		value tVal = `Value`;
-		return	if ( list.endsWith( val ) )
-		then Accepted( "finishing list of <``tVal``>" )
-		else Rejected( "finishing list of <``tVal``>" );
+		return MatchResult( "finishing list of <``tVal``>", list.endsWith( val ) );
 	}
 	
 	shared actual String string {

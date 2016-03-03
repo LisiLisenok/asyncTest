@@ -1,75 +1,70 @@
 
-"Matching `Iterable` to be empty."
+"Verifies if matching stream of `Iterable` is empty."
 by( "Lis" )
 shared class Empty() satisfies Matcher<{Anything*}>
 {
-	shared actual Matching match( {Anything*} val ) {
-		return if ( val.empty ) then Accepted( "empty" ) else Rejected( "not empty" );
-	}
+	shared actual MatchResult match( {Anything*} val ) => MatchResult( "empty", val.empty );
 	
-	shared actual String string => "empty list";
+	shared actual String string => "empty stream";
+}
+
+"Verifies if matching stream of `Iterable` is not empty."
+by( "Lis" )
+shared class NotEmpty() satisfies Matcher<{Anything*}>
+{
+	shared actual MatchResult match( {Anything*} val ) => MatchResult( "not empty", !val.empty );
+	
+	shared actual String string => "not empty stream";
 }
 
 
-"Matching `Iterable` to be of the given `size`."
+"Merifies if matching stream of `Iterable` has the given `size`."
 by( "Lis" )
-shared class SizeOf( "Target size the list to be exactly." Integer size ) satisfies Matcher<{Anything*}>
+shared class SizeOf( "Target size the stream to be exactly." Integer size ) satisfies Matcher<{Anything*}>
 {
-	shared actual Matching match( {Anything*} val ) {
-		return	if ( val.size == size )
-				then Accepted( "list of size ``size``" )
-				else Rejected( "list of size ``size``" );
-	}
+	shared actual MatchResult match( {Anything*} val ) => MatchResult( "stream of size ``size``", val.size == size );
 	
-	shared actual String string => "list of size ``size``";
+	shared actual String string => "stream of size ``size``";
 }
 
 
-"Matching `Iterable` to be shorter than the given `size`."
+"Verifies if matching stream of `Iterable` is shorter than the given `size`."
 by( "Lis" )
-shared class ShorterThan( "Target size the list to be shorter than." Integer size ) satisfies Matcher<{Anything*}>
+shared class ShorterThan( "Target size the stream to be shorter than." Integer size ) satisfies Matcher<{Anything*}>
 {
-	shared actual Matching match( {Anything*} val ) {
+	shared actual MatchResult match( {Anything*} val ) {
 		Integer actualSize = val.size;
-		return	if ( actualSize < size )
-		then Accepted( "list of size ``actualSize`` shorter than ``size``" )
-		else Rejected( "list of size ``actualSize`` shorter than ``size``" );
+		return MatchResult( "stream of size ``actualSize`` shorter than ``size``", actualSize < size );
 	}
 	
-	shared actual String string => "list shorter than ``size``";
+	shared actual String string => "stream shorter than ``size``";
 }
 
 
-"Matching `Iterable` to be longer than the given `size`."
+"Verifies if matching stream of `Iterable` is longer than the given `size`."
 by( "Lis" )
-shared class LongerThan( "Target size the list to be longer than." Integer size ) satisfies Matcher<{Anything*}>
+shared class LongerThan( "Target size the stream to be longer than." Integer size ) satisfies Matcher<{Anything*}>
 {
-	shared actual Matching match( {Anything*} val ) {
+	shared actual MatchResult match( {Anything*} val ) {
 		Integer actualSize = val.size;
-		return	if ( actualSize > size )
-		then Accepted( "list of size ``actualSize`` longer than ``size``" )
-		else Rejected( "list of size ``actualSize`` longer than ``size``" );
+		return MatchResult( "stream of size ``actualSize`` longer than ``size``", actualSize > size );
 	}
 	
-	shared actual String string => "list longer than ``size``";
+	shared actual String string => "stream longer than ``size``";
 }
 
 
-"Matching `Iterable` to contain the given `item`."
+"Verifies if matching stream of `Iterable` contains the given `item`."
 by( "Lis" )
-shared class Contains<Value>( "Item to check if list contains." Object item ) satisfies Matcher<{Value*}>
+shared class Contains<Value>( "Item to check if stream contains." Object item ) satisfies Matcher<{Value*}>
 {
-	shared actual Matching match( {Value*} val ) {
-		return	if ( val.contains( item ) )
-		then Accepted( "list contains ``item``" )
-		else Rejected( "list contains ``item``" );
-	}
+	shared actual MatchResult match( {Value*} val ) => MatchResult( "stream contains ``item``", val.contains( item ) );
 	
-	shared actual String string => "list contains ``item``";
+	shared actual String string => "stream contains ``item``";
 }
 
 
-"Matching `Iterable` to have at least a one element that satisfies the given predicate function."
+"Verifies if matching stream of `Iterable` has at least a one element that satisfies the given predicate function."
 by( "Lis" )
 shared class Any<Value> (
 	"The predicate that at least one element must satisfy."
@@ -77,88 +72,75 @@ shared class Any<Value> (
 )
 		satisfies Matcher<{Value*}>
 {
-	shared actual Matching match( {Value*} val ) {
+	shared actual MatchResult match( {Value*} val ) {
 		value tVal = `Value`;
-		return	if ( val.any( selecting ) )
-		then Accepted( "any from list <``tVal``>" )
-		else Rejected( "any from list <``tVal``>" );
+		return MatchResult( "any from stream <``tVal``>", val.any( selecting ) );
 	}
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "any from list <``tVal``>";
+		return "any from stream <``tVal``>";
 	}
 }
 
 
-"Matching `Iterable` to have all elements satisfy the given predicate function."
+"Verifies if matching stream of `Iterable` has all elements satisfy the given predicate function."
 by( "Lis" )
 shared class Every<Value> (
-	"The predicate that all elements must satisfy."
+	"The predicate that all elements of the stream must satisfy."
 	Boolean selecting( Value element )
 )
 		satisfies Matcher<{Value*}>
 {
-	shared actual Matching match( {Value*} val ) {
+	shared actual MatchResult match( {Value*} val ) {
 		value tVal = `Value`;
-		return	if ( val.every( selecting ) )
-		then Accepted( "every from list <``tVal``>" )
-		else Rejected( "every from list <``tVal``>" );
+		return MatchResult( "every from stream <``tVal``>", val.every( selecting ) );
 	}
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "every from list <``tVal``>";
+		return "every from stream <``tVal``>";
 	}
 }
 
 
-"Matching value to be contained in the stream."
+"Verifies if matching value is contained in the given stream of `Iterable`."
 by( "Lis" )
 shared class Contained<Value> (
 	"Stream to check if it contains matcing value." {Value*} stream
 )
 		satisfies Matcher<Value&Object>
 {
-	shared actual Matching match( Value&Object val ) {
-		return	if ( stream.contains( val ) )
-		then Accepted( "``val`` is contained in the given stream" )
-		else Rejected( "``val`` is contained in the given stream" );
-	}
+	shared actual MatchResult match( Value&Object val )
+			=> MatchResult( "``val`` is contained in the given stream", stream.contains( val ) );
 	
 	shared actual String string => "matching value to be contained in the given stream";
 }
 
 
-"Matching value to be the first value in the stream."
+"Verifies if matching value is the first in the given stream of `Iterable`."
 by( "Lis" )
 shared class First<Value> (
-	"Stream to check if it contains matcing value." {Value*} stream
+	"Stream to check if matcing value is the first in." {Value*} stream
 )
 		satisfies Matcher<Value&Object>
 {
-	shared actual Matching match( Value&Object val ) {
-		return	if ( stream.first?.equals( val ) else false )
-		then Accepted( "``val`` is the first in the given stream" )
-		else Rejected( "``val`` is the first the given stream" );
-	}
+	shared actual MatchResult match( Value&Object val )
+			=> MatchResult( "``val`` is the first in the given stream", stream.first?.equals( val ) else false );
 	
 	shared actual String string => "matching value to be the first in the given stream";
 }
 
 
-"Matching value to be the last value in the stream."
+"Verifies if matching value is the last in the given stream of `Iterable`."
 by( "Lis" )
 shared class Last<Value> (
-	"Stream to check if it contains matcing value." {Value*} stream
+	"Stream to check if matcing value is the last in." {Value*} stream
 )
 		satisfies Matcher<Value&Object>
-		{
-	shared actual Matching match( Value&Object val ) {
-		return	if ( stream.last?.equals( val ) else false )
-		then Accepted( "``val`` is the last in the given stream" )
-		else Rejected( "``val`` is the last the given stream" );
-	}
+{
+	shared actual MatchResult match( Value&Object val )
+			=> MatchResult( "``val`` is the last in the given stream", stream.last?.equals( val ) else false );
 	
 	shared actual String string => "matching value to be the last in the given stream";
 }

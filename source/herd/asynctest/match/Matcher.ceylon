@@ -4,8 +4,8 @@
 by( "Lis" )
 shared interface Matcher<in Value> {
 	
-	"Returns `null` if `val` matches this matcher otherwise returns unmatching message."
-	shared formal Matching match( Value val );
+	"Returns `null` if `val` matches this matcher otherwise returns unMatchResult message."
+	shared formal MatchResult match( Value val );
 	
 	
 	"Combines this matcher with another one using logical <i>and</i>,
@@ -35,15 +35,10 @@ shared interface Matcher<in Value> {
 by( "Lis" )
 class AndMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
-	shared actual Matching match( Value val ) {
+	shared actual MatchResult match( Value val ) {
 		value fMatch = first.match( val );
 		value sMatch = second.match( val );
-		if ( is Accepted fMatch, is Accepted sMatch ) {
-			return Accepted( "(``fMatch``) and (``sMatch``)" );
-		}
-		else {
-			return Rejected( "(``fMatch``) and (``sMatch``)" );
-		}
+		return fMatch.and( sMatch );
 	}
 	
 	shared actual String string => "(``first``) and (``second``)";
@@ -55,15 +50,10 @@ class AndMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies
 by( "Lis" )
 class OrMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
-	shared actual Matching match( Value val ) {
+	shared actual MatchResult match( Value val ) {
 		value fMatch = first.match( val );
 		value sMatch = second.match( val );
-		if ( is Rejected fMatch, is Rejected sMatch ) {
-			return Rejected( "(``fMatch``) or (``sMatch``)" );
-		}
-		else {
-			return Accepted( "(``fMatch``) or (``sMatch``)" );
-		}
+		return fMatch.or( sMatch );
 	}
 	
 	shared actual String string => "(``first``) or (``second``)";
@@ -75,23 +65,10 @@ class OrMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies 
 by( "Lis" )
 class XorMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
-	shared actual Matching match( Value val ) {
+	shared actual MatchResult match( Value val ) {
 		value fMatch = first.match( val );
 		value sMatch = second.match( val );
-		if ( is Accepted fMatch ) {
-			if ( is Accepted sMatch ) {
-				return Rejected( "(``fMatch``) xor (``sMatch``)" );
-			}
-			else {
-				return Accepted( "(``fMatch``) xor (``sMatch``)" );
-			}
-		}
-		else if ( is Accepted sMatch ) {
-			return Accepted( "(``fMatch``) xor (``sMatch``)" );
-		}
-		else {
-			return Rejected( "(``fMatch``) xor (``sMatch``)" );
-		}
+		return fMatch.xor( sMatch );
 	}
 	
 	shared actual String string => "(``first``) xor (``second``)";
@@ -103,14 +80,9 @@ class XorMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies
 by( "Lis" )
 class NotMatcher<Value>( Matcher<Value> matcher ) satisfies Matcher<Value> {
 	
-	shared actual Matching match( Value val ) {
+	shared actual MatchResult match( Value val ) {
 		value m = matcher.match( val );
-		if ( is Accepted m ) {
-			return Rejected( "not(``m``)" );
-		}
-		else {
-			return Accepted( "not(``m``)" );
-		}
+		return m.not();
 	}
 	
 	shared actual String string => "not(``matcher``)";
