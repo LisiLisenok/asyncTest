@@ -20,6 +20,10 @@ import java.util.concurrent.locks {
 	ReentrantLock,
 	Condition
 }
+import herd.asynctest.match {
+
+	Matcher
+}
 
 
 "Performs a one test execution."
@@ -49,10 +53,10 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	
 	
 	"adds new output to `outputs`"
-	void addOutput(	TestState state, Throwable? error, String title, String preamble = "" ) {
+	void addOutput(	TestState state, Throwable? error, String title ) {
 		Integer elapsed = if ( startTime > 0 ) then system.milliseconds - startTime else 0;
 		outputLocker.lock();
-		try { outputs.add( TestOutput( state, error, elapsed, title, preamble ) ); }
+		try { outputs.add( TestOutput( state, error, elapsed, title ) ); }
 		finally { outputLocker.unlock(); }
 	}
 	
@@ -132,6 +136,16 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 		}
 	}
 
+	shared actual void assertThat<Value>( Value val, Matcher<Value> matcher, String title ) {
+		value m = matcher.match( val );
+		if ( m.accepted ) {
+			addOutput( TestState.success, null, title + " - " + m.string );
+		}
+		else {
+			addOutput( TestState.failure, AssertionError( m.string ), title );
+		}
+	}
+
 	
 	shared actual void fail( Throwable reason, String title ) {
 		if ( running.get() ) {
@@ -146,6 +160,13 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	
 	shared actual void abort( Throwable? reason, String title ) {
 		if ( running.get() ) { addOutput( TestState.aborted, reason, title ); }
+	}
+		
+	shared actual void assumeThat<Value>( Value val, Matcher<Value> matcher, String title ) {
+		value m = matcher.match( val );
+		if ( !m.accepted ) {
+			addOutput( TestState.aborted, AssertionError( m.string ), title );
+		}
 	}
 	
 	

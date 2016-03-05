@@ -7,7 +7,10 @@ import ceylon.language.meta.declaration {
 	ClassDeclaration
 }
 import ceylon.test {
-	TestDescription
+	TestDescription,
+	TestResult,
+	TestState,
+	TestListener
 }
 import ceylon.test.annotation {
 	TestExecutorAnnotation
@@ -24,6 +27,15 @@ import java.util.concurrent {
 	Executors,
 	ExecutorService
 }
+import ceylon.test.event {
+
+	TestStartedEvent,
+	TestFinishedEvent
+}
+import java.util.concurrent.locks {
+
+	ReentrantLock
+}
 
 
 "Performs test initialization and execution."
@@ -39,6 +51,10 @@ object asyncTestRunner {
 	
 	"concurrently executed tests"
 	ArrayList<RunnableTestContext> concurrentTests = ArrayList<RunnableTestContext>();
+	
+	
+	"Locks results filling."
+	ReentrantLock fillLocker = ReentrantLock();
 	
 	
 	"total number of tests"
@@ -104,13 +120,11 @@ object asyncTestRunner {
 			}
 			concurrentTests.clear();
 		}
-		
 		// run sequential tests
 		for ( test in sequentialTests ) {
 			test.runTest();
 		}
 		sequentialTests.clear();
-		
 		testNumber = -1;
 		
 		// dispose all initis
@@ -169,7 +183,77 @@ object asyncTestRunner {
 	}
 	
 	
-	"`true` if execution isperformed using `AsyncTestExecutor`"
+	"Fills results of the test to execution context. Here in order to avoind race conditions when filling to test runner."
+	shared void fillTestResults (
+		"Context to be filled with results." TestExecutionContext context,
+		"Test results." TestOutput[] testOutputs,
+		"Total test elapsed time." Integer runInterval
+	) {
+		testStartEvent( context );
+		TestDescription runDescription = context.description;
+		if ( nonempty testOutputs ) {
+			variable Integer index = 0;
+			for ( res in testOutputs ) {
+				testVariantResultEvent( context, res, ++ index );
+			}
+			variable TestState state = testOutputs.first.state;
+			for ( item in testOutputs.rest ) {
+				if ( item.state > state ) { state = item.state; }
+			}
+			testFinishEvent (
+				context,
+				TestResult( runDescription, state, true, null, runInterval )
+			);
+		}
+		else {
+			testFinishEvent (
+				context,
+				TestResult( runDescription, TestState.success, false, null, runInterval )
+			);
+		}
+		
+	}
+	
+	"Fills test start event."
+	shared void testStartEvent( "Context to be filled with results." TestExecutionContext context ) {
+		fillLocker.lock();
+		try {
+			context.fire().testStarted( TestStartedEvent( context.description ) );
+		}
+		finally { fillLocker.unlock(); }
+	}
+	
+	"Fills with test variant results"
+	shared void testVariantResultEvent (
+		"Context to be filled with results." TestExecutionContext context,
+		"Test output to be filled as variant result." TestOutput testOutput,
+		"Variant index." Integer index
+	) {
+		fillLocker.lock();
+		try {
+			TestDescription variant = context.description.forVariant( testOutput.title, index );
+			TestExecutionContext child = context.childContext( variant );
+			TestListener listener = child.fire();
+			listener.testStarted( TestStartedEvent( variant ) );
+			listener.testFinished( TestFinishedEvent(
+				TestResult( variant, testOutput.state, false, testOutput.error, testOutput.elapsedTime )
+			) );
+		}
+		finally { fillLocker.unlock(); }
+	}
+	
+	"Fills with test finish event."
+	shared void testFinishEvent (
+		"Context to be filled with results." TestExecutionContext context,
+		"Results of the test." TestResult testResult
+	) {
+		fillLocker.lock();
+		try { context.fire().testFinished( TestFinishedEvent( testResult ) ); }
+		finally { fillLocker.unlock(); }
+	}
+
+	
+	"`true` if execution is performed using `AsyncTestExecutor`"
 	Boolean isAsyncExecutedTest( FunctionDeclaration functionDeclaration ) {
 		if ( exists exec = annotationFromChain<TestExecutorAnnotation>( functionDeclaration ) ) {
 			return exec.executor == asyncTestDeclaration;

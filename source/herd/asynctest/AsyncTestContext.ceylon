@@ -1,3 +1,7 @@
+import herd.asynctest.match {
+
+	Matcher
+}
 
 "
  Provides interaction with asynchronous test executor.
@@ -32,12 +36,13 @@
  
  >Common initialization for a set of test functions can be performed using [[init]] annotation and [[TestInitContext]].
  
+ 
  >It is <i>not</i> required to notify with success,
   if test function doesn't notify on failure the test is considered as successfull.
 
  "
 by( "Lis" )
-see( `class AsyncTestExecutor`, `interface TestInitContext`, `function init` )
+see( `class AsyncTestExecutor`, `interface TestInitContext`, `function init`, `package herd.asynctest.match` )
 shared interface AsyncTestContext
 {
 	
@@ -68,7 +73,7 @@ shared interface AsyncTestContext
 	shared formal void assertTrue (
 		"The condition to be checked." Boolean condition,
 		"Message to be put to `AssertionError`." String message,
-		"Title to be shown at test name." String title = "",
+		"Optional title to be shown at test name." String title = "",
 		"Optional message if verification is accepted" String? successMessage = null
 	);
 	
@@ -77,7 +82,7 @@ shared interface AsyncTestContext
 	shared formal void assertFalse (
 		"The condition to be checked." Boolean condition,
 		"Message to be put to `AssertionError`." String message,
-		"Title to be shown at test name." String title = "",
+		"Optional title to be shown at test name." String title = "",
 		"Optional message if verification is accepted" String? successMessage = null
 	);
 	
@@ -86,7 +91,7 @@ shared interface AsyncTestContext
 	shared formal void assertNull (
 		"The value to be checked." Anything val,
 		"Message to be put to `AssertionError`." String message,
-		"Title to be shown at test name." String title = "",
+		"Optional title to be shown at test name." String title = "",
 		"Optional message if verification is accepted" String? successMessage = null
 	);
 	
@@ -95,20 +100,39 @@ shared interface AsyncTestContext
 	shared formal void assertNotNull (
 		"The value to be checked." Anything val,
 		"Message to be put to `AssertionError`." String message,
-		"Title to be shown at test name." String title = "",
+		"Optional title to be shown at test name." String title = "",
 		"Optional message if verification is accepted" String? successMessage = null
 	);
+	
+	
+	"Fails the test if `val` doesn't match `matcher` or succeds the test otherwise."
+	see( `package herd.asynctest.match` )
+	shared formal void assertThat<Value> (
+		"Value to be matched." Value val,
+		"Performs checking." Matcher<Value> matcher,
+		"Optional title to be shown at test name." String title = ""
+	);
+	
 	
 	"Fails the test with either `AssertionError` or `Exception`."
 	shared formal void fail (
 		"Reason fails this test." Throwable reason,
-		"Title to be shown at test name." String title = ""
+		"Optional title to be shown at test name." String title = ""
 	);
+	
 	
 	"Aborts the test, which means that some test conditions are not met."
 	shared formal void abort (
 		"Optional error of the aborting." Throwable? reason = null,
-		"Title to be shown at test name." String title = ""
+		"Optional title to be shown at test name." String title = ""
+	);
+	
+	"Aborts the test if `val` doesn't match `matcher`."
+	see( `package herd.asynctest.match` )
+	shared formal void assumeThat<Value> (
+		"Value to be matched." Value val,
+		"Performs checking." Matcher<Value> matcher,
+		"Optional title to be shown at test name." String title = ""
 	);
 	
 }

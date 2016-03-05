@@ -27,15 +27,16 @@ import java.util {
  * total items test map has to contain
  * number of test repeats (test is repeated several times and reported values are mean values)
  * percent of total items to calculate number of items in get / remove tests
- * target ratio Ceylon to Java (if actual ratio exceeded test considered as failured otherwise it is successfull)
+ * tolearance to compare Ceylon to Java
+   (if actual ratio exceeded `1 + tolerance` test is considered as failured otherwise it is successfull)
  "
 {[Integer, Integer, Float, Float]*} mapTestParams
 		=> {
-			[10000, 50, 0.3, 1.25],
-			[50000, 50, 0.3, 1.25],
-			[100000, 50, 0.3, 1.25],
-			[150000, 50, 0.3, 1.25],
-			[200000, 50, 0.3, 1.25]
+			[10000, 100, 0.3, 0.25],
+			[50000, 100, 0.3, 0.25],
+			[100000, 100, 0.3, 0.25],
+			[150000, 100, 0.3, 0.25],
+			[200000, 100, 0.3, 0.25]
 		};
 
 
@@ -51,7 +52,7 @@ shared void runHashMapTest (
 	"Total number of items to be put in tested map." Integer totalItems,
 	"Number of test repeats." Integer repeats,
 	"Percent of total items to calculate number of items in get / remove tests." Float removePercent,
-	"Target ratio Ceylon to Java." Float targetRatio
+	"Tolerance to compare Ceylon to Java." Float tolerance
 ) {
 	context.start();
 	
@@ -65,7 +66,7 @@ shared void runHashMapTest (
 		context, totalItems, repeats, removePercent, titles.javaHashMap, JavaMapWrapper( JHashMap<String, Integer>() )
 	);
 	
-	context.complete( fillTestResult( context, ceylonResult, javaResult, targetRatio, totalItems, titles.hashMapRatios ) );
+	context.complete( fillTestResult( context, ceylonResult, javaResult, tolerance, totalItems, titles.hashMapRatios ) );
 }
 
 
@@ -81,7 +82,7 @@ shared void runTreeMapTest (
 	"Total number of items to be put in tested map." Integer totalItems,
 	"Number of test repeats." Integer repeats,
 	"Percent of [[totalItems]] used in get / remove tests." Float removePercent,
-	"Target ratio Ceylon to Java." Float targetRatio
+	"Tolerance to compare Ceylon to Java." Float tolerance
 ) {
 	context.start();
 	
@@ -97,5 +98,5 @@ shared void runTreeMapTest (
 		JavaMapWrapper( JTreeMap<String, Integer>( stringComparator ) )
 	);
 	
-	context.complete( fillTestResult( context, ceylonResult, javaResult, targetRatio, totalItems, titles.treeMapRatios ) );
+	context.complete( fillTestResult( context, ceylonResult, javaResult, tolerance, totalItems, titles.treeMapRatios ) );
 }
