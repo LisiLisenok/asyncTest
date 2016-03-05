@@ -3,6 +3,7 @@
  * [[package herd.examples.asynctest.fibonacci]] - test of calculation of Fibonacci numbers in separated thread
  * [[package herd.examples.asynctest.scheduler]] - time scheduler testing
  * [[package herd.examples.asynctest.mapperformance]] - comparative performance test of Ceylon - Java HashMap and TreeMap
+ * [[package herd.examples.asynctest.matchers]] - several examples of matchers from [[package herd.asynctest.match]]
  "
 license (
 	"

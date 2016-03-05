@@ -8,6 +8,7 @@
  * executing tests concurrently or sequentially
  * parameterized testing
  * conditional test execution
+ * organizing complex test conditions into a one flexible expression with matchers
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
    each report is represented as test variant and might be marked with `String` title
  * reporting test results using charts (or graphs)
@@ -163,7 +164,17 @@
  while `doTestAlone` is executed just after both `doTestOne` and `doTestOther` are completed.
  
  
+ ### Matchers
+ 
+ Matchers are intended to organize complex test conditions into a one flexible expression.  
+ Basically, matcher is a rule and verification method which identifies
+ if submitted test value satisfies this rule or not.    
+ 
+ Details of matching API are described in [[package herd.asynctest.match]].
+ 
+ 
  ### Reporting test results using charts
+ 
  Chart is simply a set of plots, where each plot is a sequence of 2D points.  
  Test results can be represented and reported with charts using staff provided by [[package herd.asynctest.chart]].
  

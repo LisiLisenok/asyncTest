@@ -253,7 +253,7 @@ object asyncTestRunner {
 	}
 
 	
-	"`true` if execution isperformed using `AsyncTestExecutor`"
+	"`true` if execution is performed using `AsyncTestExecutor`"
 	Boolean isAsyncExecutedTest( FunctionDeclaration functionDeclaration ) {
 		if ( exists exec = annotationFromChain<TestExecutorAnnotation>( functionDeclaration ) ) {
 			return exec.executor == asyncTestDeclaration;

@@ -8,7 +8,7 @@ import herd.asynctest {
 }
 import herd.asynctest.match {
 
-	Greater
+	LessOrEqual
 }
 
 
@@ -53,9 +53,9 @@ String fillTestResult (
 		String removeSucceed = "'remove' Ceylon / Java ratio of ``removeRatioStr`` is not greater than target ``targetRatio``";
 		context.assertFalse( removeRatio > targetRatio, removeMessage, removeMessage, removeSucceed );*/
 		
-		context.assertThat( putRatio, Greater( 1.0 + tolerance ), "'put' Ceylon / Java ratio" );
-		context.assertThat( getRatio, Greater( 1.0 + tolerance ), "'get' Ceylon / Java ratio" );
-		context.assertThat( removeRatio, Greater( 1.0 + tolerance ), "'remove' Ceylon / Java ratio" );
+		context.assertThat( putRatio, LessOrEqual( 1.0 + tolerance ), "'put' Ceylon / Java ratio" );
+		context.assertThat( getRatio, LessOrEqual( 1.0 + tolerance ), "'get' Ceylon / Java ratio" );
+		context.assertThat( removeRatio, LessOrEqual( 1.0 + tolerance ), "'remove' Ceylon / Java ratio" );
 		
 		String putPlotterName = ratioChartTitle + titles.titlesDelimiter + titles.put;
 		String getPlotterName = ratioChartTitle + titles.titlesDelimiter + titles.get;

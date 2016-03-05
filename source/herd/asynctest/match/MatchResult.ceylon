@@ -1,6 +1,9 @@
 
 
-"Indicates result of matching operation with state: accepted or rejected."
+"Represents a result of matching operation:
+ * state - accepted or rejected
+ * `String` message with operation details
+ "
 by( "Lis" )
 shared final class MatchResult (
 	"Message of the match operation."

@@ -1,6 +1,7 @@
 
 
 "Verifies if matching value is greater than given `merit`."
+tagged( "Comparators" )
 by( "Lis" )
 shared class Greater<Value> (
 	"Value to compare with matching one." Value merit
@@ -18,6 +19,7 @@ shared class Greater<Value> (
 
 
 "Verifies if matching value is less than given `merit`."
+tagged( "Comparators" )
 by( "Lis" )
 shared class Less<Value> (
 	"Value to compare with matching one." Value merit
@@ -35,6 +37,7 @@ shared class Less<Value> (
 
 
 "Verifies if matching value is less or equal to given `merit`."
+tagged( "Comparators" )
 by( "Lis" )
 shared class LessOrEqual<Value> (
 	"Value to compare with matching one." Value merit
@@ -52,6 +55,7 @@ shared class LessOrEqual<Value> (
 
 
 "Verifies if matching value is greater or equal to given `merit`."
+tagged( "Comparators" )
 by( "Lis" )
 shared class GreaterOrEqual<Value> (
 	"Value to compare with matching one." Value merit
@@ -70,6 +74,7 @@ shared class GreaterOrEqual<Value> (
 
 "Verifies if matching value is within given range of `lower` to `upper` excluding bounds.
  This is equal to greater(lower).and(less(upper))."
+tagged( "Comparators" )
 by( "Lis" )
 shared class Within<Value> (
 	"Start range." Value lower,
@@ -90,6 +95,7 @@ shared class Within<Value> (
 
 "Verifies if matching value is within given range of `lower` to `upper` including bounds.
  This is equal to greaterOrEqual(lower).and(lessOrEqual(upper))."
+tagged( "Comparators" )
 by( "Lis" )
 shared class Ranged<Value> (
 	"Start range." Value lower,
@@ -109,6 +115,7 @@ shared class Ranged<Value> (
 
 
 "Verifies if matching value is equal to `merit`."
+tagged( "Comparators" )
 by( "Lis" )
 shared class EqualTo<Value> (
 	"Value to compare with matching one." Value merit
@@ -127,6 +134,7 @@ shared class EqualTo<Value> (
 
 
 "Verifies if matching value is not equal to `merit`."
+tagged( "Comparators" )
 by( "Lis" )
 shared class NotEqualTo<Value> (
 	"Value to compare with matching one." Value merit
@@ -145,6 +153,7 @@ shared class NotEqualTo<Value> (
 
 
 "Verifies if matching value is close to `merit` with the given `tolerance`."
+tagged( "Comparators" )
 by( "Lis" )
 shared class CloseTo<Value> (
 	"Value to compare with matching one." Value merit,

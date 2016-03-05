@@ -162,7 +162,7 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 		if ( running.get() ) { addOutput( TestState.aborted, reason, title ); }
 	}
 		
-	shared actual void abortThat<Value>( Value val, Matcher<Value> matcher, String title ) {
+	shared actual void assumeThat<Value>( Value val, Matcher<Value> matcher, String title ) {
 		value m = matcher.match( val );
 		if ( !m.accepted ) {
 			addOutput( TestState.aborted, AssertionError( m.string ), title );

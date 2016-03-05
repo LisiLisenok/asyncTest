@@ -42,7 +42,7 @@ import herd.asynctest.match {
 
  "
 by( "Lis" )
-see( `class AsyncTestExecutor`, `interface TestInitContext`, `function init` )
+see( `class AsyncTestExecutor`, `interface TestInitContext`, `function init`, `package herd.asynctest.match` )
 shared interface AsyncTestContext
 {
 	
@@ -106,6 +106,7 @@ shared interface AsyncTestContext
 	
 	
 	"Fails the test if `val` doesn't match `matcher` or succeds the test otherwise."
+	see( `package herd.asynctest.match` )
 	shared formal void assertThat<Value> (
 		"Value to be matched." Value val,
 		"Performs checking." Matcher<Value> matcher,
@@ -126,8 +127,9 @@ shared interface AsyncTestContext
 		"Optional title to be shown at test name." String title = ""
 	);
 	
-	"Aborts the test if `val` doesn't match `matcher` or succeds the test otherwise."
-	shared formal void abortThat<Value> (
+	"Aborts the test if `val` doesn't match `matcher`."
+	see( `package herd.asynctest.match` )
+	shared formal void assumeThat<Value> (
 		"Value to be matched." Value val,
 		"Performs checking." Matcher<Value> matcher,
 		"Optional title to be shown at test name." String title = ""

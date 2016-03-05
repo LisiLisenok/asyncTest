@@ -6,6 +6,7 @@ is an extension to SDK `ceylon.test` module with following capabilities:
 * executing tests concurrently or sequentially
 * parameterized testing
 * conditional test execution
+* organizing complex test conditions into a one flexible expression with matchers
 * multi-reporting, i.e. several failures or successes can be reported for a one particular test execution (test function)
 * reporting test results using charts (or graphs)
  
@@ -40,3 +41,4 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
 * [Time scheduler](examples/herd/examples/asynctest/scheduler) testing.
 * [Microbenchmark](examples/herd/examples/asynctest/mapperformance) -
   comparative performance test of Ceylon / Java HashMap and TreeMap.
+* [Matchers](examples/herd/examples/asynctest/matchers) - mathcers usage.

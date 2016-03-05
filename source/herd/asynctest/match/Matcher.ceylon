@@ -1,6 +1,14 @@
 
 
-"Matcher."
+"Matcher is a rule and verification method
+ which identifies if submitted test value satisfies this rule or not.  
+ 
+ Verification is performed using [[Matcher.match]] method. Result of verification
+ isrepresented using [[MatchResult]].
+ 
+ Matchers may be combined with each other using `and`, `or` and `xor` methods of [[Matcher]] interface.
+ 
+ "
 by( "Lis" )
 shared interface Matcher<in Value> {
 	
