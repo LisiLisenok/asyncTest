@@ -208,7 +208,7 @@ object asyncTestRunner {
 		else {
 			testFinishEvent (
 				context,
-				TestResult( runDescription, TestState.success, false, null, runInterval )
+				TestResult( runDescription, TestState.success, true, null, runInterval )
 			);
 		}
 		

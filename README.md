@@ -10,7 +10,7 @@ is an extension to SDK `ceylon.test` module with following capabilities:
 * multi-reporting, i.e. several failures or successes can be reported for a one particular test execution (test function)
 * reporting test results using charts (or graphs)
  
-The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/herd.asynctest)
+The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/herd.asynctest).
 
  
 #### Ceylon compiler / platform
@@ -31,7 +31,7 @@ Available on JVM only
 #### Usage and documentation
  
 The extension is aimed to be run using Ceylon test tool.  
-See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.4.0/module-doc/api/index.html)
+See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.4.0/module-doc/api/index.html).
  
  
 #### Examples

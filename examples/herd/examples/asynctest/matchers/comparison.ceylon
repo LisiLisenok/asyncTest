@@ -1,7 +1,8 @@
 import ceylon.test {
 
 	test,
-	parameters
+	parameters,
+	testSuite
 }
 import herd.asynctest {
 
@@ -18,6 +19,35 @@ import herd.asynctest.match {
 	Within,
 	Ranged
 }
+
+
+testSuite (
+	{
+		`function comparison`,
+	 	`function comparisonNot`
+	}
+)
+test void simpleComparisonSuite() {}
+
+
+testSuite (
+	{
+		`function orComparison`,
+		`function xorComparison`,
+		`function andComparison`
+	}
+)
+test void logicalComparisonSuite() {}
+
+
+testSuite (
+	{
+		`function withinComparison`,
+		`function rangeComparison`
+	}
+)
+test void rangedComparisonSuite() {}
+
 
 
 test parameters( `value comparisonStrings` )
