@@ -24,11 +24,15 @@ import herd.asynctest.match {
 
 	Matcher
 }
+import ceylon.language.meta.declaration {
+
+	FunctionDeclaration
+}
 
 
 "Performs a one test execution."
 by( "Lis" )
-class Tester( InitStorage inits ) satisfies AsyncTestContext
+class Tester() satisfies AsyncTestContext
 {
 	
 	"`true` if currently run"
@@ -81,73 +85,30 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	}
 
 
-	shared actual Item? get<Item>( String name ) => inits.retrieve<Item>( name );
-	
-	shared actual Item[] getAll<Item>() => inits.retrieveAll<Item>();
-
-	
-	shared actual void succeed( String message ) {
+	shared actual void succeed( String message, Boolean completeTest ) {
 		if ( running.get() ) {
 			addOutput( TestState.success, null, message );
-		}
-	}
-	
-	shared actual void assertTrue( Boolean condition, String message, String title, String? successMessage ) {
-		if ( running.get() ) {
-			if ( !condition ) {
-				addOutput( TestState.failure, AssertionError( message ), title );
-			}
-			else if ( exists str = successMessage ) {
-				succeed( str );
-			}
-		}
-	}
-	
-	shared actual void assertFalse( Boolean condition, String message, String title, String? successMessage ) {
-		if ( running.get() ) {
-			if ( condition ) {
-				addOutput( TestState.failure, AssertionError( message ), title );
-			}
-			else if ( exists str = successMessage ) {
-				succeed( str );
-			}
-		}
-	}
-	
-	shared actual void assertNull( Anything val, String message, String title, String? successMessage ) {
-		if ( running.get() ) {
-			if ( val exists ) {
-				addOutput( TestState.failure, AssertionError( message ), title );
-			}
-			else if ( exists str = successMessage ) {
-				succeed( str );
-			}
-		}
-	}
-	
-	shared actual void assertNotNull( Anything val, String message, String title, String? successMessage ) {
-		if ( running.get() ) {
-			if ( !val exists ) {
-				addOutput( TestState.failure, AssertionError( message ), title );
-			}
-			else if ( exists str = successMessage ) {
-				succeed( str );
-			}
+			if ( completeTest ) { complete(); }
 		}
 	}
 
-	shared actual void assertThat<Value>( Value val, Matcher<Value> matcher, String title ) {
+	shared actual void assertThat<Value> (
+		Value val, Matcher<Value> matcher, String title, Boolean completeTest
+	) {
 		value m = matcher.match( val );
 		if ( m.accepted ) {
 			addOutput( TestState.success, null, title + " - " + m.string );
 		}
 		else {
 			addOutput( TestState.failure, AssertionError( m.string ), title );
+			if ( completeTest ) { complete(); }
 		}
 	}
 
 	
-	shared actual void fail( Throwable reason, String title ) {
+	shared actual void fail (
+		Throwable reason, String title, Boolean completeTest
+	) {
 		if ( running.get() ) {
 			if ( is AssertionError reason ) {
 				addOutput( TestState.failure, reason, title );
@@ -155,27 +116,50 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 			else {
 				addOutput( TestState.error, reason, title );
 			}
+			if ( completeTest ) { complete(); }
 		}
 	}
 	
-	shared actual void abort( Throwable? reason, String title ) {
-		if ( running.get() ) { addOutput( TestState.aborted, reason, title ); }
+	shared actual void abort (
+		Throwable? reason, String title, Boolean completeTest
+	) {
+		if ( running.get() ) {
+			addOutput( TestState.aborted, reason, title );
+			if ( completeTest ) { complete(); }
+		}
 	}
 		
-	shared actual void assumeThat<Value>( Value val, Matcher<Value> matcher, String title ) {
+	shared actual void assumeThat<Value> (
+			Value val, Matcher<Value> matcher, String title, Boolean completeTest
+		) {
 		value m = matcher.match( val );
 		if ( !m.accepted ) {
 			addOutput( TestState.aborted, AssertionError( m.string ), title );
+			if ( completeTest ) { complete(); }
 		}
 	}
 	
 	
-	"Returns output from the test"
-	shared TestOutput[] run( Anything(AsyncTestContext) tested ) {
+	"Returns output from the test."
+	shared TestOutput[] run( FunctionDeclaration functionDeclaration, Object? instance, Anything* args ) {
 		if ( running.compareAndSet( false, true ) ) {
 			locker.lock();
 			try {
-				tested( this );
+				// invoke test function
+				if ( functionDeclaration.toplevel ) {
+					functionDeclaration.invoke( [], this, *args );
+				}
+				else if ( exists i = instance ) {
+					functionDeclaration.memberInvoke( i, [], this, *args );
+				}
+				else {
+					abort (
+						AssertionError (
+							"Unable to instantiate container object of test function ``functionDeclaration``."
+						)
+					);
+					complete();
+				}
 				if ( running.get() ) { condition.await(); }
 			}
 			catch ( Throwable err ) {

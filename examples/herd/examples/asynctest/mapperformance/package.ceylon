@@ -1,9 +1,19 @@
+import ceylon.test {
+
+	testExecutor
+}
+import herd.asynctest {
+
+	AsyncTestExecutor
+}
+
+
 "
  Comparative Ceylon vs Java performance test on HashMap and TreeMap.  
  
  #### Test functions:
- * [[runHashMapTest]] - Ceylon vs Java HashMap test
- * [[runTreeMapTest]] - Ceylon vs Java TreeMap test
+ * [[CeylonJavaMapMicrobenchmark.hashMap]] - Ceylon vs Java HashMap test
+ * [[CeylonJavaMapMicrobenchmark.treeMap]] - Ceylon vs Java TreeMap test
  
  #### Test strategy
  1. `String` keys and `Integer` items are used.
@@ -22,4 +32,5 @@
  See [[package herd.asynctest.chart]] with charts description.
  
  "
+testExecutor( `class AsyncTestExecutor` )
 shared package herd.examples.asynctest.mapperformance;

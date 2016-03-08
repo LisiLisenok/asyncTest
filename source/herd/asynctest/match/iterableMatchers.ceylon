@@ -8,7 +8,7 @@ tagged( "Streams" )
 by( "Lis" )
 shared class Empty() satisfies Matcher<{Anything*}>
 {
-	shared actual MatchResult match( {Anything*} val ) => MatchResult( "empty", val.empty );
+	shared actual MatchResult match( {Anything*} val ) => MatchResult( "empty ``stringify( val )``", val.empty );
 	
 	shared actual String string => "empty stream";
 }
@@ -18,7 +18,7 @@ tagged( "Streams" )
 by( "Lis" )
 shared class NotEmpty() satisfies Matcher<{Anything*}>
 {
-	shared actual MatchResult match( {Anything*} val ) => MatchResult( "not empty", !val.empty );
+	shared actual MatchResult match( {Anything*} val ) => MatchResult( "not empty ``stringify( val )``", !val.empty );
 	
 	shared actual String string => "not empty stream";
 }
@@ -92,10 +92,14 @@ shared class ContainsEvery<Value>( "Elements to check if matching stream contain
 			}
 		}
 		if ( rejected.empty ) {
-			return MatchResult( "stream contains every ``elements``", true );
+			return MatchResult( "stream contains every ``stringify( elements )``", true );
 		}
 		else {
-			return MatchResult( "stream contains every: actualy contains->``accepted``, doesn't contains->``rejected``", false );
+			return MatchResult (
+				"stream contains every: actualy contains->``stringify( accepted )``,
+				 doesn't contains->``stringify( rejected )``",
+				false
+			);
 		}
 	}
 	
@@ -124,10 +128,14 @@ shared class ContainsAny<Value>( "Elements to check if matching stream contains 
 			}
 		}
 		if ( accepted.empty ) {
-			return MatchResult( "stream contains any ``elements``", false );
+			return MatchResult( "stream contains any ``stringify( elements )``", false );
 		}
 		else {
-			return MatchResult( "stream contains any: actualy contains->``accepted``, doesn't contains->``rejected``", true );
+			return MatchResult (
+				"stream contains any: actualy contains->``stringify( accepted )``,
+				 doesn't contains->``stringify( rejected )``",
+				true
+			);
 		}
 	}
 	
@@ -147,10 +155,8 @@ shared class Any<Value> (
 )
 		satisfies Matcher<{Value*}>
 {
-	shared actual MatchResult match( {Value*} val ) {
-		value tVal = `Value`;
-		return MatchResult( "any from stream <``tVal``>", val.any( selecting ) );
-	}
+	shared actual MatchResult match( {Value*} val )
+		=> MatchResult( "any from stream ``stringify( val )``", val.any( selecting ) );
 	
 	shared actual String string {
 		value tVal = `Value`;
@@ -168,10 +174,8 @@ shared class Every<Value> (
 )
 		satisfies Matcher<{Value*}>
 {
-	shared actual MatchResult match( {Value*} val ) {
-		value tVal = `Value`;
-		return MatchResult( "every from stream <``tVal``>", val.every( selecting ) );
-	}
+	shared actual MatchResult match( {Value*} val )
+		=> MatchResult( "every from stream ``stringify( val )``", val.every( selecting ) );
 	
 	shared actual String string {
 		value tVal = `Value`;
@@ -189,7 +193,10 @@ shared class Contained<Value> (
 		satisfies Matcher<Value&Object>
 {
 	shared actual MatchResult match( Value&Object val )
-			=> MatchResult( "``val`` is contained in the given stream", stream.contains( val ) );
+		=> MatchResult (
+			"``stringify( val )`` is contained in the given stream ``stringify( stream )``",
+			stream.contains( val )
+		);
 	
 	shared actual String string => "matching value to be contained in the given stream";
 }
@@ -204,7 +211,10 @@ shared class First<Value> (
 		satisfies Matcher<Value&Object>
 {
 	shared actual MatchResult match( Value&Object val )
-			=> MatchResult( "``val`` is the first in the given stream", stream.first?.equals( val ) else false );
+		=> MatchResult (
+			"``stringify( val )`` is the first in the given stream ``stringify( stream )``",
+			stream.first?.equals( val ) else false
+		);
 	
 	shared actual String string => "matching value to be the first in the given stream";
 }
@@ -219,7 +229,10 @@ shared class Last<Value> (
 		satisfies Matcher<Value&Object>
 {
 	shared actual MatchResult match( Value&Object val )
-			=> MatchResult( "``val`` is the last in the given stream", stream.last?.equals( val ) else false );
+		=> MatchResult (
+			"``stringify( val )`` is the last in the given stream ``stringify( stream )``",
+			stream.last?.equals( val ) else false
+		);
 	
 	shared actual String string => "matching value to be the last in the given stream";
 }

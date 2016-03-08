@@ -17,22 +17,55 @@ import ceylon.collection {
 }
 import ceylon.language.meta.declaration {
 
+	Package,
+	ClassDeclaration,
 	FunctionDeclaration
+}
+import ceylon.language.meta {
+
+	type
 }
 
 
-"Evaluate test conditions applied as annotations."
+"Evaluates test conditions applied as annotations."
 by( "Lis" )
-TestOutput[] evaluateAnnotatedConditions( FunctionDeclaration functionDeclaration, TestExecutionContext context ) {
-	value conditions = findTypedAnnotations<TestCondition>( functionDeclaration );
+TestOutput[] runAnnotatedConditions (
+	TestCondition[] conditions,
+	"Test context used for evaluation." TestExecutionContext context
+) {
 	ArrayList<TestOutput> builder = ArrayList<TestOutput>(); 
 	for ( condition in conditions ) {
 		value result = condition.evaluate( context );
 		if ( !result.successful ) {
 			builder.add (
-				TestOutput( TestState.skipped, TestSkippedException( result.reason ), 0, "condition '``condition``'" )
+				TestOutput (
+					TestState.skipped,
+					TestSkippedException( result.reason ),
+					0,
+					"skipped by condition '``type( condition )``'"
+				)
 			);
 		}
 	}
 	return builder.sequence();
+}
+
+
+"Evaluates test conditions applied as annotations."
+by( "Lis" )
+TestOutput[] evaluateAnnotatedConditions (
+	"Declaration to evaluate conditions on." FunctionDeclaration declaration,
+	"Test context used for evaluation." TestExecutionContext context
+) {
+	return runAnnotatedConditions( findTypedAnnotations<TestCondition>( declaration ), context );
+}
+
+
+"Evaluates test conditions applied as annotations."
+by( "Lis" )
+TestOutput[] evaluateContainerAnnotatedConditions (
+	"Declaration to evaluate conditions on." Package | ClassDeclaration declaration,
+	"Test context used for evaluation." TestExecutionContext context
+) {
+	return runAnnotatedConditions( findContainerTypedAnnotations<TestCondition>( declaration ), context );
 }

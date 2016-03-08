@@ -1,9 +1,10 @@
 
 "Contains some examples of `asyncTest` usage:
  * [[package herd.examples.asynctest.fibonacci]] - test of calculation of Fibonacci numbers in separated thread
- * [[package herd.examples.asynctest.scheduler]] - time scheduler testing
+ * [[package herd.examples.asynctest.maintainer]] - example of `herd.asynctest::TestMaintainer` usage
  * [[package herd.examples.asynctest.mapperformance]] - comparative performance test of Ceylon - Java HashMap and TreeMap
- * [[package herd.examples.asynctest.matchers]] - several examples of matchers from [[package herd.asynctest.match]]
+ * [[package herd.examples.asynctest.matchers]] - several examples of matchers from `package herd.asynctest.match`
+ * [[package herd.examples.asynctest.scheduler]] - time scheduler testing
  "
 license (
 	"
@@ -35,4 +36,6 @@ module herd.examples.asynctest "0.5.0" {
 	shared import ceylon.collection "1.2.1";
 	shared import herd.asynctest "0.5.0";
 	shared import java.base "8";
+	shared import ceylon.json "1.2.1";
+	shared import ceylon.file "1.2.1";
 }

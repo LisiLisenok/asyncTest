@@ -9,6 +9,10 @@ import herd.asynctest {
 	AsyncTestContext,
 	AsyncTestExecutor
 }
+import herd.asynctest.match {
+
+	EqualTo
+}
 
 
 "Fibonnachi test parameters."
@@ -41,18 +45,18 @@ shared void runFibonacciTest (
 		( Integer calculatedFibonacciNumber ) {
 			// compare calculated and expected values and notify context if fails
 			// Don't use `ceylon.test.assert...` here. It will throw on separated thread and will cause abnormal program termination
-			context.assertTrue (
-				calculatedFibonacciNumber == expectedFibonacciNumber,
-				"calculated Fibonacci number ``calculatedFibonacciNumber`` is not equal to expected one ``expectedFibonacciNumber``",
+			context.assertThat (
+				calculatedFibonacciNumber,
+				EqualTo( expectedFibonacciNumber ),
 				"number equality"
 			);
 			
 			// calculates index from resulting Fibonacci number and compare it with passed one
 			try {
 				value index = fibonacciNumberIndex( calculatedFibonacciNumber );
-				context.assertTrue (
-					index == indexOfFibonacciNumber,
-					"calculated index of Fibonacci number ``index`` is not equal to expected one ``indexOfFibonacciNumber``",
+				context.assertThat (
+					index,
+					EqualTo( indexOfFibonacciNumber ),
 					"index equality"
 				);
 			}
