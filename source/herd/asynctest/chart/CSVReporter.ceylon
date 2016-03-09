@@ -23,7 +23,7 @@ shared class CSVReporter (
 	assert ( is Nil | File fileOrNil = parsePath( path ).resource );
 	value file = createFileIfNil( fileOrNil );
 	
-	shared actual void report( Chart[] charts ) {
+	shared actual void report( Chart* charts ) {
 		Writer writer;
 		if ( overwrite ) {
 			writer = file.Overwriter();

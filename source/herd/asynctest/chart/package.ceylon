@@ -15,6 +15,30 @@
  
  Another reporter can be implemented using [[Reporter]] interface.
  
+ ### Usage example
+ 
+ 		Reporter plotReporter = CombinedReporter {
+ 			ConsoleReporter (
+ 				ReportFormat(\", \", 0, 0, 0, 0)
+ 			),
+ 			CSVReporter (
+ 				ReportFormat(\", \", 0, 0, 0, 0),
+ 				\"../report.csv\",
+ 				true
+ 			)
+ 		};
+ 
+ 		ChartBuilder builder = ChartBuilder(\"title\", \"category\", \"value\");
+ 		Plotter plotter1 = builder.addPlot(\"plot 1\");
+ 		Plotter plotter2 = builder.addPlot(\"plot 2\");
+
+ 		plotter1.addPoint( 1.0, 1.0 );
+ 		...
+ 		plotter2.addPoint( 1.0, 1.0 );
+ 		...
+ 		plotReporter.report(builder.build());
+ 
+ 
  --------------------------------------------
  "
 by( "Lis" )
