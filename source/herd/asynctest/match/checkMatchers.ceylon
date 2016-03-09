@@ -66,10 +66,10 @@ shared class EqualWith<Value> (
 "Verifies if matching value is of `Check` type."
 tagged( "Checkers" )
 by( "Lis" )
-shared class IsType<Value, Check>()
-		satisfies Matcher<Value>
+shared class IsType<Check>()
+		satisfies Matcher<Anything>
 {
-	shared actual MatchResult match( Value val ) {
+	shared actual MatchResult match( Anything val ) {
 		value tCheck = `Check`;
 		return MatchResult( "``stringify( val )`` is ``tCheck``", if ( is Check val ) then true else false );
 	}

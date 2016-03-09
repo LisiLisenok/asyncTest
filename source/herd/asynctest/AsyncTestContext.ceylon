@@ -1,6 +1,11 @@
 import herd.asynctest.match {
 
-	Matcher
+	Matcher,
+	MatchResult
+}
+import ceylon.promise {
+
+	Promise
 }
 
 "
@@ -33,9 +38,25 @@ import herd.asynctest.match {
  	}
  	
  
- >It is <i>not</i> required to notify with success,
+ >It is _not_ required to notify with success,
   if test function doesn't notify on failure the test is considered as successfull.
 
+ 
+ ### Promises
+ 
+ [[assertThat]] and [[assumeThat]] accept `ceylon.promise::Promise`
+ to perform matching operation when actual value is available. `Promise` returned by these methods
+ can be used to complete testing. Example:
+ 
+ 		context.assertThat (
+ 			promiseOnActualValue,
+ 			matchingOperation
+ 		).onComplete((MatchResult|Throwable result) => context.complete());
+ 
+ 
+ >If `value` is passed to [[assertThat]] or [[assumeThat]] methods the matching operation is performed immediately
+  and mathods return already fulfilled promise.
+ 
  --------------------------------------------
  "
 by( "Lis" )
@@ -55,24 +76,22 @@ shared interface AsyncTestContext
 	
 	
 	"Succeeds the test with the given `message`."
-	shared formal void succeed (
-		"Success message." String message,
-		"`True` if test to be completed and `false` to continue testing."
-		Boolean complete = false
-	);
+	shared formal void succeed( "Success message." String message );
 	
 	
-	"Fails the test if `val` doesn't match `matcher` or succeeds the test otherwise."
+	"Fails the test if `val` doesn't match `matcher` or succeeds the test otherwise.  
+	 Returns `promise` resolved with results of the matching."
 	see( `package herd.asynctest.match` )
-	shared formal void assertThat<Value> (
-		"Value to be matched."
-		Value val,
+	shared formal Promise<MatchResult> assertThat<Value> (
+		"Value or promise on value to be matched."
+		Value | Promise<Value> val,
 		"Performs checking."
 		Matcher<Value> matcher,
 		"Optional title to be shown within test name."
 		String title = "",
-		"`True` if test to be completed at failure and `false` to continue testing disregard failure occurrence."
-		Boolean complete = false
+		"If `true` reports on failures and successes.
+		 Otherwise reportes only on failures."
+		Boolean reportSuccess = false
 	);
 	
 	
@@ -81,9 +100,7 @@ shared interface AsyncTestContext
 		"Reason fails this test."
 		Throwable reason,
 		"Optional title to be shown within test name."
-		String title = "",
-		"`True` if test to be completed and `false`."
-		Boolean complete = false
+		String title = ""
 	);
 	
 	
@@ -92,22 +109,19 @@ shared interface AsyncTestContext
 		"Optional error of the aborting."
 		Throwable? reason = null,
 		"Optional title to be shown within test name."
-		String title = "",
-		"`True` if test to be completed and `false` to continue testing."
-		Boolean complete = false
+		String title = ""
 	);
 	
-	"Aborts the test if `val` doesn't match `matcher`."
+	"Aborts the test if `val` doesn't match `matcher`.  
+	 Returns `promise` resolved with results of the matching."
 	see( `package herd.asynctest.match` )
-	shared formal void assumeThat<Value> (
-		"Value to be matched."
-		Value val,
+	shared formal Promise<MatchResult> assumeThat<Value> (
+		"Value or promise on value to be matched."
+		Value | Promise<Value> val,
 		"Performs checking."
 		Matcher<Value> matcher,
 		"Optional title to be shown within test name."
-		String title = "",
-		"`True` if test to be completed at failure and `false` to continue testing disregard failure occurrence."
-		Boolean complete = false
+		String title = ""
 	);
 	
 }

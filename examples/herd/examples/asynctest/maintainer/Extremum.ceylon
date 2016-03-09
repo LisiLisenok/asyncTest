@@ -46,7 +46,7 @@ shared class Extremum()
 	test parameters( `value minimumInput` )
 	shared void minWithExpected( AsyncTestContext context, {Integer*} stream, Integer expected ) {
 		 context.start();
-		 context.assertThat( min( stream ), PassExisted( EqualObjects( expected ) ) );
+		 context.assertThat( min( stream ), PassExisted( EqualObjects( expected ) ), "", true );
 		 context.complete();
 	}
 	
@@ -56,7 +56,7 @@ shared class Extremum()
 	test parameters( `value maximumInput` )
 	shared void maxWithExpected( AsyncTestContext context, {Integer*} stream, Integer expected ) {
 		context.start();
-		context.assertThat( max( stream ), PassExisted( EqualObjects( expected ) ) );
+		context.assertThat( max( stream ), PassExisted( EqualObjects( expected ) ), "", true );
 		context.complete();
 	}
 	

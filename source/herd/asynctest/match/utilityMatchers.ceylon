@@ -6,9 +6,7 @@ by( "Lis" )
 shared class Mapping<From, To>( To convert( From val ), Matcher<To> matcher )
 		satisfies Matcher<From>
 {
-	shared actual MatchResult match( From val ) {
-		return matcher.match( convert( val ) );
-	}
+	shared actual MatchResult match( From val ) => matcher.match( convert( val ) );
 	
 	shared actual String string {
 		value tFrom = `From`;
@@ -18,11 +16,12 @@ shared class Mapping<From, To>( To convert( From val ), Matcher<To> matcher )
 }
 
 
-"Maps matching value if it is not `null` to another one using `convert` and passes converted to the given `matcher`.  
+"Maps matching value if it is not `null` to another type `To` using `convert`
+ and passes converted to the given `matcher`.  
  Rejects matching if value is `null`."
 tagged( "Utilities" )
 by( "Lis" )
-shared class MapIfExists<From, To>( To convert( From&Object val ), Matcher<To> matcher )
+shared class MapExisted<From, To>( To convert( From&Object val ), Matcher<To> matcher )
 		satisfies Matcher<From>
 {
 	shared actual MatchResult match( From val ) {
@@ -38,6 +37,30 @@ shared class MapIfExists<From, To>( To convert( From&Object val ), Matcher<To> m
 		value tFrom = `From`;
 		value tTo = `To`;
 		return "map if exists from '``tFrom``' to '``tTo``' and match with '``matcher``'";
+	}
+}
+
+
+"Pass matching value if it satisfies given type `Value` to another `matcher`.  
+ Rejects matching if value is is not `Value`."
+tagged( "Utilities" )
+by( "Lis" )
+shared class PassType<Value>( Matcher<Value> matcher )
+		satisfies Matcher<Anything>
+{
+	shared actual MatchResult match( Anything val ) {
+		if ( is Value val ) {
+			return matcher.match( val );
+		}
+		else {
+			value tValue = `Value`;
+			return MatchResult( "``stringify( val )`` is ``tValue``", false );
+		}
+	}
+	
+	shared actual String string {
+		value tValue = `Value`;
+		return "pass type '``tValue``' to '``matcher``'";
 	}
 }
 
@@ -61,7 +84,7 @@ shared class PassExisted<Value>( Matcher<Value> matcher )
 	
 	shared actual String string {
 		value tValue = `Value`;
-		return "map existed value '``tValue``' and match with '``matcher``'";
+		return "pass existed value '``tValue``' to '``matcher``'";
 	}
 }
 
@@ -73,8 +96,7 @@ by( "Lis" )
 shared class Predicate<Value>( Boolean predicate( Value val ) )
 		satisfies Matcher<Value>
 {
-	shared actual MatchResult match( Value val )
-			=> MatchResult( "``string``", predicate( val ) );
+	shared actual MatchResult match( Value val ) => MatchResult( "``string``", predicate( val ) );
 	
 	shared actual String string {
 		value tValue = `Value`;

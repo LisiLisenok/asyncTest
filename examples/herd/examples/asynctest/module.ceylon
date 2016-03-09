@@ -31,7 +31,7 @@ license (
 by( "Lis" )
 native( "jvm" )
 module herd.examples.asynctest "0.5.0" {
-	shared import ceylon.promise "1.2.0";
+	shared import ceylon.promise "1.2.1";
 	shared import ceylon.test "1.2.1";
 	shared import ceylon.collection "1.2.1";
 	shared import herd.asynctest "0.5.0";

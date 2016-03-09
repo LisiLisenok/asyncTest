@@ -28,8 +28,8 @@ class RangeCompare() {
 	) {
 		context.start();
 		
-		context.assertThat( toCompare, Within( lower, upper ), "within" );
-		context.assertThat( toCompare, Greater( lower ).and( Less( upper ) ), "check within" );
+		context.assertThat( toCompare, Within( lower, upper ), "within", true );
+		context.assertThat( toCompare, Greater( lower ).and( Less( upper ) ), "check within", true );
 		
 		context.complete();
 	}
@@ -44,8 +44,8 @@ class RangeCompare() {
 	) {
 		context.start();
 		
-		context.assertThat( toCompare, Ranged( lower, upper ), "range" );
-		context.assertThat( toCompare, GreaterOrEqual( lower ).and( LessOrEqual( upper ) ), "check range" );
+		context.assertThat( toCompare, Ranged( lower, upper ), "range", true );
+		context.assertThat( toCompare, GreaterOrEqual( lower ).and( LessOrEqual( upper ) ), "check range", true );
 		
 		context.complete();
 	}

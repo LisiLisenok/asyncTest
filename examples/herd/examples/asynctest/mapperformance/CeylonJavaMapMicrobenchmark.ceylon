@@ -106,10 +106,8 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 	
 	shared actual void dispose() {
 		plotReporter.report (
-			[
-				putChart.build(), getChart.build(), removeChart.build(),
-				hashMapRatioChart.build(), treeMapRatioChart.build()
-			]
+			putChart.build(), getChart.build(), removeChart.build(),
+			hashMapRatioChart.build(), treeMapRatioChart.build()
 		);
 	}
 	
@@ -296,9 +294,9 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 			String getRatioStr = formatFloat( getRatio, 2, 2 );
 			String removeRatioStr = formatFloat( removeRatio, 2, 2 );
 
-			context.assertThat( putRatio, LessOrEqual( 1.0 + tolerance ), "'put' Ceylon / Java ratio" );
-			context.assertThat( getRatio, LessOrEqual( 1.0 + tolerance ), "'get' Ceylon / Java ratio" );
-			context.assertThat( removeRatio, LessOrEqual( 1.0 + tolerance ), "'remove' Ceylon / Java ratio" );
+			context.assertThat( putRatio, LessOrEqual( 1.0 + tolerance ), "'put' Ceylon / Java ratio", true );
+			context.assertThat( getRatio, LessOrEqual( 1.0 + tolerance ), "'get' Ceylon / Java ratio", true );
+			context.assertThat( removeRatio, LessOrEqual( 1.0 + tolerance ), "'remove' Ceylon / Java ratio", true );
 			
 			putPlotter.addPoint( totalItems.float, putRatio );
 			getPlotter.addPoint( totalItems.float, getRatio );

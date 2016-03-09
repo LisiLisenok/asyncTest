@@ -4,6 +4,7 @@
  is an extension to SDK `ceylon.test` module with following capabilities:
  * testing asynchronous multithread code
  * common initialization for a test suite
+ * controlling test execution order
  * executing tests concurrently or sequentially
  * parameterized testing
  * conditional test execution
@@ -19,6 +20,7 @@
    to execute test functions.
  * [[TestSuite]] interface the test suite class has to satisfy
    and [[TestInitContext]] interface used for test suite initialization.
+ * [[TestMaintainer]] controls test execution order.
  * [[package herd.asynctest.chart]] which is intended to organize reporting with charts.
  * [[package herd.asynctest.match]] which contains match API.
  
@@ -34,8 +36,13 @@
 		2. Implement test methods taking [[AsyncTestContext]] as first argument.
 		3. Mark test methods with `ceylon.test::test` annotation.
 		4. Mark appropriate `method`, `class`, `package` or `module` with `testExecutor(`\`class AsyncTestExecutor\``)`.
- * If you prefer to execute test functions in sequential mode rather then in default concurrent mode:
+ * If you prefer to execute test functions in sequential mode rather then in default concurrent one:
    mark `class`, `package` or `module` with [[sequential]] annotation.
+ * If you would like to sort an order the tests are executed in:
+ 		1. Create your tests.
+ 		2. Implement [[TestMaintainer]].
+ 		3. Mark `package` or `module` with [[maintainer]] annotation specifying
+ 		   declaration of your [[TestMaintainer]] implementation. 
  
  -------------------------------------------
  
@@ -57,7 +64,7 @@
  
  
  >Test executor blocks the thread until [[AsyncTestContext.complete]] is called. It means test function
-  has to call completion to continue with other testing and to report results.
+  has to notify completion to continue with other testing and to report results.
  
  
  >If a number of test functions are declared within some class
@@ -228,4 +235,5 @@ module herd.asynctest "0.5.0" {
 	shared import ceylon.test "1.2.1";
 	import ceylon.collection "1.2.1";
 	import ceylon.file "1.2.1";
+	shared import ceylon.promise "1.2.1";
 }

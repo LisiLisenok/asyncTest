@@ -46,7 +46,9 @@ shared class Sorter()
 	test parameters( `function generateSortInput` )
 	shared void sortWithExpected( AsyncTestContext context, SortInput input ) {
 		context.start();
-		context.assertThat( input.input.sort( increasing<Integer> ), EqualObjects( input.expected ), input.string );
+		context.assertThat (
+			input.input.sort( increasing<Integer> ), EqualObjects( input.expected ), input.string, true
+		);
 		context.complete();
 	}
 	

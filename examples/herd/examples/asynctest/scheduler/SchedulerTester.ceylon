@@ -14,7 +14,9 @@ import ceylon.test {
 }
 import herd.asynctest.match {
 
-	CloseTo
+	CloseTo,
+	PassType,
+	IsType
 }
 
 
@@ -121,35 +123,31 @@ sequential class SchedulerTester() satisfies TestSuite {
 		scheduler.schedule (
 			delays.iterator(),
 			() {
-				// timer fires - compare delays with expected
-				if ( is Integer exp = expected.next() ) {
-					Integer actualDelay = system.milliseconds - fireTime;
-					context.assertThat (
-						actualDelay,
-						CloseTo( exp, tolerance ),
-						"timer ``timerIndex``, fire ``delayIndex``"
-					);
-					totalTime += exp;
-				}
-				else {
-					// error - timer to be exhausted
-					context.fail( Exception( "timer fires but it doesn't have values to fire" ), "timer ``timerIndex``" );
-				}
+				// check if actual timer delay is close to expected one
+				Integer actualDelay = system.milliseconds - fireTime;
+				context.assertThat (
+					expected.next(),
+					PassType<Integer>( CloseTo( actualDelay, tolerance ) ),
+					"timer ``timerIndex``, fire ``delayIndex``"
+				);
+				totalTime += actualDelay;
 				fireTime = system.milliseconds;
 				delayIndex ++;
 			},
 			() {
 				// check if timer is exhausted
-				if ( is Integer exp = expected.next() ) {
-					// error - timer is not exhausted
-					context.fail( Exception( "timer is completed but it still has values to fire" ), "timer ``timerIndex``" );
-				}
+				context.assertThat (
+					expected.next(),
+					IsType<Finished>(),
+					"timer ``timerIndex``"
+				);
 				// check if total timer working time is close to expected one (sum of delays) 
 				Integer actualTotal = system.milliseconds - startTime;
 				context.assertThat (
 					totalTime,
 					CloseTo( actualTotal, tolerance ),
-					"timer ``timerIndex``"
+					"timer ``timerIndex``",
+					true
 				);
 				// complete testing
 				complete( delayIndex );

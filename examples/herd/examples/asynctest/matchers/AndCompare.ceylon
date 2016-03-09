@@ -26,7 +26,12 @@ class AndCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.start();
-		context.assertThat( toCompare, EqualTo( expectedFirst ).and( EqualTo( expectedSecond ) ), "equal and equal" );
+		context.assertThat (
+			toCompare,
+			EqualTo( expectedFirst ).and( EqualTo( expectedSecond ) ),
+			"equal and equal",
+			true
+		);
 		context.complete();
 	}
 	
@@ -38,7 +43,12 @@ class AndCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.start();
-		context.assertThat( toCompare, EqualTo( expectedFirst ).and( NotEqualTo( expectedSecond ) ), "equal and not equal" );
+		context.assertThat (
+			toCompare,
+			EqualTo( expectedFirst ).and( NotEqualTo( expectedSecond ) ),
+			"equal and not equal",
+			true
+		);
 		context.complete();
 	}
 	
@@ -50,7 +60,12 @@ class AndCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.start();
-		context.assertThat( toCompare, NotEqualTo( expectedFirst ).and( EqualTo( expectedSecond ) ), "not equal and equal" );
+		context.assertThat (
+			toCompare,
+			NotEqualTo( expectedFirst ).and( EqualTo( expectedSecond ) ),
+			"not equal and equal",
+			true
+		);
 		context.complete();
 	}
 	
@@ -62,7 +77,12 @@ class AndCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.start();
-		context.assertThat( toCompare, NotEqualTo( expectedFirst ).and( NotEqualTo( expectedSecond ) ), "not equal and not equal" );
+		context.assertThat (
+			toCompare,
+			NotEqualTo( expectedFirst ).and( NotEqualTo( expectedSecond ) ),
+			"not equal and not equal",
+			true
+		);
 		context.complete();
 	}
 	
@@ -74,7 +94,12 @@ class AndCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.start();
-		context.assertThat( toCompare, Less( expectedFirst ).and( Less( expectedSecond ) ), "less and less" );
+		context.assertThat (
+			toCompare,
+			Less( expectedFirst ).and( Less( expectedSecond ) ),
+			"less and less",
+			true
+		);
 		context.complete();
 	}
 	
@@ -86,7 +111,12 @@ class AndCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.start();
-		context.assertThat( toCompare, Less( expectedFirst ).and( Greater( expectedSecond ) ), "less and greater" );
+		context.assertThat (
+			toCompare,
+			Less( expectedFirst ).and( Greater( expectedSecond ) ),
+			"less and greater",
+			true
+		);
 		context.complete();
 	}
 	
@@ -98,7 +128,12 @@ class AndCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.start();
-		context.assertThat( toCompare, Greater( expectedFirst ).and( Greater( expectedSecond ) ), "greater and greater" );
+		context.assertThat (
+			toCompare,
+			Greater( expectedFirst ).and( Greater( expectedSecond ) ),
+			"greater and greater",
+			true
+		);
 		context.complete();
 	}
 	
@@ -110,7 +145,12 @@ class AndCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.start();
-		context.assertThat( toCompare, Greater( expectedFirst ).and( Less( expectedSecond ) ), "greater and less" );
+		context.assertThat (
+			toCompare,
+			Greater( expectedFirst ).and( Less( expectedSecond ) ),
+			"greater and less",
+			true
+		);
 		context.complete();
 	}
 }

@@ -22,11 +22,17 @@ import java.util.concurrent.locks {
 }
 import herd.asynctest.match {
 
-	Matcher
+	Matcher,
+	MatchResult
 }
 import ceylon.language.meta.declaration {
 
 	FunctionDeclaration
+}
+import ceylon.promise {
+
+	Promise,
+	Deferred
 }
 
 
@@ -64,6 +70,47 @@ class Tester() satisfies AsyncTestContext
 		finally { outputLocker.unlock(); }
 	}
 	
+	"Fills matcher with value, reports and returns results."
+	void fillMatcher<Value> (
+		Deferred<MatchResult> deferred, Value val, Matcher<Value> matcher, String title, Boolean reportSuccess
+	) {
+		try {
+			value m = matcher.match( val );
+			if ( m.accepted ) {
+				if ( reportSuccess ) {
+					addOutput (
+						TestState.success,
+						null,
+						if ( title.empty ) then m.string else title + " - " + m.string
+					);
+				}
+			}
+			else {
+				addOutput( TestState.failure, AssertionError( m.string ), title );
+			}
+			deferred.fulfill( m );
+		}
+		catch ( Throwable err ) {
+			addOutput( TestState.failure, err, title );
+			deferred.reject( err );
+		}
+	}
+	
+	"Aborts if matcher is rejected, reports and returns results."
+	void abortIfNotMatched<Value>( Deferred<MatchResult> deferred, Value val, Matcher<Value> matcher, String title ) {
+		try {
+			value m = matcher.match( val );
+			if ( !m.accepted ) {
+				addOutput( TestState.aborted, AssertionError( m.string ), title );
+			}
+			deferred.fulfill( m );
+		}
+		catch ( Throwable err ) {
+			addOutput( TestState.aborted, err, title );
+			deferred.reject( err );
+		}
+	}
+	
 	
 	shared actual void start() {
 		if ( running.get() ) {
@@ -85,30 +132,35 @@ class Tester() satisfies AsyncTestContext
 	}
 
 
-	shared actual void succeed( String message, Boolean completeTest ) {
+	shared actual void succeed( String message ) {
 		if ( running.get() ) {
 			addOutput( TestState.success, null, message );
-			if ( completeTest ) { complete(); }
 		}
 	}
 
-	shared actual void assertThat<Value> (
-		Value val, Matcher<Value> matcher, String title, Boolean completeTest
+	shared actual Promise<MatchResult> assertThat<Value> (
+		Value | Promise<Value> val, Matcher<Value> matcher, String title, Boolean reportSuccess
 	) {
-		value m = matcher.match( val );
-		if ( m.accepted ) {
-			addOutput( TestState.success, null, title + " - " + m.string );
+		Deferred<MatchResult> ret = Deferred<MatchResult>();
+		if ( is Promise<Value> val ) {
+			val.completed (
+				( Value val ) {
+					fillMatcher( ret, val, matcher, title, reportSuccess );
+				},
+				( Throwable err ) {
+					addOutput( TestState.failure, err, title );
+					ret.reject( err );
+				}
+			);
 		}
 		else {
-			addOutput( TestState.failure, AssertionError( m.string ), title );
-			if ( completeTest ) { complete(); }
+			fillMatcher( ret, val, matcher, title, reportSuccess );
 		}
+		return ret.promise;
 	}
 
 	
-	shared actual void fail (
-		Throwable reason, String title, Boolean completeTest
-	) {
+	shared actual void fail( Throwable reason, String title ) {
 		if ( running.get() ) {
 			if ( is AssertionError reason ) {
 				addOutput( TestState.failure, reason, title );
@@ -116,27 +168,34 @@ class Tester() satisfies AsyncTestContext
 			else {
 				addOutput( TestState.error, reason, title );
 			}
-			if ( completeTest ) { complete(); }
 		}
 	}
 	
-	shared actual void abort (
-		Throwable? reason, String title, Boolean completeTest
-	) {
+	shared actual void abort( Throwable? reason, String title ) {
 		if ( running.get() ) {
 			addOutput( TestState.aborted, reason, title );
-			if ( completeTest ) { complete(); }
 		}
 	}
 		
-	shared actual void assumeThat<Value> (
-			Value val, Matcher<Value> matcher, String title, Boolean completeTest
-		) {
-		value m = matcher.match( val );
-		if ( !m.accepted ) {
-			addOutput( TestState.aborted, AssertionError( m.string ), title );
-			if ( completeTest ) { complete(); }
+	shared actual Promise<MatchResult> assumeThat<Value> (
+		Value | Promise<Value> val, Matcher<Value> matcher, String title
+	) {
+		Deferred<MatchResult> ret = Deferred<MatchResult>();  
+		if ( is Promise<Value> val ) {
+			val.completed (
+				( Value val ) {
+					abortIfNotMatched( ret, val, matcher, title );
+				},
+				( Throwable err ) {
+					abort( err, title );
+					ret.reject( err );
+				}
+			);
 		}
+		else {
+			abortIfNotMatched( ret, val, matcher, title );
+		}
+		return ret.promise;
 	}
 	
 	
