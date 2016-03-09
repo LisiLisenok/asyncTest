@@ -8,6 +8,7 @@
  
  Matchers may be combined with each other using `and`, `or` and `xor` methods of [[Matcher]] interface.
  
+ --------------------------------------------
  "
 by( "Lis" )
 shared interface Matcher<in Value> {

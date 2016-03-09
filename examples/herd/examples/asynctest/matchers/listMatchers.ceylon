@@ -16,41 +16,41 @@ import herd.asynctest.match {
 }
 
 
-test parameters( `value subListStrings` )
-void listStart (
-	"Context the test is performed on." AsyncTestContext context,
-	"String to be compared." String list,
-	"String to compare to" String subList
-) {
-	context.start();
-	context.assertThat( list, StartsWith( subList ), "start with" );
-	context.complete();
+"Verify List Matchers"
+class ListMatchers() {
 	
-}
+	test parameters( `value subListStrings` )
+	shared void listStart (
+		"Context the test is performed on." AsyncTestContext context,
+		"String to be compared." String list,
+		"String to compare to" String subList
+	) {
+		context.start();
+		context.assertThat( list, StartsWith( subList ), "list starts with", true );
+		context.complete();
+	}
 
+	test parameters( `value subListStrings` )
+	shared void listEnd (
+		"Context the test is performed on." AsyncTestContext context,
+		"String to be compared." String list,
+		"String to compare to" String subList
+	) {
+		context.start();
+		context.assertThat( list, EndsWith( subList ), "list ends with", true );
+		context.complete();
+	}
 
-test parameters( `value subListStrings` )
-void listEnd (
-	"Context the test is performed on." AsyncTestContext context,
-	"String to be compared." String list,
-	"String to compare to" String subList
-) {
-	context.start();
-	context.assertThat( list, EndsWith( subList ), "end with" );
-	context.complete();
-	
-}
-
-
-test parameters( `value subListStrings` )
-void listBeginning (
-	"Context the test is performed on." AsyncTestContext context,
-	"String to be compared." String subList,
-	"String to compare to" String list
-) {
-	context.start();
-	context.assertThat( subList, Beginning( list ), "beginning" );
-	context.complete();
+	test parameters( `value subListStrings` )
+	shared void listBeginning (
+		"Context the test is performed on." AsyncTestContext context,
+		"String to be compared." String subList,
+		"String to compare to" String list
+	) {
+		context.start();
+		context.assertThat( subList, Beginning( list ), "list beginning", true );
+		context.complete();
+	}
 	
 }
 
@@ -62,6 +62,6 @@ void listFinishing (
 	"String to compare to" String list
 ) {
 	context.start();
-	context.assertThat( subList, Finishing( list ), "finishing" );
+	context.assertThat( subList, Finishing( list ), "list finishing", true );
 	context.complete();
 }

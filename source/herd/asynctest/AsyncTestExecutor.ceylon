@@ -17,7 +17,7 @@ import ceylon.test.engine.spi {
  #### Capabilities
  
  * testing asynchronous multithread code
- * running test functions concurrently or sequentialy, see [[alone]] annotation and [[module herd.asynctest]]
+ * running test functions concurrently or sequentialy, see [[sequential]] annotation and [[module herd.asynctest]]
  * multi-reporting: several failures or successes can be reported for a one test execution,
    each report is represented as test variant and might be marked with `String` title
  * parameterized testing with a set of function arguments,
@@ -49,14 +49,13 @@ import ceylon.test.engine.spi {
     [[AsyncTestContext.complete]] is called.
 
  >Test function is responsible to catch all exceptions / assertions and to redirect them to `AsyncTestContext`.
- 
- >If test function doesn't take [[AsyncTestContext]] as first argument
-  it is executed using `ceylon.test.engine::DefaultTestExecutor`.
+
 
  >It is <i>not</i> recommended to use `ceylon.test::assertXXX` functions together with [[AsyncTestContext]],
   since this functions throws an exception which may lead to immediate testing completion.
   Report via [[AsyncTestContext]] instead.  
  
+ --------------------------------------------
  "
 by( "Lis" )
 see( `function testExecutor`, `interface AsyncTestContext` )

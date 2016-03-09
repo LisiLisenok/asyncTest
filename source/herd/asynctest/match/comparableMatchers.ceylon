@@ -9,7 +9,8 @@ shared class Greater<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
- 	shared actual MatchResult match( Value val ) => MatchResult( "``val`` > ``merit``", val > merit );
+ 	shared actual MatchResult match( Value val )
+ 			=> MatchResult( "``stringify( val )`` > ``stringify( merit )``", val > merit );
 
  	shared actual String string {
  		value tVal = `Value`;
@@ -27,7 +28,8 @@ shared class Less<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual MatchResult match( Value val ) => MatchResult( "``val`` < ``merit``", val < merit );
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``stringify( val )`` < ``stringify( merit )``", val < merit );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -45,7 +47,8 @@ shared class LessOrEqual<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual MatchResult match( Value val ) => MatchResult( "``val`` <= ``merit``", val <= merit );
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``stringify( val )`` <= ``stringify( merit )``", val <= merit );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -63,7 +66,8 @@ shared class GreaterOrEqual<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Comparable<Value>
 {
-	shared actual MatchResult match( Value val ) => MatchResult( "``val`` >= ``merit``", val >= merit );
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``stringify( val )`` >= ``stringify( merit )``", val >= merit );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -84,7 +88,10 @@ shared class Within<Value> (
 		given Value satisfies Comparable<Value>
 {
 	shared actual MatchResult match( Value val )
-			=> MatchResult( "``val`` is within ``lower`` to ``upper`` excluding bounds", val > lower && val < upper );
+		=> MatchResult (
+			"``stringify( val )`` is within ``stringify( lower )`` to ``stringify( upper )`` excluding bounds",
+			val > lower && val < upper
+		);
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -105,7 +112,10 @@ shared class Ranged<Value> (
 		given Value satisfies Comparable<Value>
 {
 	shared actual MatchResult match( Value val )
-			=> MatchResult( "``val`` is within ``lower`` to ``upper`` including bounds", val >= lower && val <= upper );
+		=> MatchResult (
+			"``stringify( val )`` is within ``stringify( lower )`` to ``stringify( upper )`` including bounds",
+			val >= lower && val <= upper
+		);
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -124,7 +134,7 @@ shared class EqualTo<Value> (
 		given Value satisfies Comparable<Value>
 {
 	shared actual MatchResult match( Value val )
-			=> MatchResult( "``val`` == ``merit``", ( val <=> merit ) == equal );
+			=> MatchResult( "``stringify( val )`` == ``stringify( merit )``", ( val <=> merit ) == equal );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -143,7 +153,7 @@ shared class NotEqualTo<Value> (
 		given Value satisfies Comparable<Value>
 {
 	shared actual MatchResult match( Value val )
-			=> MatchResult( "``val`` != ``merit``", ( val <=> merit ) != equal );
+			=> MatchResult( "``stringify( val )`` != ``stringify( merit )``", ( val <=> merit ) != equal );
 
 	shared actual String string {
 		value tVal = `Value`;
@@ -164,7 +174,7 @@ shared class CloseTo<Value> (
 {
 	shared actual MatchResult match( Value val )
 			=> MatchResult (
-				"``val`` close ``merit`` with tolerance ``tolerance``",
+				"``stringify( val )`` is close to ``stringify( merit )`` with tolerance ``tolerance``",
 				( val - merit ).magnitude < tolerance
 			);
 

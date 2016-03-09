@@ -22,13 +22,23 @@ import java.util.concurrent.locks {
 }
 import herd.asynctest.match {
 
-	Matcher
+	Matcher,
+	MatchResult
+}
+import ceylon.language.meta.declaration {
+
+	FunctionDeclaration
+}
+import ceylon.promise {
+
+	Promise,
+	Deferred
 }
 
 
 "Performs a one test execution."
 by( "Lis" )
-class Tester( InitStorage inits ) satisfies AsyncTestContext
+class Tester() satisfies AsyncTestContext
 {
 	
 	"`true` if currently run"
@@ -60,6 +70,47 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 		finally { outputLocker.unlock(); }
 	}
 	
+	"Fills matcher with value, reports and returns results."
+	void fillMatcher<Value> (
+		Deferred<MatchResult> deferred, Value val, Matcher<Value> matcher, String title, Boolean reportSuccess
+	) {
+		try {
+			value m = matcher.match( val );
+			if ( m.accepted ) {
+				if ( reportSuccess ) {
+					addOutput (
+						TestState.success,
+						null,
+						if ( title.empty ) then m.string else title + " - " + m.string
+					);
+				}
+			}
+			else {
+				addOutput( TestState.failure, AssertionError( m.string ), title );
+			}
+			deferred.fulfill( m );
+		}
+		catch ( Throwable err ) {
+			addOutput( TestState.failure, err, title );
+			deferred.reject( err );
+		}
+	}
+	
+	"Aborts if matcher is rejected, reports and returns results."
+	void abortIfNotMatched<Value>( Deferred<MatchResult> deferred, Value val, Matcher<Value> matcher, String title ) {
+		try {
+			value m = matcher.match( val );
+			if ( !m.accepted ) {
+				addOutput( TestState.aborted, AssertionError( m.string ), title );
+			}
+			deferred.fulfill( m );
+		}
+		catch ( Throwable err ) {
+			addOutput( TestState.aborted, err, title );
+			deferred.reject( err );
+		}
+	}
+	
 	
 	shared actual void start() {
 		if ( running.get() ) {
@@ -81,69 +132,31 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	}
 
 
-	shared actual Item? get<Item>( String name ) => inits.retrieve<Item>( name );
-	
-	shared actual Item[] getAll<Item>() => inits.retrieveAll<Item>();
-
-	
 	shared actual void succeed( String message ) {
 		if ( running.get() ) {
 			addOutput( TestState.success, null, message );
 		}
 	}
-	
-	shared actual void assertTrue( Boolean condition, String message, String title, String? successMessage ) {
-		if ( running.get() ) {
-			if ( !condition ) {
-				addOutput( TestState.failure, AssertionError( message ), title );
-			}
-			else if ( exists str = successMessage ) {
-				succeed( str );
-			}
-		}
-	}
-	
-	shared actual void assertFalse( Boolean condition, String message, String title, String? successMessage ) {
-		if ( running.get() ) {
-			if ( condition ) {
-				addOutput( TestState.failure, AssertionError( message ), title );
-			}
-			else if ( exists str = successMessage ) {
-				succeed( str );
-			}
-		}
-	}
-	
-	shared actual void assertNull( Anything val, String message, String title, String? successMessage ) {
-		if ( running.get() ) {
-			if ( val exists ) {
-				addOutput( TestState.failure, AssertionError( message ), title );
-			}
-			else if ( exists str = successMessage ) {
-				succeed( str );
-			}
-		}
-	}
-	
-	shared actual void assertNotNull( Anything val, String message, String title, String? successMessage ) {
-		if ( running.get() ) {
-			if ( !val exists ) {
-				addOutput( TestState.failure, AssertionError( message ), title );
-			}
-			else if ( exists str = successMessage ) {
-				succeed( str );
-			}
-		}
-	}
 
-	shared actual void assertThat<Value>( Value val, Matcher<Value> matcher, String title ) {
-		value m = matcher.match( val );
-		if ( m.accepted ) {
-			addOutput( TestState.success, null, title + " - " + m.string );
+	shared actual Promise<MatchResult> assertThat<Value> (
+		Value | Promise<Value> val, Matcher<Value> matcher, String title, Boolean reportSuccess
+	) {
+		Deferred<MatchResult> ret = Deferred<MatchResult>();
+		if ( is Promise<Value> val ) {
+			val.completed (
+				( Value val ) {
+					fillMatcher( ret, val, matcher, title, reportSuccess );
+				},
+				( Throwable err ) {
+					addOutput( TestState.failure, err, title );
+					ret.reject( err );
+				}
+			);
 		}
 		else {
-			addOutput( TestState.failure, AssertionError( m.string ), title );
+			fillMatcher( ret, val, matcher, title, reportSuccess );
 		}
+		return ret.promise;
 	}
 
 	
@@ -159,23 +172,53 @@ class Tester( InitStorage inits ) satisfies AsyncTestContext
 	}
 	
 	shared actual void abort( Throwable? reason, String title ) {
-		if ( running.get() ) { addOutput( TestState.aborted, reason, title ); }
-	}
-		
-	shared actual void assumeThat<Value>( Value val, Matcher<Value> matcher, String title ) {
-		value m = matcher.match( val );
-		if ( !m.accepted ) {
-			addOutput( TestState.aborted, AssertionError( m.string ), title );
+		if ( running.get() ) {
+			addOutput( TestState.aborted, reason, title );
 		}
 	}
+		
+	shared actual Promise<MatchResult> assumeThat<Value> (
+		Value | Promise<Value> val, Matcher<Value> matcher, String title
+	) {
+		Deferred<MatchResult> ret = Deferred<MatchResult>();  
+		if ( is Promise<Value> val ) {
+			val.completed (
+				( Value val ) {
+					abortIfNotMatched( ret, val, matcher, title );
+				},
+				( Throwable err ) {
+					abort( err, title );
+					ret.reject( err );
+				}
+			);
+		}
+		else {
+			abortIfNotMatched( ret, val, matcher, title );
+		}
+		return ret.promise;
+	}
 	
 	
-	"Returns output from the test"
-	shared TestOutput[] run( Anything(AsyncTestContext) tested ) {
+	"Returns output from the test."
+	shared TestOutput[] run( FunctionDeclaration functionDeclaration, Object? instance, Anything* args ) {
 		if ( running.compareAndSet( false, true ) ) {
 			locker.lock();
 			try {
-				tested( this );
+				// invoke test function
+				if ( functionDeclaration.toplevel ) {
+					functionDeclaration.invoke( [], this, *args );
+				}
+				else if ( exists i = instance ) {
+					functionDeclaration.memberInvoke( i, [], this, *args );
+				}
+				else {
+					abort (
+						AssertionError (
+							"Unable to instantiate container object of test function ``functionDeclaration``."
+						)
+					);
+					complete();
+				}
 				if ( running.get() ) { condition.await(); }
 			}
 			catch ( Throwable err ) {

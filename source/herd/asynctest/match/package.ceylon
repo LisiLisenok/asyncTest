@@ -18,6 +18,7 @@
  >Matchers are used in conjunction with [[herd.asynctest::AsyncTestContext.assertThat]]
   and [[herd.asynctest::AsyncTestContext.assumeThat]]
  
+ --------------------------------------------
  "
 by( "Lis" )
 shared package herd.asynctest.match;

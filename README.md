@@ -1,16 +1,18 @@
 #### asyncTest
 is an extension to SDK `ceylon.test` module with following capabilities:
-* testing asynchronous multithread code
-* common initialization for a set of test functions
-* storing initialized values on test context and retrieving them during test execution
-* executing tests concurrently or sequentially
-* parameterized testing
-* conditional test execution
-* organizing complex test conditions into a one flexible expression with matchers
-* multi-reporting, i.e. several failures or successes can be reported for a one particular test execution (test function)
-* reporting test results using charts (or graphs)
- 
-The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/herd.asynctest)
+ * testing asynchronous multithread code
+ * common initialization for a test suite
+ * controlling test execution order
+ * executing tests concurrently or sequentially
+ * parameterized testing
+ * conditional test execution
+ * organizing complex test conditions into a one flexible expression with matchers
+ * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
+   each report is represented as test variant and might be marked with `String` title
+ * reporting test results using charts (or graphs)
+
+
+The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/herd.asynctest).
 
  
 #### Ceylon compiler / platform
@@ -24,6 +26,7 @@ Available on JVM only
 * ceylon.collection/1.2.1
 * ceylon.file/1.2.1
 * ceylon.language/1.2.1
+* ceylon.promise/1.2.1 shared
 * ceylon.test/1.2.1 shared
 * java.base/8 JDK
 
@@ -31,7 +34,7 @@ Available on JVM only
 #### Usage and documentation
  
 The extension is aimed to be run using Ceylon test tool.  
-See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.4.0/module-doc/api/index.html)
+See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.5.0/module-doc/api/index.html).
  
  
 #### Examples
@@ -41,4 +44,5 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
 * [Time scheduler](examples/herd/examples/asynctest/scheduler) testing.
 * [Microbenchmark](examples/herd/examples/asynctest/mapperformance) -
   comparative performance test of Ceylon / Java HashMap and TreeMap.
-* [Matchers](examples/herd/examples/asynctest/matchers) - mathcers usage.
+* [Matchers](examples/herd/examples/asynctest/matchers) - matchers usage.
+* [Maintainer](examples/herd/examples/asynctest/maintainer) - controlling test execution order.

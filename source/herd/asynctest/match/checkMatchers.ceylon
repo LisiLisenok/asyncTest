@@ -8,7 +8,8 @@ shared class EqualObjects<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Object
 {
-	shared actual MatchResult match( Value val ) => MatchResult( "``val`` == ``merit``", val == merit );
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``stringify( val )`` == ``stringify( merit )``", val == merit );
 	
 	shared actual String string {
 		value tVal = `Value`;
@@ -26,7 +27,8 @@ shared class Identical<Value> (
 		satisfies Matcher<Value>
 		given Value satisfies Identifiable
 {
-	shared actual MatchResult match( Value val ) => MatchResult( "``val`` === ``merit``", val === merit );
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``stringify( val )`` === ``stringify( merit )``", val === merit );
 	
 	shared actual String string {
 		value tVal = `Value`;
@@ -35,15 +37,41 @@ shared class Identical<Value> (
 }
 
 
+"Verifies if matching value is equal to `merit` using given comparator."
+tagged( "Checkers" )
+by( "Lis" )
+shared class EqualWith<Value> (
+	"Value to compare with matching one."
+	Value merit,
+	"Comparator used to compare matching value and merit.  
+	 Has to return `true` if values are equal and `false` otherwise."
+	Boolean comparator( Value first, Value second )
+)
+		satisfies Matcher<Value>
+		given Value satisfies Identifiable
+{
+	shared actual MatchResult match( Value val )
+		=> MatchResult (
+			"``stringify( val )`` equal to ``stringify( merit )`` with comparator",
+			comparator( val, merit )
+		);
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "equal with comparator <``tVal``>";
+	}
+}
+
+
 "Verifies if matching value is of `Check` type."
 tagged( "Checkers" )
 by( "Lis" )
-shared class IsType<Value, Check>()
-		satisfies Matcher<Value>
+shared class IsType<Check>()
+		satisfies Matcher<Anything>
 {
-	shared actual MatchResult match( Value val ) {
+	shared actual MatchResult match( Anything val ) {
 		value tCheck = `Check`;
-		return MatchResult( "``val else "<null>"`` is ``tCheck``", if ( is Check val ) then true else false );
+		return MatchResult( "``stringify( val )`` is ``tCheck``", if ( is Check val ) then true else false );
 	}
 	
 	shared actual String string {
@@ -58,7 +86,7 @@ tagged( "Checkers" )
 by( "Lis" )
 shared class IsNull() satisfies Matcher<Anything> 
 {
-	shared actual MatchResult match( Anything val ) => MatchResult( "``val else "<null>"`` is <null>", !val exists );
+	shared actual MatchResult match( Anything val ) => MatchResult( "``stringify( val )`` is <null>", !val exists );
 	
 	shared actual String string => "is <null>";
 }
@@ -69,7 +97,7 @@ tagged( "Checkers" )
 by( "Lis" )
 shared class IsNotNull() satisfies Matcher<Anything> 
 {
-	shared actual MatchResult match( Anything val ) => MatchResult( "``val else "<null>"`` is not <null>", val exists );
+	shared actual MatchResult match( Anything val ) => MatchResult( "``stringify( val )`` is not <null>", val exists );
 	
 	shared actual String string => "is not <null>";
 }

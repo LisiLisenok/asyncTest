@@ -3,9 +3,9 @@
 by( "Lis" )
 shared class CombinedReporter( {Reporter*} reporters ) satisfies Reporter {
 	
-	shared actual void report( Chart[] charts ) {
+	shared actual void report( Chart* charts ) {
 		for ( reporter in reporters ) {
-			reporter.report( charts );
+			reporter.report( *charts );
 		}
 	}
 	

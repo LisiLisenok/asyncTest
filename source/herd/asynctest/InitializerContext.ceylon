@@ -1,10 +1,3 @@
-import ceylon.language.meta.declaration {
-	FunctionDeclaration
-}
-import ceylon.language.meta.model {
-	IncompatibleTypeException
-}
-
 import java.util.concurrent.atomic {
 	AtomicBoolean
 }
@@ -27,22 +20,19 @@ class InitializerContext() satisfies TestInitContext
 	ReentrantLock locker = ReentrantLock();
 	"condition behind this running"
 	Condition condition = locker.newCondition();
-	
-	"initialized values"
-	ContainerStorage inits = ContainerStorage();
+
 	
 	"`true` if initialization completed"
 	AtomicBoolean running = AtomicBoolean( true );
 	
 	"non-null if aborted"
-	variable VariantTestOutput? abortOuts = null;
+	variable TestOutput? abortOuts = null;
 	
 	
 	shared actual void abort( Throwable reason, String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			inits.dispose();
 			String msg = if ( title.empty ) then "initialization" else "inittialization '``title``'";
-			abortOuts = VariantTestOutput( [TestOutput( TestState.aborted, reason, 0, msg )], 0 );
+			abortOuts = TestOutput( TestState.aborted, reason, 0, msg );
 			if ( locker.tryLock() ) {
 				try { condition.signal(); }
 				finally { locker.unlock(); }
@@ -58,46 +48,24 @@ class InitializerContext() satisfies TestInitContext
 			}
 		}
 	}
-	
-	shared actual void put<Item>( String name, Item item, Anything() dispose )
-			=> inits.store( name, Container<Item>( item, dispose ) );
-	
-	shared actual void addTestRunFinishedCallback( Anything() callback )
-			=> inits.addTestRunFinishedCallback( callback );
 
 	
-	"Runs initialization process."
-	shared InitStorage | VariantTestOutput run( FunctionDeclaration declaration ) {
-		if ( declaration.toplevel ) {
-			locker.lock();
-			try {
-				// arguments of initializer from `parameters` annotation
-				{Anything*} args = resolveArguments( declaration );
+	"Runs initialization process. Returns error if occured"
+	shared TestOutput? run( TestSuite suite ) {
+		locker.lock();
+		try {
+			suite.initialize( this );
+			// await initialization completion
+			if ( running.get() ) { condition.await(); }
 				
-				// invoke initialization
-				declaration.invoke( [], this, *args );
-				// await initialization completion
-				if ( running.get() ) { condition.await(); }
-				
-				if ( exists ret = abortOuts ) { return ret; }
-				else { return inits; }
-			}
-			catch ( Throwable err ) {
-				return VariantTestOutput( [TestOutput( TestState.aborted, err, 0, "initialization" )], 0 );
-			}
-			finally {
-				locker.unlock();
-			}
+			if ( exists ret = abortOuts ) { return ret; }
+			else { return null; }
 		}
-		else {
-			return VariantTestOutput (
-				[TestOutput (
-					TestState.aborted,
-					IncompatibleTypeException( "initialized function ``declaration`` has to be top level" ),
-					0, "initialization"
-				)],
-				0
-			);
+		catch ( Throwable err ) {
+			return TestOutput( TestState.aborted, err, 0, "initialization" );
+		}
+		finally {
+			locker.unlock();
 		}
 	}
 	

@@ -15,20 +15,31 @@
  
  Another reporter can be implemented using [[Reporter]] interface.
  
- Recommended usage:
- * within test initializer (see [[herd.asynctest::init]] annotation)
- 	* create [[ChartBuilder]]
- 	* add plotters using [[ChartBuilder.addPlot]]
- 	* store the plotters on the initialization context - [[herd.asynctest::TestInitContext.put]]
- 	* create a reporter - object which satisfies [[Reporter]] interface
- 	* add test run finishing callback - [[herd.asynctest::TestInitContext.addTestRunFinishedCallback]]
-      which creates charts [[ChartBuilder.build]] and reports them to the given reporter
- * within test functions
- 	* retrieve required [[Plotter]] using [[herd.asynctest::AsyncTestContext.get]]
- 	* plot to the [[Plotter]]
+ ### Usage example
  
- >[[initializeCharts]] helps to do all operations within test initializer.
+ 		Reporter plotReporter = CombinedReporter {
+ 			ConsoleReporter (
+ 				ReportFormat(\", \", 0, 0, 0, 0)
+ 			),
+ 			CSVReporter (
+ 				ReportFormat(\", \", 0, 0, 0, 0),
+ 				\"../report.csv\",
+ 				true
+ 			)
+ 		};
  
+ 		ChartBuilder builder = ChartBuilder(\"title\", \"category\", \"value\");
+ 		Plotter plotter1 = builder.addPlot(\"plot 1\");
+ 		Plotter plotter2 = builder.addPlot(\"plot 2\");
+
+ 		plotter1.addPoint( 1.0, 1.0 );
+ 		...
+ 		plotter2.addPoint( 1.0, 1.0 );
+ 		...
+ 		plotReporter.report(builder.build());
+ 
+ 
+ --------------------------------------------
  "
 by( "Lis" )
 shared package herd.asynctest.chart;

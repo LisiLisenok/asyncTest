@@ -9,8 +9,7 @@ import java.lang {
 	Thread
 }
 
-"Calculates Fibonacci number by its index.  
- Function returns incorrect result in order to demonstrate test framework output.
+"Calculates Fibonacci number by its index.
  "
 throws( `class AssertionError`, "passed index of Fibonacci number `indexOfFibonacciNumber` is less or equals to zero" )
 shared Integer positiveFibonacciNumber( Integer indexOfFibonacciNumber ) {
@@ -19,7 +18,7 @@ shared Integer positiveFibonacciNumber( Integer indexOfFibonacciNumber ) {
 	variable Integer n0 = 0;
 	variable Integer n1 = 1;
 	variable Integer ret = 1;
-	variable Integer currentIndex = 0; // use 1 to succeed the test!
+	variable Integer currentIndex = 1;
 	while ( currentIndex < indexOfFibonacciNumber ) {
 		ret = n0 + n1;
 		n0 = n1;

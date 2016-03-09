@@ -7,7 +7,8 @@ shared class DefinesKey<Value>( "Item to check if map defines." Value key )
 		satisfies Matcher<Map<Value, Anything>>
 		given Value satisfies Object
 {
-	shared actual MatchResult match( Map<Value, Anything> val ) => MatchResult( "map defines ``key``", val.defines( key ) );
+	shared actual MatchResult match( Map<Value, Anything> val )
+			=> MatchResult( "map ``stringify( val )`` defines ``stringify( key )``", val.defines( key ) );
 	
 	shared actual String string => "map defines ``key``";
 }
@@ -21,7 +22,7 @@ shared class ContainsItem<Value>( "Item to check if map contains." Value item )
 		given Value satisfies Object
 {
 	shared actual MatchResult match( Map<Anything, Value> val )
-			=> MatchResult( "map contains ``item``", val.items.contains( item ) );
+			=> MatchResult( "map ``stringify( val )`` contains ``stringify( item )``", val.items.contains( item ) );
 	
 	shared actual String string => "map contains ``item``";
 }
@@ -41,7 +42,7 @@ shared class ItemByKey<Value> (
 	shared actual MatchResult match( Map<Value, Anything> val )
 			=> MatchResult( string, val.get( key )?.equals( item ) else false );
 	
-	shared actual String string => "item ``item`` by key ``key``";
+	shared actual String string => "item ``stringify( item )`` by key ``stringify( key )``";
 }
 
 
@@ -52,7 +53,8 @@ shared class HasKey<Value>( "Item to check if map defines." Map<Value, Anything>
 		satisfies Matcher<Value>
 		given Value satisfies Object
 {
-	shared actual MatchResult match( Value val ) => MatchResult( "as key ``val``", map.defines( val ) );
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "as key ``stringify( val )`` of ``stringify( map )``", map.defines( val ) );
 	
 	shared actual String string => "as key";
 }

@@ -1,54 +1,98 @@
 import ceylon.language.meta.declaration {
-	FunctionDeclaration,
+
+	ClassDeclaration,
 	Package,
 	Module,
-	ClassDeclaration
+	FunctionOrValueDeclaration,
+	FunctionDeclaration,
+	ValueDeclaration
 }
 
 
-"Annotation class for [[init]]."
-shared final annotation class InitAnnotation (
-	"The function declaration called to init.  
-	 The function has to take first argument of [[TestInitContext]] type
-	 and other arguments as specified by `ceylon.test::parameters` annotation if marked with."
-	shared FunctionDeclaration initializer 
+"Annotation class for [[sequential]]."
+by( "Lis" )
+shared final annotation class SequentialAnnotation()
+		satisfies OptionalAnnotation<SequentialAnnotation, ClassDeclaration | Package | Module>
+{}
+
+
+"Indicates that all test functions of the marked container to be run in sequential mode."
+by( "Lis" )
+shared annotation SequentialAnnotation sequential() => SequentialAnnotation();
+
+
+"Annotation class for [[maintainer]]."
+see( `interface  TestMaintainer` )
+by( "Lis" )
+shared final annotation class MaintainerAnnotation (
+	"Declaration of a maintainer which has to have empty initializer list
+	 and has to satisfy [[TestMaintainer]] interface."
+	shared ClassDeclaration maintainerDeclaration
 )
-		satisfies OptionalAnnotation<InitAnnotation, FunctionDeclaration | ClassDeclaration | Package | Module> 
-{
-	shared actual String string => "init annotation with '``initializer.qualifiedName``' initializer";
-}
+		satisfies OptionalAnnotation<MaintainerAnnotation, Module | Package>
+{}
 
 
-"Marks a test function (marked with `ceylon.test::test` also) with initializer.  
+"Identifies maintainer for the all test groups within annotated `module`.  
+ Test groups are:
+ * All test functions of `ClassDeclaration`.
+ * All toplevel test functions of a `package`.
  
- Initializer function has to take first argument of [[TestInitContext]] type.
- If initializer takes more arguments it has to be marked with `ceylon.test::parameters` annotation
- or another annotation which supports `ceylon.test.engine.spi::ArgumentProvider`.    
- 
- [[AsyncTestExecutor]] invokes initializers just a once for a test run before test execution started.
+ Maintainer has to satisfy [[TestMaintainer]] interface.  
  "
-see( `interface TestInitContext` )
-shared annotation InitAnnotation init (
-	"Function which performs initialization." FunctionDeclaration initializer
-) => InitAnnotation( initializer );
+see( `interface  TestMaintainer`, `function arguments` )
+by( "Lis" )
+shared annotation MaintainerAnnotation maintainer (
+	"Declaration of a maintainer which has to have empty initializer list
+	 and has to satisfy [[TestMaintainer]] interface."
+	ClassDeclaration maintainerDeclaration
+) => MaintainerAnnotation( maintainerDeclaration );
 
 
-"Annotation class for [[alone]]."
-shared final annotation class AloneAnnotation (
+"Annotation class for [[arguments]]."
+by( "Lis" )
+shared final annotation class ArgumentsAnnotation (
+	"The source function or value declaration. Which has to take no arguments and return a stream of values."
+	shared FunctionOrValueDeclaration source
 )
-		satisfies OptionalAnnotation<AloneAnnotation, FunctionDeclaration | ClassDeclaration | Package | Module> 
+		satisfies OptionalAnnotation<ArgumentsAnnotation, ClassDeclaration>
 {
-	shared actual String string => "alone annotation";
+	
+	"Calls [[source]] to get arguments stream."
+	shared {Anything*} arguments() {
+		switch ( source )
+		case ( is FunctionDeclaration ) {
+			return source.apply<{Anything*},[]>()();
+		}
+		case ( is ValueDeclaration ) {
+			return source.apply<{Anything*}>().get();
+		}
+	}
+	
 }
 
 
-"Requires the test function to be executed alone rather than concurrently.  
- By default all tests are executed concurrently using fixed size thread pool with number of threads equals to
- number of available processor (cores).  
+"Indicates that test container or test maintainer class has to be instantiated using arguments provided
+ by this annotation, see [[ArgumentsAnnotation.arguments]].  
  
- Test functions marked with `alone` annotation are executed sequentially one-by-one on the <i>main</i> thread
- and after all concurrent tests are completed.
+ Example:
+ 		[Hobbit] who => [bilbo];
+ 		{[Dwarf]*} dwarves => {[fili], [kili], [balin], [dwalin]...};
+ 		
+ 		arguments(`value who`)
+ 		class HobbitTester(Hobbit hobbit) {
+ 			shared test testExecutor(`class AsyncTestExecutor`)
+ 			parameters(`value dwarves`)
+ 			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
+ 				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
+ 			}
+ 		}
  
- >To run sequentially all functions contained in package or module just mark package or module with `alone` annotation.
  "
-shared annotation AloneAnnotation alone() => AloneAnnotation();
+see( `function maintainer`, `interface TestMaintainer` )
+by( "Lis" )
+shared annotation ArgumentsAnnotation arguments (
+	"The source function or value declaration. Which has to take no arguments and return a stream of values."
+	FunctionOrValueDeclaration source
+)
+		=> ArgumentsAnnotation( source );
