@@ -5,6 +5,7 @@ import ceylon.test {
 
 
 "Represents a summary of test group execution."
+see( `interface TestMaintainer`, `class TestGroup` )
 by( "Lis" )
 shared final class TestSummary (
 	"The worst state from the all executed test results."
