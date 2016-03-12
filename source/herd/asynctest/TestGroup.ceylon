@@ -6,6 +6,7 @@ import ceylon.language.meta.declaration {
 
 
 "Identifies a test group."
+see( `interface TestMaintainer`, `class TestSummary` )
 by( "Lis" )
 shared final class TestGroup (
 	"Container the group is originated for." shared ClassDeclaration | Package container

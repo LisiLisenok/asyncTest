@@ -48,10 +48,10 @@ import ceylon.test.engine.spi {
     This step is nesseccary to continue testing with next execution since test executor blocks execution thread until
     [[AsyncTestContext.complete]] is called.
 
- >Test function is responsible to catch all exceptions / assertions and to redirect them to `AsyncTestContext`.
+ >Test function is responsible to catch all exceptions / assertions and to redirect them to `AsyncTestContext`.  
 
 
- >It is <i>not</i> recommended to use `ceylon.test::assertXXX` functions together with [[AsyncTestContext]],
+ >It is _not_ recommended to use `ceylon.test::assertXXX` functions together with [[AsyncTestContext]],
   since this functions throws an exception which may lead to immediate testing completion.
   Report via [[AsyncTestContext]] instead.  
  

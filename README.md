@@ -17,24 +17,24 @@ The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/her
  
 #### Ceylon compiler / platform
 
-Compiled with Ceylon 1.2.1  
+Compiled with Ceylon 1.2.2  
 Available on JVM only
 
 
 #### Dependencies
 
-* ceylon.collection/1.2.1
-* ceylon.file/1.2.1
-* ceylon.language/1.2.1
-* ceylon.promise/1.2.1 shared
-* ceylon.test/1.2.1 shared
+* ceylon.collection/1.2.2
+* ceylon.file/1.2.2
+* ceylon.language/1.2.2
+* ceylon.promise/1.2.2 shared
+* ceylon.test/1.2.2 shared
 * java.base/8 JDK
 
 
 #### Usage and documentation
  
 The extension is aimed to be run using Ceylon test tool.  
-See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.5.0/module-doc/api/index.html).
+See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.5.1/module-doc/api/index.html).
  
  
 #### Examples

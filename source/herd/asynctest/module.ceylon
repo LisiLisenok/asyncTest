@@ -39,10 +39,10 @@
  * If you prefer to execute test functions in sequential mode rather then in default concurrent one:
    mark `class`, `package` or `module` with [[sequential]] annotation.
  * If you would like to sort an order the tests are executed in:
- 		1. Create your tests.
- 		2. Implement [[TestMaintainer]].
- 		3. Mark `package` or `module` with [[maintainer]] annotation specifying
- 		   declaration of your [[TestMaintainer]] implementation. 
+		1. Create your tests.
+		2. Implement [[TestMaintainer]].
+		3. Mark `package` or `module` with [[maintainer]] annotation specifying
+		   declaration of your [[TestMaintainer]] implementation. 
  
  -------------------------------------------
  
@@ -64,11 +64,11 @@
  
  
  >Test executor blocks the thread until [[AsyncTestContext.complete]] is called. It means test function
-  has to notify completion to continue with other testing and to report results.
+  has to notify completion to continue with other testing and to report results.  
  
  
  >If a number of test functions are declared within some class
-  just a one instance of the class is used for the overall test runcycle.
+  just a one instance of the class is used for the overall test runcycle.  
  
  
  ### Test suite
@@ -87,14 +87,14 @@
  
  
  >If initialization is aborted using [[TestInitContext.abort]] corresponding tests
-  are never executed but test aborts are reported.
+  are never executed but test aborts are reported.  
  
  
  >Use [[TestSuite]] for test initialization. `ceylon.test::beforeTest` and `ceylon.test::afterTest`
-  don't work with [[AsyncTestExecutor]].
+  don't work with [[AsyncTestExecutor]].  
  
  
- >Arguments of test suite class can be specified using [[arguments]] annotation.
+ >Arguments of test suite class can be specified using [[arguments]] annotation.  
  
  
  Example:
@@ -230,10 +230,10 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.asynctest "0.5.0" {
+module herd.asynctest "0.5.1" {
 	import java.base "8";
-	shared import ceylon.test "1.2.1";
-	import ceylon.collection "1.2.1";
-	import ceylon.file "1.2.1";
-	shared import ceylon.promise "1.2.1";
+	shared import ceylon.test "1.2.2";
+	import ceylon.collection "1.2.2";
+	import ceylon.file "1.2.2";
+	shared import ceylon.promise "1.2.2";
 }
