@@ -55,7 +55,7 @@ import ceylon.promise {
  
  
  >If `value` is passed to [[assertThat]] or [[assumeThat]] methods the matching operation is performed immediately
-  and mathods return already fulfilled promise.
+  and methods return already fulfilled promise.
  
  --------------------------------------------
  "

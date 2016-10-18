@@ -17,17 +17,17 @@ The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/her
  
 #### Ceylon compiler / platform
 
-Compiled with Ceylon 1.2.2  
+Compiled with Ceylon 1.3.0  
 Available on JVM only
 
 
 #### Dependencies
 
-* ceylon.collection/1.2.2
-* ceylon.file/1.2.2
-* ceylon.language/1.2.2
-* ceylon.promise/1.2.2 shared
-* ceylon.test/1.2.2 shared
+* ceylon.collection/1.3.0
+* ceylon.file/1.3.0
+* ceylon.language/1.3.0
+* ceylon.promise/1.3.0 shared
+* ceylon.test/1.3.0 shared
 * java.base/8 JDK
 
 
