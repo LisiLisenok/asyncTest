@@ -4,7 +4,7 @@
  which identifies if submitted test value satisfies this rule or not.  
  
  Verification is performed using [[Matcher.match]] method. Result of verification
- isrepresented using [[MatchResult]].
+ is represented using [[MatchResult]].
  
  Matchers may be combined with each other using `and`, `or` and `xor` methods of [[Matcher]] interface.
  
@@ -13,7 +13,7 @@
 by( "Lis" )
 shared interface Matcher<in Value> {
 	
-	"Returns `null` if `val` matches this matcher otherwise returns unMatchResult message."
+	"Returns [[MatchResult]] which contains `Boolean` result (accepted or rejected) and message."
 	shared formal MatchResult match( Value val );
 	
 	

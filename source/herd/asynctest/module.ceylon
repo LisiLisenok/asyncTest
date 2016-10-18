@@ -63,6 +63,9 @@
  4. Run test in IDE or command line using Ceylon test tool.
  
  
+ >Both modules ceylon.test and herd.asynctest have to be imported to run testing
+ 
+ 
  >Test executor blocks the thread until [[AsyncTestContext.complete]] is called. It means test function
   has to notify completion to continue with other testing and to report results.  
  
@@ -230,10 +233,10 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.asynctest "0.5.1" {
+module herd.asynctest "0.5.2" {
 	import java.base "8";
-	shared import ceylon.test "1.2.2";
-	import ceylon.collection "1.2.2";
-	import ceylon.file "1.2.2";
-	shared import ceylon.promise "1.2.2";
+	shared import ceylon.test "1.3.0";
+	import ceylon.collection "1.3.0";
+	import ceylon.file "1.3.0";
+	shared import ceylon.promise "1.3.0";
 }

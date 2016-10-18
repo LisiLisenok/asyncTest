@@ -88,7 +88,7 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 	Plotter javaTreeRemovePlotter = removeChart.addPlot( titles.javaTreeMap );
 	
 	ChartBuilder hashMapRatioChart = ChartBuilder (
-		titles.hashMapRatios, titles.categoryTitle, titles.valTitle,
+		titles.hashMapRatios, titles.categoryTitle, titles.valRatioTitle,
 		ReportFormat( ", ", 0, 0, 2, 2 )
 	);
 	Plotter putHashRatioPlotter = hashMapRatioChart.addPlot( titles.put );
@@ -96,7 +96,7 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 	Plotter removeHashRatioPlooter = hashMapRatioChart.addPlot( titles.remove );
 	
 	ChartBuilder treeMapRatioChart = ChartBuilder (
-		titles.treeMapRatios, titles.categoryTitle, titles.valTitle,
+		titles.treeMapRatios, titles.categoryTitle, titles.valRatioTitle,
 		ReportFormat( ", ", 0, 0, 2, 2 )
 	);
 	Plotter putTreeRatioPlotter = treeMapRatioChart.addPlot( titles.put );

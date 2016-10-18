@@ -174,7 +174,7 @@ shared class CloseTo<Value> (
 {
 	shared actual MatchResult match( Value val )
 			=> MatchResult (
-				"``stringify( val )`` is close to ``stringify( merit )`` with tolerance ``tolerance``",
+				"``stringify( val )`` is close to ``stringify( merit )`` with tolerance of ``tolerance``",
 				( val - merit ).magnitude < tolerance
 			);
 

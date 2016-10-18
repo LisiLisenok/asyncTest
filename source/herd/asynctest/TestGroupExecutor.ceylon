@@ -12,7 +12,8 @@ import ceylon.language.meta.declaration {
 	FunctionDeclaration,
 	ClassDeclaration,
 	OpenInterfaceType,
-	Package
+	Package,
+	InterfaceDeclaration
 }
 import ceylon.collection {
 
@@ -37,6 +38,10 @@ class TestGroupExecutor (
 	"Emitting test results to." TestEventEmitter resultEmitter,
 	"Context the group executed on." shared TestExecutionContext groupContext
 ) {
+	
+	"Async declaration memoization."
+	InterfaceDeclaration asyncContextDeclaration = `interface AsyncTestContext`;
+	
 	
 	"Test event emitter with results collection."
 	TestResultCollector resultCollector = TestResultCollector( resultEmitter );
@@ -135,7 +140,7 @@ class TestGroupExecutor (
 	Boolean isAsyncDeclaration( FunctionDeclaration functionDeclaration ) {
 		if ( nonempty argDeclarations = functionDeclaration.parameterDeclarations,
 			is OpenInterfaceType argType = argDeclarations.first.openType,
-			argType.declaration == `interface AsyncTestContext`
+			argType.declaration == asyncContextDeclaration
 		) {
 			return true;
 		}

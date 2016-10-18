@@ -17,4 +17,5 @@ object titles {
 	
 	shared String categoryTitle = "count";
 	shared String valTitle = "time, ms";
+	shared String valRatioTitle = "Ceylon / Java ratio";
 }
