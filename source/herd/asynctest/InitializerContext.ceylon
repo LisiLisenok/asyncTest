@@ -31,7 +31,7 @@ class InitializerContext() satisfies TestInitContext
 	
 	shared actual void abort( Throwable reason, String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			String msg = if ( title.empty ) then "initialization" else "inittialization '``title``'";
+			String msg = if ( title.empty ) then "initialization" else "initialization '``title``'";
 			abortOuts = TestOutput( TestState.aborted, reason, 0, msg );
 			if ( locker.tryLock() ) {
 				try { condition.signal(); }

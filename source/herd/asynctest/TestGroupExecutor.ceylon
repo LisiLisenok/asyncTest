@@ -88,7 +88,7 @@ class TestGroupExecutor (
 		}
 	}
 	
-	"Runs all test concurrently."
+	"Runs all tests concurrently using fixed size thread pool with number of threads equal to number of available cores."
 	void runConcurrently( Object? instance ) {
 		Integer totalTests = executions.size;
 		if ( totalTests > 1 ) {
@@ -122,7 +122,7 @@ class TestGroupExecutor (
 		}
 	}
 	
-	"Runs all test sequentially."
+	"Runs all tests sequentially."
 	void runSequentially( Object? instance ) {
 		for ( test in executions ) {
 			AsyncTestProcessor (
@@ -236,8 +236,14 @@ class TestGroupExecutor (
 				else {
 					if ( isSequential() ) { runSequentially( instance ); }
 					else { runConcurrently( instance ); }
+					
+					// perform disposing
+					Tester tester = Tester();
+					value output = tester.run( `function TestSuite.dispose`, instance );
+					if ( !output.empty ) {
+						resultCollector.fillTestResults( groupContext, output, tester.runInterval, 1 );
+					}
 				}
-				instance.dispose();
 			}
 			else {
 				if ( isSequential() ) { runSequentially( instance ); }

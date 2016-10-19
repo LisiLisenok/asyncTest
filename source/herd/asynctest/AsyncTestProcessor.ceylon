@@ -52,9 +52,11 @@ class AsyncTestProcessor(
 		variable TestState state = TestState.skipped;
 		variable Integer index = 1;
 		for ( args in argsVariants ) {
+			// for each argument in collection results are stored as separated test variant
 			value executionResults = executeVariant( context, args );
 			String varName = variantName( args );
 			if ( executionResults.outs.empty ) {
+				// test has been succeeded
 				resultEmitter.variantResultEvent (
 					context,
 					TestOutput (
@@ -68,6 +70,7 @@ class AsyncTestProcessor(
 				if ( state < TestState.success ) { state = TestState.success; }
 			}
 			else {
+				// ome outputs are available - it doesn't mean the test has been failured!
 				for ( variantOutput in executionResults.outs ) {
 					String strTitle =	if ( variantOutput.title.empty )
 					then " - ``variantOutput.state``"
@@ -96,6 +99,7 @@ class AsyncTestProcessor(
 		TestExecutionContext context = parent.childContext( description );
 		try {
 			if ( nonempty conditions = evaluateAnnotatedConditions( functionDeclaration, context ) ) {
+				// test has been skipped due to unsatisfying some conditions
 				variable TestState state = TestState.skipped;
 				variable Integer index = 1;
 				resultEmitter.startEvent( context );

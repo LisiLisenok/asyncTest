@@ -12,7 +12,8 @@ is an extension to SDK `ceylon.test` module with following capabilities:
  * reporting test results using charts (or graphs)
 
 
-The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/herd.asynctest).
+The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/herd.asynctest).  
+Current version is 0.5.2.  
 
  
 #### Ceylon compiler / platform
@@ -34,7 +35,7 @@ Available on JVM only
 #### Usage and documentation
  
 The extension is aimed to be run using Ceylon test tool.  
-See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.5.1/module-doc/api/index.html).
+See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.5.2/module-doc/api/index.html).
  
  
 #### Examples

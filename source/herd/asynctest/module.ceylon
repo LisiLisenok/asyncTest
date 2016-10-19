@@ -77,14 +77,19 @@
  ### Test suite
  
  Test suite can be used in order to organize test functions into a one suite and to perform common
- test initialization / disposing.    
+ test initialization / disposing.  
  All test functions of the suite are to be declared within some class which satisfies [[TestSuite]] interface.  
  Just a one instance of test suite is used for the overall test runcycle.  
+ 
  Before executing any test [[TestSuite.initialize]] is called with initializer context of [[TestInitContext]].  
  Initializer has to call [[TestInitContext.proceed]] or [[TestInitContext.abort]] when initialization
  is completed or failured, correspondently.  
- When test is completed [[TestSuite.dispose]] is called.  
- 
+   
+ When test is completed [[TestSuite.dispose]] is called by test executor.
+ The method takes [[AsyncTestContext]] and general test procedure has to be applied withing dispose method:
+ * call [[AsyncTestContext.start]] before start disposing
+ * perform disposing and report failures or successes via [[AsyncTestContext]] if needed
+ * call [[AsyncTestContext.complete]] to complete the disposing	  
  
  >Executor blocks current thread until [[TestInitContext.proceed]] or [[TestInitContext.abort]] is called.  
  
@@ -111,7 +116,7 @@
  			variable Server? server = null;
  			
  			// initializer - binds to server specified by host:port,
- 			// if successfull proceeds with test or aborted if some error occured
+ 			// if successfull proceeds with test or aborted if some error occurred
  			shared actual void initialize(TestInitContext context) {
  				Server().bind(host, port).onComplete (
  					(Server createdServer) {
@@ -124,6 +129,18 @@
  						context.abort(err, \"server \`\`host\`\`:\`\`port\`\` binding error\");
  					}
  				);
+ 			}
+ 			
+ 			// disposing resources when test has been completed - may return error if occurred during disposing
+ 			shared actual void dispose(AsyncTestContext context) {
+ 				context.start();
+ 				try {
+ 					server?.stop();
+ 				}
+ 				catch (Throwable err) {
+ 					context.fail(err, \"dispose: server stopping error\");
+ 				}
+				context.complete();
  			}
  		
  			
@@ -233,7 +250,7 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.asynctest "0.5.2" {
+module herd.asynctest "0.5.3" {
 	import java.base "8";
 	shared import ceylon.test "1.3.0";
 	import ceylon.collection "1.3.0";

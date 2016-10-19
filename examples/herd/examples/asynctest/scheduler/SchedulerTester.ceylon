@@ -160,7 +160,11 @@ sequential class SchedulerTester() satisfies TestSuite {
 		);
 	}
 	
-	shared actual void dispose() => scheduler.stopAll();
+	shared actual void dispose( AsyncTestContext context ) {
+		context.start();
+		scheduler.stopAll();
+		context.complete();
+	}
 	
 	shared actual void initialize( TestInitContext initContext ) => initContext.proceed();
 	

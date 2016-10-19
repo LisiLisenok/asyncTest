@@ -104,11 +104,13 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 	Plotter removeTreeRatioPlooter = treeMapRatioChart.addPlot( titles.remove );
 
 	
-	shared actual void dispose() {
+	shared actual void dispose( AsyncTestContext context ) {
+		context.start();
 		plotReporter.report (
 			putChart.build(), getChart.build(), removeChart.build(),
 			hashMapRatioChart.build(), treeMapRatioChart.build()
 		);
+		context.complete();
 	}
 	
 	shared actual void initialize( TestInitContext initContext ) => initContext.proceed();
