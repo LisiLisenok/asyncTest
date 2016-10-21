@@ -64,7 +64,6 @@ shared final annotation class ArgumentsAnnotation (
  			shared test testExecutor(`class AsyncTestExecutor`)
  			parameterized(`value dwarves`)
  			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
- 				context.start();
  				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
  				context.complete();
  			}
@@ -130,7 +129,6 @@ shared final annotation class ParameterizedAnnotation (
  		void testIdentity<Value>(AsyncTestContext context, Value arg)
  			given Value satisfies Object
  		{
- 			context.start();
  			context.assertThat(identity<Value>(arg), EqualObjects<Value>(arg), \"\", true );
  			context.complete();
  		}
@@ -149,7 +147,6 @@ shared final annotation class ParameterizedAnnotation (
  			shared test testExecutor(`class AsyncTestExecutor`)
  			parameterized(`value dwarves`)
  			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
- 				context.start();
  				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
  				context.complete();
  			}

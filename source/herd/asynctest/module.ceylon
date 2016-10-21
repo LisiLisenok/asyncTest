@@ -51,7 +51,6 @@
     Mark test function or upper level container with `ceylon.test::test` annotation.  
     Mark test function or upper level container with `testExecutor(`\`class AsyncTestExecutor\``)` annotation.
  2. Code test function according to [[AsyncTestContext]] specification:
- 	* call [[AsyncTestContext.start]] before start testing
  	* perform testing and report failures or successes via [[AsyncTestContext]]
  	* call [[AsyncTestContext.complete]] to complete the testing
  3. Apply `ceylon.test::testExecutor` annotation at function, class, package or module level.
@@ -82,7 +81,6 @@
    
  When test is completed [[TestSuite.dispose]] is called by test executor.
  The method takes [[AsyncTestContext]] and general test procedure has to be applied withing dispose method:
- * call [[AsyncTestContext.start]] before start disposing
  * perform disposing and report failures or successes via [[AsyncTestContext]] if needed
  * call [[AsyncTestContext.complete]] to complete the disposing	  
  
@@ -128,7 +126,6 @@
  			
  			// disposing resources when test has been completed - may return error if occurred during disposing
  			shared actual void dispose(AsyncTestContext context) {
- 				context.start();
  				try {
  					server?.stop();
  				}
@@ -204,7 +201,6 @@
  		void testIdentity<Value>(AsyncTestContext context, Value arg)
  			given Value satisfies Object
  		{
- 			context.start();
  			context.assertThat(identity<Value>(arg), EqualObjects<Value>(arg), \"\", true );
  			context.complete();
  		}
@@ -223,7 +219,6 @@
  			shared test testExecutor(`class AsyncTestExecutor`)
  			parameterized(`value dwarves`)
  			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
- 				context.start();
  				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
  				context.complete();
  			}

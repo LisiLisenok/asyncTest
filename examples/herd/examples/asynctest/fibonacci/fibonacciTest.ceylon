@@ -39,9 +39,6 @@ shared void runFibonacciTest (
 	"Index of Fibonacci number to be calculated." Integer indexOfFibonacciNumber,
 	"Expected results of the calculations." Integer expectedFibonacciNumber
 ) {
-	// start testing on context
-	context.start();
-	
 	// perform calculation and checking
 	context.assertThat<Integer> (
 		asyncPositiveFibonacciNumber( indexOfFibonacciNumber ),

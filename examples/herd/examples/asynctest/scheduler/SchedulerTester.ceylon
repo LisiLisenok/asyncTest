@@ -119,7 +119,6 @@ sequential class SchedulerTester() satisfies TestSuite {
 		variable Integer totalTime = 0;
 		variable Integer fireTime = system.milliseconds;
 		variable Integer delayIndex = 0;
-		context.start();
 		scheduler.schedule (
 			delays.iterator(),
 			() {
@@ -161,7 +160,6 @@ sequential class SchedulerTester() satisfies TestSuite {
 	}
 	
 	shared actual void dispose( AsyncTestContext context ) {
-		context.start();
 		scheduler.stopAll();
 		context.complete();
 	}

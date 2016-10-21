@@ -15,8 +15,6 @@ import herd.asynctest.match {
 
 test
 void nullMatchers( "Context the test is performed on." AsyncTestContext context ) {
-	context.start();
-	
 	context.assertThat( null, IsNull(), "is null with null", true );
 	context.assertThat( null, IsNotNull(), "is not null with null", true );
 	context.assertThat( "test", IsNull(), "is null with not null", true );

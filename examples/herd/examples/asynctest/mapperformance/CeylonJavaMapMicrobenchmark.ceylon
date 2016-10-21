@@ -105,7 +105,6 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 
 	
 	shared actual void dispose( AsyncTestContext context ) {
-		context.start();
 		plotReporter.report (
 			putChart.build(), getChart.build(), removeChart.build(),
 			hashMapRatioChart.build(), treeMapRatioChart.build()
@@ -128,8 +127,6 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 		"Percent of total items to calculate number of items in get / remove tests." Float removePercent,
 		"Tolerance to compare Ceylon to Java." Float tolerance
 	) {
-		context.start();
-	
 		// Ceylon HashMap
 		value ceylonResult = chartMapTest (
 			context, totalItems, repeats, removePercent,
@@ -165,8 +162,6 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 		"Percent of [[totalItems]] used in get / remove tests." Float removePercent,
 		"Tolerance to compare Ceylon to Java." Float tolerance
 	) {
-		context.start();
-	
 		// Ceylon TreeMap
 		value ceylonResult = chartMapTest (
 			context, totalItems, repeats, removePercent,

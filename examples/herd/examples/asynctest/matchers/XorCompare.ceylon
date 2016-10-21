@@ -25,7 +25,6 @@ class XorCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			EqualTo( expectedFirst ).xor( EqualTo( expectedSecond ) ),
@@ -42,7 +41,6 @@ class XorCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			EqualTo( expectedFirst ).xor( NotEqualTo( expectedSecond ) ),
@@ -59,7 +57,6 @@ class XorCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			NotEqualTo( expectedFirst ).xor( EqualTo( expectedSecond ) ),
@@ -76,7 +73,6 @@ class XorCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			NotEqualTo( expectedFirst ).xor( NotEqualTo( expectedSecond ) ),
@@ -93,7 +89,6 @@ class XorCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			Less( expectedFirst ).xor( Less( expectedSecond ) ),
@@ -110,7 +105,6 @@ class XorCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			Less( expectedFirst ).xor( Greater( expectedSecond ) ),
@@ -127,7 +121,6 @@ class XorCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			Greater( expectedFirst ).xor( Greater( expectedSecond ) ),
@@ -144,7 +137,6 @@ class XorCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			Greater( expectedFirst ).xor( Less( expectedSecond ) ),

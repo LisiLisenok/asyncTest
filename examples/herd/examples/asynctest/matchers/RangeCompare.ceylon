@@ -26,8 +26,6 @@ class RangeCompare() {
 		"Lower range bound." String lower,
 		"Upper range bound." String upper
 	) {
-		context.start();
-		
 		context.assertThat( toCompare, Within( lower, upper ), "within", true );
 		context.assertThat( toCompare, Greater( lower ).and( Less( upper ) ), "check within", true );
 		
@@ -42,8 +40,6 @@ class RangeCompare() {
 		"Lower range bound." String lower,
 		"Upper range bound.." String upper
 	) {
-		context.start();
-		
 		context.assertThat( toCompare, Ranged( lower, upper ), "range", true );
 		context.assertThat( toCompare, GreaterOrEqual( lower ).and( LessOrEqual( upper ) ), "check range", true );
 		

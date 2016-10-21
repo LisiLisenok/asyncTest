@@ -13,10 +13,9 @@ import ceylon.promise {
  
  General test procedure within test function is:
  
- 1. Notify test executor on test procedure starting.
- 2. Perform the test itself. Notify test executor on failures or successes.
+ 1. Perform the testing. Notify test executor on failures or successes.
     Several notifications are allowed. Each failure or success notification is represented as test variant.
- 3. Notify test executor on test procedure completion (call [[AsyncTestContext.complete]]).
+ 2. Notify test executor on test procedure completion (call [[AsyncTestContext.complete]]).
     This step is nesseccary to continue testing with next execution
     since test executor blocks execution thread until [[AsyncTestContext.complete]] is called.
  	
@@ -24,9 +23,6 @@ import ceylon.promise {
  Example of tested function:
  	test testExecutor(\`class AsyncTestExecutor\`)
  	void doTesting(AsyncTestContext context) {
- 		// start testing
- 		context.start();
- 		
  		// perform test procedure and notify about fails, if no fails notified test is considered successfull
  		context.fail(Exception(\"exception\"), \"some exception\");
  		context.fail(AssertionError( \"assert\"), \"some assert\");
@@ -64,10 +60,11 @@ see( `class AsyncTestExecutor`, `package herd.asynctest.match` )
 since( "0.0.1" )
 shared interface AsyncTestContext
 {
+	/*"Starts the testing. To be called by test function before running the test, but after initialization."
+	deprecated( "in 0.6.0 since it isexcess" )
+	shared formal void start();*/
 	
-	"Starts the testing. To be called by test function before running the test, but after initialization."
-	shared formal void start();
-	
+		
 	"Completes the testing. To be called by test function when testing is completed.
 	 This wakes up test thread and allows to continue testing and store results."
 	shared formal void complete (

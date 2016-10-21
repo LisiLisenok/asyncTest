@@ -31,7 +31,6 @@ parameterized(`value identityArgs`)
 void testIdentity<Value>(AsyncTestContext context, Value arg)
 	given Value satisfies Object
 {
-	context.start();
 	context.assertThat(identity<Value>(arg), EqualObjects<Value>(arg), "", true );
 	context.complete();
 }
@@ -53,7 +52,6 @@ parameterized(`value largestArgs`)
 void testLargest<Element>(AsyncTestContext context, Element x, Element y, Element merit)
 		given Element satisfies Comparable<Element>
 {
-	context.start();
 	context.assertThat(largest<Element>(x, y), EqualTo<Element>(merit), "", true );
 	context.complete();
 }
@@ -82,7 +80,6 @@ parameterized(`value sortArgsString`)
 void testSort<Element>(AsyncTestContext context, Element[] stream, Element[] merit)
 		given Element satisfies Comparable<Element>
 {
-	context.start();
 	context.assertThat(sort<Element>(stream), EqualObjects<Element[]>(merit), "", true );
 	context.complete();
 }

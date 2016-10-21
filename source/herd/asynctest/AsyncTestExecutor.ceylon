@@ -41,10 +41,9 @@ import ceylon.test.engine.spi {
  #### Test logic 
  
  When test function taking [[AsyncTestContext]] as first argument is executed it is expected the function will do following steps:
- 1. Notifying test executor on test procedure starting - [[AsyncTestContext.start]].
- 2. Performing the test, reporting on failures via [[AsyncTestContext]].
+ 1. Performing the test, reporting on failures via [[AsyncTestContext]].
     Several error or success reports are allowed. Each failure or success report is represented as test variant.
- 3. Notifying test executor on test procedure completion - [[AsyncTestContext.complete]].
+ 2. Notifying test executor on test procedure completion - [[AsyncTestContext.complete]].
     This step is nesseccary to continue testing with next execution since test executor blocks execution thread until
     [[AsyncTestContext.complete]] is called.
 

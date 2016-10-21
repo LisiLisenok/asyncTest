@@ -9,7 +9,6 @@
  
  When test is completed [[TestSuite.dispose]] is called by test executor.
  The method takes [[AsyncTestContext]] and general test procedure has to be applied withing dispose method:
- * call [[AsyncTestContext.start]] before start disposing
  * perform disposing and report failures or successes via [[AsyncTestContext]] if needed
  * call [[AsyncTestContext.complete]] to complete the disposing	 
  
@@ -33,9 +32,8 @@ shared interface TestSuite {
 	"Disposes the suite. Called after test suite executed.  
 	 Takes [[AsyncTestContext]] which may be used to report errors or successes occurred during test disposing.
 	 General test procedure has to be applied withing dispose method:
-	 * call [[AsyncTestContext.start]] before start disposing
-	 * perform disposing and report failures or successes via [[AsyncTestContext]] if needed
-	 * call [[AsyncTestContext.complete]] to complete the disposing	 
+	 1. perform disposing and report failures or successes via [[AsyncTestContext]] if needed
+	 2. call [[AsyncTestContext.complete]] to complete the disposing	 
 	 "
 	shared formal void dispose (
 		"Disposing context. May be used to report errors or successes occurred during test disposing."

@@ -57,11 +57,11 @@ class Tester() satisfies AsyncTestContext
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 
 	
-	variable Integer startTime = 0;
-	variable Integer completeTime = 0; 
+	variable Integer startTime = system.milliseconds;
+	variable Integer completeTime = startTime; 
 	
 	"total running interval, milliseconds"
-	shared Integer runInterval => if ( completeTime > startTime ) then completeTime - startTime else 0;
+	shared Integer runInterval => completeTime - startTime;
 	
 	
 	"adds new output to `outputs`"
@@ -117,13 +117,6 @@ class Tester() satisfies AsyncTestContext
 	}
 	
 	
-	shared actual void start() {
-		if ( running.get() ) {
-			startTime = system.milliseconds;
-			completeTime = startTime;
-		}
-	}
-	
 	shared actual void complete( String title ) {
 		if ( running.compareAndSet( true, false ) ) {
 			if ( outputs.empty && !title.empty ) { addOutput( TestState.success, null, title ); }
@@ -150,16 +143,22 @@ class Tester() satisfies AsyncTestContext
 		if ( is Promise<Value> val ) {
 			val.completed (
 				( Value val ) {
-					fillMatcher( ret, val, matcher, title, reportSuccess );
+					if ( running.get() ) {
+						fillMatcher( ret, val, matcher, title, reportSuccess );
+					}
 				},
 				( Throwable err ) {
-					addOutput( TestState.failure, err, title );
+					if ( running.get() ) {
+						addOutput( TestState.failure, err, title );
+					}
 					ret.reject( err );
 				}
 			);
 		}
 		else {
-			fillMatcher( ret, val, matcher, title, reportSuccess );
+			if ( running.get() ) {
+				fillMatcher( ret, val, matcher, title, reportSuccess );
+			}
 		}
 		return ret.promise;
 	}
@@ -189,16 +188,22 @@ class Tester() satisfies AsyncTestContext
 		if ( is Promise<Value> val ) {
 			val.completed (
 				( Value val ) {
-					abortIfNotMatched( ret, val, matcher, title );
+					if ( running.get() ) {
+						abortIfNotMatched( ret, val, matcher, title );
+					}
 				},
 				( Throwable err ) {
-					abort( err, title );
+					if ( running.get() ) {
+						abort( err, title );
+					}
 					ret.reject( err );
 				}
 			);
 		}
 		else {
-			abortIfNotMatched( ret, val, matcher, title );
+			if ( running.get() ) {
+				abortIfNotMatched( ret, val, matcher, title );
+			}
 		}
 		return ret.promise;
 	}

@@ -25,7 +25,6 @@ class ListMatchers() {
 		"String to be compared." String list,
 		"String to compare to" String subList
 	) {
-		context.start();
 		context.assertThat( list, StartsWith( subList ), "list starts with", true );
 		context.complete();
 	}
@@ -36,7 +35,6 @@ class ListMatchers() {
 		"String to be compared." String list,
 		"String to compare to" String subList
 	) {
-		context.start();
 		context.assertThat( list, EndsWith( subList ), "list ends with", true );
 		context.complete();
 	}
@@ -47,7 +45,6 @@ class ListMatchers() {
 		"String to be compared." String subList,
 		"String to compare to" String list
 	) {
-		context.start();
 		context.assertThat( subList, Beginning( list ), "list beginning", true );
 		context.complete();
 	}
@@ -61,7 +58,6 @@ void listFinishing (
 	"String to be compared." String subList,
 	"String to compare to" String list
 ) {
-	context.start();
 	context.assertThat( subList, Finishing( list ), "list finishing", true );
 	context.complete();
 }

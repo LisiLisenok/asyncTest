@@ -28,7 +28,6 @@ class AllOfTest()
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			AllOf( EqualTo( expectedFirst ), EqualTo( expectedSecond ) ),
@@ -45,7 +44,6 @@ class AllOfTest()
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			AllOf( EqualTo( expectedFirst ), NotEqualTo( expectedSecond ) ),
@@ -62,7 +60,6 @@ class AllOfTest()
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			AllOf( NotEqualTo( expectedFirst ), EqualTo( expectedSecond ) ),
@@ -79,7 +76,6 @@ class AllOfTest()
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			AllOf( NotEqualTo( expectedFirst ),
@@ -97,7 +93,6 @@ class AllOfTest()
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			AllOf( Less( expectedFirst ), Less( expectedSecond ) ),
@@ -114,7 +109,6 @@ class AllOfTest()
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			AllOf( Less( expectedFirst ), Greater( expectedSecond ) ),
@@ -131,7 +125,6 @@ class AllOfTest()
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			AllOf( Greater( expectedFirst ), Greater( expectedSecond ) ),
@@ -148,7 +141,6 @@ class AllOfTest()
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.start();
 		context.assertThat (
 			toCompare,
 			AllOf( Greater( expectedFirst ), Less( expectedSecond ) ),
