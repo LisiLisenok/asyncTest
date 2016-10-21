@@ -1,6 +1,7 @@
 
 "Reports charts."
 see( `class Chart` )
+since( "0.3.0" )
 by( "Lis" )
 shared interface Reporter {
 	"Reports with charts."

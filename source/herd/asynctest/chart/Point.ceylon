@@ -1,6 +1,7 @@
 
 "A one point on a plot."
 see( `class Plot` )
+since( "0.3.0" )
 by( "Lis" )
 shared class Point
 (

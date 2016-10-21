@@ -1,5 +1,6 @@
 
 "Rectangle in 2D."
+since( "0.3.0" )
 by( "Lis" )
 shared class Rectangle (
 	"Leftmost position." shared Float left,

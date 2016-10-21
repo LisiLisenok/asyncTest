@@ -11,6 +11,7 @@ Boolean isRejected( MatchResult res ) => !res.accepted;
 
 "Accepted if all matchers from the given list are accepted otherwise rejected."
 tagged( "Combination" )
+since( "0.4.0" )
 by( "Lis" )
 shared class AllOf<Value>( Matcher<Value>* matchers ) satisfies Matcher<Value>
 {
@@ -41,6 +42,7 @@ shared class AllOf<Value>( Matcher<Value>* matchers ) satisfies Matcher<Value>
 "Accepted if no one matcher from the given list is accepted
  and rejected if all matchers from the given list are rejected."
 tagged( "Combination" )
+since( "0.4.0" )
 by( "Lis" )
 shared class NoneOf<Value>( Matcher<Value>* matchers ) satisfies Matcher<Value>
 {
@@ -70,6 +72,7 @@ shared class NoneOf<Value>( Matcher<Value>* matchers ) satisfies Matcher<Value>
 
 "Accepted if one and only one from the given matchers is accepted otherwise rejected."
 tagged( "Combination" )
+since( "0.4.0" )
 by( "Lis" )
 shared class OneOf<Value>( Matcher<Value>* matchers ) satisfies Matcher<Value>
 {
@@ -99,6 +102,7 @@ shared class OneOf<Value>( Matcher<Value>* matchers ) satisfies Matcher<Value>
 
 "Accepted if some from the given matchers is accepted and rejected only if all matchers are rejected."
 tagged( "Combination" )
+since( "0.4.0" )
 by( "Lis" )
 shared class SomeOf<Value>( Matcher<Value>* matchers ) satisfies Matcher<Value>
 {

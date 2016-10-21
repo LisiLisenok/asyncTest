@@ -1,6 +1,7 @@
 
 
 "A one plot as a list of points."
+since( "0.3.0" )
 by( "Lis" )
 shared class Plot (
 	"Plot title or name."

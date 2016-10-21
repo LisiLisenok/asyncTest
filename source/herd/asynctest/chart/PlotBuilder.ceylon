@@ -9,6 +9,7 @@ import java.util.concurrent.locks {
 
 
 "Builds a plot. Allows concurrent access."
+since( "0.3.0" )
 by( "Lis" )
 class PlotBuilder (
 	"Plot title or name." String title

@@ -6,7 +6,8 @@
  * common initialization for a test suite
  * controlling test execution order
  * executing tests concurrently or sequentially
- * parameterized testing
+ * value-parameterized testing
+ * type-parameterized testing
  * conditional test execution
  * organizing complex test conditions into a one flexible expression with matchers
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
@@ -198,16 +199,69 @@
  Test condition can be specified via custom annotation which satisfies `ceylon.test.engine.spi::TestCondition` interface.  
  Any number of test conditions can be specified at function, class, package or module level.  
  All conditions at every level are evaluated before test execution started
- and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.
+ and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.  
  
  
- ### Parameterized testing
+ ### Value and type-parameterized testing
  
- Can be performed using staff provided by `module ceylon.test`:
- `ceylon.test.engine.spi::ArgumentListProvider` or `ceylon.test::parameters`.  
- Just mark test function with `ceylon.test::parameters` annotation or another satisfied to
- `ceylon.test.engine.spi::ArgumentListProvider`.   
- See details in `ceylon.test` documentation.  
+ In order to perform parameterized testing the test function has to be marked with [[parameterized]] annotation.
+ The annotation is similar `ceylon.test::parameters` one but also provides generic type parameters.  
+ 
+ Argument of [[parameterized]] annotation has to return a stream of tupples:
+ 		{[Type<Anything>[], Anything[]]*}
+ Each tupple has two fields. First one is a list of generic type parameters and second one is a list of function arguments.
+ 
+ The test will be performed using all parameters listed at the annotation
+ a number of times equals to length of the given stream.
+ Results of the each test call will be reported as separated test variant.  
+ 
+ Example:
+ 
+ 		Value identity<Value>(Value argument) => argument;
+ 		
+ 		{[Type<Anything>[], Anything[]]*} identityArgs => {
+ 			[[\`String\`], [\"stringIdentity\"]],
+ 			[[\`Integer\`], [1]],
+ 			[[\`Float\`], [1.0]]
+ 		};
+ 		
+ 		shared test testExecutor(\`class AsyncTestExecutor\`)
+ 		parameterized(\`value identityArgs\`)
+ 		void testIdentity<Value>(AsyncTestContext context, Value arg)
+ 			given Value satisfies Object
+ 		{
+ 			context.start();
+ 			context.assertThat(identity<Value>(arg), EqualObjects<Value>(arg), \"\", true );
+ 			context.complete();
+ 		}
+ 
+ In the above example the function `testIdentity` will be called 3 times:
+ * `testIdentity<String>(context, \"stringIdentity\");`
+ * `testIdentity<Integer>(context, 1);`
+ * `testIdentity<Float>(context, 1.0);`  
+ 
+ In order to run test with conventional (non-generic function) type parameters list has to be empty:
+  		[Hobbit] who => [bilbo];
+ 		{[[], [Dwarf]]*} dwarves => {[[], [fili]], [[], [kili]], [[], [balin]], [[], [dwalin]]...};
+ 		
+ 		arguments(`value who`)
+ 		class HobbitTester(Hobbit hobbit) {
+ 			shared test testExecutor(`class AsyncTestExecutor`)
+ 			parameterized(`value dwarves`)
+ 			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
+ 				context.start();
+ 				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
+ 				context.complete();
+ 			}
+ 		}
+ 		
+ In this example class `HobbitTester` is instantiated once with argument provided by value `who` and
+ method `thereAndBackAgain` is called multiply times according to size of dwarves stream.  
+
+  
+ > [[parameterized]] annotation may occur multiple times at a given test function.  
+ 
+ > Note: `ceylon.test::parameters` and `ceylon.test.engine.spi::ArgumentListProvider` are not supported!  
  
  
  ### Matchers

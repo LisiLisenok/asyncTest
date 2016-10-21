@@ -1,56 +1,32 @@
-import ceylon.test.engine.spi {
 
-	ArgumentListProvider,
-	ArgumentProviderContext,
-	ArgumentProvider
-}
 import ceylon.language.meta.declaration {
 
 	FunctionDeclaration
 }
-import ceylon.test {
+import ceylon.language.meta.model {
 
-	TestDescription
+	Type
 }
-import ceylon.language.meta {
+import ceylon.collection {
 
-	type
+	ArrayList
 }
 
 
-"Resolves a list of arguments provided by [[ArgumentListProvider]] like [[ceylon.test::parameters]] annotation."
+"Resolves a list of type parameters and function arguments provided by [[parameterized]] annotation."
+since( "0.3.0" )
 by( "Lis" )
-{Anything[]*} resolveArgumentList( FunctionDeclaration declaration ) {
-	value argListProviders = declaration.annotations<Annotation>().narrow<ArgumentListProvider>();
-	Integer size = argListProviders.size;
-	if ( size == 1 ) {
-		 assert ( exists provider = argListProviders.first );
-		 return provider.argumentLists( ArgumentProviderContext( TestDescription( "", declaration ), declaration ) );
-	}
-	else if ( size > 1 )  {
-		value argListProviderNames = argListProviders.map( ( e ) => type( e ).declaration.name );
-		throw Exception( "function ``declaration.qualifiedName`` has multiple ArgumentListProviders: ``argListProviderNames``" );
-	}
-	else {
+{[Type<Anything>[], Anything[]]*} resolveArgumentList( FunctionDeclaration declaration ) {
+	value typeArgProviders = declaration.annotations<ParameterizedAnnotation>();
+	Integer typeArgSize = typeArgProviders.size;
+	if ( typeArgSize == 0 ) {
 		return [];
 	}
-}
-
-
-"Resolves arguments provided by [[ArgumentProvider]] like [[ceylon.test::parameters]] annotation."
-by( "Lis" )
-{Anything*} resolveArguments( FunctionDeclaration declaration ) {
-	value argProviders = declaration.annotations<Annotation>().narrow<ArgumentProvider>();
-	Integer size = argProviders.size;
-	if ( size == 1 ) {
-		assert ( exists provider = argProviders.first );
-		return provider.arguments( ArgumentProviderContext( TestDescription( "", declaration ), declaration ) );
-	}
-	else if ( size > 1 )  {
-		value argProviderNames = argProviders.map( ( e ) => type( e ).declaration.name );
-		throw Exception( "function ``declaration.qualifiedName`` has multiple ArgumentProviders: ``argProviderNames``" );
-	}
 	else {
-		return [];
+		ArrayList<[Type<Anything>[], Anything[]]> ret = ArrayList<[Type<Anything>[], Anything[]]>();
+		for ( provider in typeArgProviders ) {
+			ret.addAll( provider.arguments() );
+		}
+		return ret.sequence();
 	}
 }

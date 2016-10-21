@@ -5,6 +5,7 @@ import ceylon.collection {
 
 
 "Builds a chart."
+since( "0.3.0" )
 by( "Lis" )
 shared class ChartBuilder (
 	"Chart title." shared String chartTitle,

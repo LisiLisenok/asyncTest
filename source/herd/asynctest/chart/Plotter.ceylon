@@ -1,5 +1,6 @@
 
 "Plot builder."
+since( "0.3.0" )
 by( "Lis" )
 shared interface Plotter {
 	

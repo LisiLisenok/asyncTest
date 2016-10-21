@@ -5,6 +5,7 @@
  * value axis title
  * plot titles
  "
+since( "0.3.0" )
 by( "Lis" )
 shared class ChartDescription (
 	"Chart title." shared String chartTitle,

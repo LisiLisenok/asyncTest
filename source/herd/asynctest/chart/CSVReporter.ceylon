@@ -10,6 +10,7 @@ import ceylon.file {
 
 "Reports to a file."
 throws( `class AssertionError`, "given path is not a `File` or `Nil`" )
+since( "0.3.0" )
 by( "Lis" )
 shared class CSVReporter (
 	"Default chart format." ReportFormat format,

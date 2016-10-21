@@ -9,6 +9,7 @@
  Numbers are reported using language [[formatFloat]]
  with given decimalPlaces (see [[defaultFormat]]).  
  "
+since( "0.3.0" )
 by( "Lis" )
 shared void reportChartByLines (
 	"Default format used if no format specified in chart." ReportFormat defaultFormat,

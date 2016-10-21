@@ -1,6 +1,7 @@
 
 
 "Reports to console"
+since( "0.3.0" )
 by( "Lis" )
 shared class ConsoleReporter( ReportFormat format ) satisfies Reporter {
 	

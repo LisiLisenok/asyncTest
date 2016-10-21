@@ -20,5 +20,6 @@
  
  --------------------------------------------
  "
+since( "0.4.0" )
 by( "Lis" )
 shared package herd.asynctest.match;

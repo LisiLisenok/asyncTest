@@ -1,5 +1,6 @@
 
 "Reports to a set of reporters"
+since( "0.3.0" )
 by( "Lis" )
 shared class CombinedReporter( {Reporter*} reporters ) satisfies Reporter {
 	

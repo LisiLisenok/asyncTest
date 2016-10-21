@@ -1,5 +1,6 @@
 
 "Chart as axis definitions and a list of plots."
+since( "0.3.0" )
 by( "Lis" )
 shared class Chart (
 	"Chart title." shared String title,

@@ -10,6 +10,7 @@
  
  --------------------------------------------
  "
+since( "0.4.0" )
 by( "Lis" )
 shared interface Matcher<in Value> {
 	
@@ -41,6 +42,7 @@ shared interface Matcher<in Value> {
 
 
 "Combination of matchers with logical <i>and</i>."
+since( "0.4.0" )
 by( "Lis" )
 class AndMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
@@ -56,6 +58,7 @@ class AndMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies
 
 
 "Combination of matchers with logical <i>or</i>."
+since( "0.4.0" )
 by( "Lis" )
 class OrMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
@@ -71,6 +74,7 @@ class OrMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies 
 
 
 "Combination of matchers with logical <i>xor</i> - accepted if only one is accepted."
+since( "0.4.0" )
 by( "Lis" )
 class XorMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
@@ -86,6 +90,7 @@ class XorMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies
 
 
 "Logical <i>not</i> matcher."
+since( "0.4.0" )
 by( "Lis" )
 class NotMatcher<Value>( Matcher<Value> matcher ) satisfies Matcher<Value> {
 	
