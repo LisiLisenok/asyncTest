@@ -12,6 +12,7 @@ import ceylon.test {
 
 
 "Emits test events."
+since( "0.0.1" )
 by( "Lis" )
 interface TestEventEmitter {
 	

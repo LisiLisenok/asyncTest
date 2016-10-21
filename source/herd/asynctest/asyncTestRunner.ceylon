@@ -18,6 +18,7 @@ import ceylon.test.engine.spi {
 
 
 "Performs test initialization and execution."
+since( "0.0.1" )
 by( "Lis" )
 object asyncTestRunner {
 		

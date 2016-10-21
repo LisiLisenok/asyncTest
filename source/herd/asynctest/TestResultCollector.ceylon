@@ -15,6 +15,7 @@ import java.util.concurrent.atomic {
 
 
 "Test events emitter which collects results and redirects emission to another emitter."
+since( "0.0.1" )
 by( "Lis" )
 class TestResultCollector( "Redirected emitter." TestEventEmitter emitter ) satisfies TestEventEmitter
 {

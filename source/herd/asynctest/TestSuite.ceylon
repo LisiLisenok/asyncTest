@@ -20,6 +20,7 @@
  --------------------------------------------
  "
 see( `interface TestInitContext` )
+since( "0.5.0" )
 by( "Lis" )
 shared interface TestSuite {
 	

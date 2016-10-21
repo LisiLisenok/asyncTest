@@ -32,6 +32,7 @@ import java.util.concurrent {
 
 
 "Posseses and executes grouped tests."
+since( "0.5.0" )
 by( "Lis" )
 class TestGroupExecutor (
 	"Container the test is performed on." Package | ClassDeclaration container,
@@ -239,7 +240,7 @@ class TestGroupExecutor (
 					
 					// perform disposing
 					Tester tester = Tester();
-					value output = tester.run( `function TestSuite.dispose`, instance );
+					value output = tester.run( `function TestSuite.dispose`, instance, [] );
 					if ( !output.empty ) {
 						resultCollector.fillTestResults( groupContext, output, tester.runInterval, 1 );
 					}

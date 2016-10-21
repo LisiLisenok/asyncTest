@@ -15,6 +15,7 @@ import ceylon.language.meta {
 
 
 "Runs testing with maintainer."
+since( "0.5.0" )
 by( "Lis" )
 class MaintainedTestRunner (
 	"Test maintainer." TestMaintainer maintainer,

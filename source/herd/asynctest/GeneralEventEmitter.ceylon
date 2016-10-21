@@ -20,6 +20,7 @@ import ceylon.test.event {
 
 
 "Emits results to the context using locked to provide synchronization."
+since( "0.0.1" )
 by( "Lis" )
 class GeneralEventEmitter() satisfies TestEventEmitter {
 	

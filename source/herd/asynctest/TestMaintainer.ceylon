@@ -11,6 +11,7 @@
  --------------------------------------------
  "
 see( `class TestSummary`, `function maintainer`, `class TestGroup` )
+since( "0.5.0" )
 by( "Lis" )
 shared interface TestMaintainer {
 	

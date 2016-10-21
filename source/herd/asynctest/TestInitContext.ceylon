@@ -8,6 +8,7 @@
  --------------------------------------------
  "
 see( `interface AsyncTestContext`, `interface TestSuite` )
+since( "0.5.0" )
 by( "Lis" )
 shared interface TestInitContext {
 	

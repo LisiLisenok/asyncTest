@@ -9,6 +9,7 @@ import ceylon.language.meta {
 
 
 "Instantiates an object from class declaration with empty initializer list."
+since( "0.0.1" )
 by( "Lis" )
 Object instantiateFromClassDeclaration( ClassDeclaration declaration ) {
 	if ( declaration.anonymous ) {

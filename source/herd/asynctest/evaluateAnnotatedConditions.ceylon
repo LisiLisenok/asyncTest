@@ -28,6 +28,7 @@ import ceylon.language.meta {
 
 
 "Evaluates test conditions applied as annotations."
+since( "0.0.1" )
 by( "Lis" )
 TestOutput[] runAnnotatedConditions (
 	TestCondition[] conditions,
@@ -52,6 +53,7 @@ TestOutput[] runAnnotatedConditions (
 
 
 "Evaluates test conditions applied as annotations."
+since( "0.0.1" )
 by( "Lis" )
 TestOutput[] evaluateAnnotatedConditions (
 	"Declaration to evaluate conditions on." FunctionDeclaration declaration,
@@ -62,6 +64,7 @@ TestOutput[] evaluateAnnotatedConditions (
 
 
 "Evaluates test conditions applied as annotations."
+since( "0.0.1" )
 by( "Lis" )
 TestOutput[] evaluateContainerAnnotatedConditions (
 	"Declaration to evaluate conditions on." Package | ClassDeclaration declaration,

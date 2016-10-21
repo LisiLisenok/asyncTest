@@ -3,7 +3,8 @@ import ceylon.collection {
 }
 import ceylon.language.meta.model {
 	IncompatibleTypeException,
-	InvocationException
+	InvocationException,
+	Type
 }
 import ceylon.test {
 	TestState
@@ -37,6 +38,7 @@ import ceylon.promise {
 
 
 "Performs a one test execution."
+since( "0.0.1" )
 by( "Lis" )
 class Tester() satisfies AsyncTestContext
 {
@@ -86,7 +88,10 @@ class Tester() satisfies AsyncTestContext
 				}
 			}
 			else {
-				addOutput( TestState.failure, AssertionError( m.string ), title );
+				addOutput (
+					TestState.failure, AssertionError( m.string ),
+					if ( title.empty ) then m.string else title + " - " + m.string
+				);
 			}
 			deferred.fulfill( m );
 		}
@@ -200,16 +205,18 @@ class Tester() satisfies AsyncTestContext
 	
 	
 	"Returns output from the test."
-	shared TestOutput[] run( FunctionDeclaration functionDeclaration, Object? instance, Anything* args ) {
+	shared TestOutput[] run( FunctionDeclaration functionDeclaration, Object? instance,
+		Type<Anything>[] typeParameters, Anything* args
+	) {
 		if ( running.compareAndSet( false, true ) ) {
 			locker.lock();
 			try {
 				// invoke test function
 				if ( functionDeclaration.toplevel ) {
-					functionDeclaration.invoke( [], this, *args );
+					functionDeclaration.invoke( typeParameters, this, *args );
 				}
 				else if ( exists i = instance ) {
-					functionDeclaration.memberInvoke( i, [], this, *args );
+					functionDeclaration.memberInvoke( i, typeParameters, this, *args );
 				}
 				else {
 					abort (

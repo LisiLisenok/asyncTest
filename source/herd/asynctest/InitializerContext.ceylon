@@ -12,6 +12,7 @@ import ceylon.test {
 
 
 "Performs initialization and stores initialized values."
+since( "0.5.0" )
 by( "Lis" )
 class InitializerContext() satisfies TestInitContext
 {

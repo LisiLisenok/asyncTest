@@ -18,6 +18,7 @@ import ceylon.collection {
 
 
 "Owns and runs tests."
+since( "0.2.0" )
 by( "Lis" )
 interface TestRunner {
 	

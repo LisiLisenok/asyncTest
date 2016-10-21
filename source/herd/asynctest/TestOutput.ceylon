@@ -5,6 +5,7 @@ import ceylon.test {
 
 
 "Results of the test execution."
+since( "0.0.1" )
 by( "Lis" )
 final class TestOutput (
 	"Final test state." shared TestState state,
