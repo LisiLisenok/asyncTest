@@ -1,11 +1,11 @@
 import ceylon.test {
 
-	parameters,
 	test
 }
 import herd.asynctest {
 
-	AsyncTestContext
+	AsyncTestContext,
+	parameterized
 }
 import herd.asynctest.match {
 
@@ -23,15 +23,15 @@ shared class SortInput (
 
 
 "Generating input for [[Sorter]]."
-{[SortInput]*} generateSortInput() {
+{[[], [SortInput]]*} generateSortInput() {
 	
 	Integer[] input1 = 1..100000;
 	Integer[] input2 = 200000..100001;
 	
 	return {
-		[SortInput( input1, input1, "direct" )],
-		[SortInput( input2, input2.reversed, "reversed" )],
-		[SortInput( input1.chain( input2 ).sequence(), input1.chain( input2.reversed ).sequence(), "combined" )]
+		[[], [SortInput( input1, input1, "direct" )]],
+		[[], [SortInput( input2, input2.reversed, "reversed" )]],
+		[[], [SortInput( input1.chain( input2 ).sequence(), input1.chain( input2.reversed ).sequence(), "combined" )]]
 	};
 }
 
@@ -43,7 +43,7 @@ shared class Sorter()
 	
 	"Sorts [[SortInput.input]] using `Sequential.sort`
 	 and compares result to `SortInput.expected using operator `==`."
-	test parameters( `function generateSortInput` )
+	test parameterized( `function generateSortInput` )
 	shared void sortWithExpected( AsyncTestContext context, SortInput input ) {
 		context.start();
 		context.assertThat (

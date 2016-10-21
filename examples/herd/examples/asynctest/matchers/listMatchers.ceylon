@@ -1,11 +1,11 @@
 import ceylon.test {
 
-	parameters,
 	test
 }
 import herd.asynctest {
 
-	AsyncTestContext
+	AsyncTestContext,
+	parameterized
 }
 import herd.asynctest.match {
 
@@ -19,7 +19,7 @@ import herd.asynctest.match {
 "Verify List Matchers"
 class ListMatchers() {
 	
-	test parameters( `value subListStrings` )
+	test parameterized( `value subListStrings` )
 	shared void listStart (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String list,
@@ -30,7 +30,7 @@ class ListMatchers() {
 		context.complete();
 	}
 
-	test parameters( `value subListStrings` )
+	test parameterized( `value subListStrings` )
 	shared void listEnd (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String list,
@@ -41,7 +41,7 @@ class ListMatchers() {
 		context.complete();
 	}
 
-	test parameters( `value subListStrings` )
+	test parameterized( `value subListStrings` )
 	shared void listBeginning (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String subList,
@@ -55,7 +55,7 @@ class ListMatchers() {
 }
 
 
-test parameters( `value subListStrings` )
+test parameterized( `value subListStrings` )
 void listFinishing (
 	"Context the test is performed on." AsyncTestContext context,
 	"String to be compared." String subList,

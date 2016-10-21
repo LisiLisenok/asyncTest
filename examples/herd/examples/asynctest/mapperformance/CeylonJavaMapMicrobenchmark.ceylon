@@ -3,11 +3,11 @@ import herd.asynctest {
 	AsyncTestContext,
 	TestSuite,
 	TestInitContext,
-	sequential
+	sequential,
+	parameterized
 }
 import ceylon.test {
 
-	parameters,
 	test
 }
 import ceylon.collection {
@@ -43,13 +43,13 @@ import herd.asynctest.match {
  * tolearance to compare Ceylon to Java
    (if actual ratio exceeded `1 + tolerance` test is considered as failured otherwise it is successfull)
  "
-{[Integer, Integer, Float, Float]*} mapTestParams
+{[[], [Integer, Integer, Float, Float]]*} mapTestParams
 		=> {
-			[10000, 5, 0.3, 0.25],
-			[50000, 5, 0.3, 0.25],
-			[100000, 5, 0.3, 0.25],
-			[150000, 5, 0.3, 0.25],
-			[200000, 5, 0.3, 0.25]
+				[[], [10000, 5, 0.3, 0.25]],
+				[[], [50000, 5, 0.3, 0.25]],
+				[[], [100000, 5, 0.3, 0.25]],
+				[[], [150000, 5, 0.3, 0.25]],
+				[[], [200000, 5, 0.3, 0.25]]
 		};
 
 
@@ -120,7 +120,7 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 	 Test is performed using `chartMapTest`.  
 	 Results are reported using `fillTestResult`."
 	test
-	parameters( `value mapTestParams` )
+	parameterized( `value mapTestParams` )
 	shared void hashMap (
 		"Context the test is performed on." AsyncTestContext context,
 		"Total number of items to be put in tested map." Integer totalItems,
@@ -157,7 +157,7 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 	 Test is performed using `chartMapTest`.  
 	 Results are reported using `fillTestResult`."
 	test
-	parameters( `value mapTestParams` )
+	parameterized( `value mapTestParams` )
 	shared void treeMap (
 		"Context the test is performed on." AsyncTestContext context,
 		"Total number of items to be put in tested map." Integer totalItems,

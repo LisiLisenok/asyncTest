@@ -9,17 +9,17 @@ import herd.asynctest.match {
 }
 import ceylon.test {
 
-	parameters,
 	test
 }
 import herd.asynctest {
 
-	AsyncTestContext
+	AsyncTestContext,
+	parameterized
 }
 
 
 class RangeCompare() {
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void withinComparison (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -35,7 +35,7 @@ class RangeCompare() {
 	}
 	
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void rangeComparison (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,

@@ -7,18 +7,18 @@ import herd.asynctest.match {
 }
 import ceylon.test {
 
-	parameters,
 	test
 }
 import herd.asynctest {
 
-	AsyncTestContext
+	AsyncTestContext,
+	parameterized
 }
 
 
 class XorCompare() {
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void equalXorEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -35,7 +35,7 @@ class XorCompare() {
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void equalXorNotEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -52,7 +52,7 @@ class XorCompare() {
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void notEqualXorEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -69,7 +69,7 @@ class XorCompare() {
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void notEqualXorNotEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -86,7 +86,7 @@ class XorCompare() {
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void lessXorLess (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -103,7 +103,7 @@ class XorCompare() {
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void lessXorGreater (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -120,7 +120,7 @@ class XorCompare() {
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void greaterXorGreater (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -137,7 +137,7 @@ class XorCompare() {
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void greaterXorLess (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,

@@ -4,11 +4,11 @@ import herd.asynctest {
 	TestInitContext,
 	AsyncTestExecutor,
 	TestSuite,
-	sequential
+	sequential,
+	parameterized
 }
 import ceylon.test {
 
-	parameters,
 	test,
 	testExecutor
 }
@@ -20,25 +20,25 @@ import herd.asynctest.match {
 }
 
 
-shared {[{{Integer*}*}, Integer]*} oneConstantTimer
-		=> {[{{250}.repeat( 7 )}, 50]};
-shared {[{{Integer*}*}, Integer]*} oneDoubleTimer
-		=> {[{{250, 350}.repeat( 5 )}, 50]};
-shared {[{{Integer*}*}, Integer]*} oneTripleTimer
-		=> {[{{250, 450, 200}.repeat( 4 )}, 50]};
-shared {[{{Integer*}*}, Integer]*} oneIncreasingTimer
-		=> {[{{250, 400, 450, 600, 820, 900}}, 50]};
-shared {[{{Integer*}*}, Integer]*} twoConstantTimers
-		=> {[{{250}.repeat( 7 ), {350}.repeat( 6 )}, 50]};
-shared {[{{Integer*}*}, Integer]*} twoDoubleTimers
-		=> {[{{250, 350}.repeat( 7 ), {350, 280}.repeat( 6 )}, 50]};
-shared {[{{Integer*}*}, Integer]*} threeConstantTimers
-		=> {[{{250}.repeat( 7 ), {350}.repeat( 6 ), {300}.repeat( 5 )}, 50]};
-shared {[{{Integer*}*}, Integer]*} threeDoubleTimers
-		=> {[{{250, 350}.repeat( 7 ), {400, 350}.repeat( 4 ), {350, 280}.repeat( 6 )}, 50]};
+shared {[[], [{{Integer*}*}, Integer]]*} oneConstantTimer
+		=> {[[], [{{250}.repeat( 7 )}, 50]]};
+shared {[[], [{{Integer*}*}, Integer]]*} oneDoubleTimer
+		=> {[[], [{{250, 350}.repeat( 5 )}, 50]]};
+shared {[[], [{{Integer*}*}, Integer]]*} oneTripleTimer
+		=> {[[], [{{250, 450, 200}.repeat( 4 )}, 50]]};
+shared {[[], [{{Integer*}*}, Integer]]*} oneIncreasingTimer
+		=> {[[], [{{250, 400, 450, 600, 820, 900}}, 50]]};
+shared {[[], [{{Integer*}*}, Integer]]*} twoConstantTimers
+		=> {[[], [{{250}.repeat( 7 ), {350}.repeat( 6 )}, 50]]};
+shared {[[], [{{Integer*}*}, Integer]]*} twoDoubleTimers
+		=> {[[], [{{250, 350}.repeat( 7 ), {350, 280}.repeat( 6 )}, 50]]};
+shared {[[], [{{Integer*}*}, Integer]]*} threeConstantTimers
+		=> {[[], [{{250}.repeat( 7 ), {350}.repeat( 6 ), {300}.repeat( 5 )}, 50]]};
+shared {[[], [{{Integer*}*}, Integer]]*} threeDoubleTimers
+		=> {[[], [{{250, 350}.repeat( 7 ), {400, 350}.repeat( 4 ), {350, 280}.repeat( 6 )}, 50]]};
 
 "Scheduler test parameters."
-shared {[{{Integer*}*}, Integer]*} combinedTimers
+shared {[[], [{{Integer*}*}, Integer]]*} combinedTimers
 		=> oneConstantTimer.chain( oneDoubleTimer ).chain( oneTripleTimer ).chain( oneIncreasingTimer )
 			.chain( twoConstantTimers ).chain( twoDoubleTimers ).chain( threeConstantTimers ).chain( threeDoubleTimers );
 
@@ -73,7 +73,7 @@ sequential class SchedulerTester() satisfies TestSuite {
 	
 	test
 	testExecutor( `class AsyncTestExecutor` )
-	parameters( `value combinedTimers` )
+	parameterized( `value combinedTimers` )
 	shared void scheduleFires (
 		"Context the test is performed on." AsyncTestContext context,
 		"List of delays submited to [[Scheduler.schedule]]." {{Integer*}*} delayList,

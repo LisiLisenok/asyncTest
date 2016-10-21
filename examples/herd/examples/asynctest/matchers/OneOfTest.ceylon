@@ -8,19 +8,19 @@ import herd.asynctest.match {
 }
 import ceylon.test {
 	
-	parameters,
 	test
 }
 import herd.asynctest {
 	
-	AsyncTestContext
+	AsyncTestContext,
+	parameterized
 }
 
 
 class OneOfTest()
 {
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void oneOfEqualAndEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -37,7 +37,7 @@ class OneOfTest()
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void oneOfEqualNotEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -54,7 +54,7 @@ class OneOfTest()
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void oneOfNotEqualEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -71,7 +71,7 @@ class OneOfTest()
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void oneOfNotEqualNotEqualTo (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -88,7 +88,7 @@ class OneOfTest()
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void oneOfLessLess (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -105,7 +105,7 @@ class OneOfTest()
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void oneOfLessGreater (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -122,7 +122,7 @@ class OneOfTest()
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void oneOfGreaterGreater (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -139,7 +139,7 @@ class OneOfTest()
 		context.complete();
 	}
 	
-	test parameters( `value combinedComparisonStrings` )
+	test parameterized( `value combinedComparisonStrings` )
 	shared void oneOfGreaterLess (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,

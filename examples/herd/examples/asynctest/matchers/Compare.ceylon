@@ -1,11 +1,11 @@
 import ceylon.test {
 
-	test,
-	parameters
+	test
 }
 import herd.asynctest {
 
-	AsyncTestContext
+	AsyncTestContext,
+	parameterized
 }
 import herd.asynctest.match {
 
@@ -20,7 +20,7 @@ import herd.asynctest.match {
 
 class Compare() {
 	
-	test parameters( `value comparisonStrings` )
+	test parameterized( `value comparisonStrings` )
 	shared void equal (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -32,7 +32,7 @@ class Compare() {
 		context.complete();
 	}
 	
-	test parameters( `value comparisonStrings` )
+	test parameterized( `value comparisonStrings` )
 	shared void notEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -44,7 +44,7 @@ class Compare() {
 		context.complete();
 	}
 	
-	test parameters( `value comparisonStrings` )
+	test parameterized( `value comparisonStrings` )
 	shared void greaterOrEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -56,7 +56,7 @@ class Compare() {
 		context.complete();
 	}
 	
-	test parameters( `value comparisonStrings` )
+	test parameterized( `value comparisonStrings` )
 	shared void lessOrEqual (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -68,7 +68,7 @@ class Compare() {
 		context.complete();
 	}
 	
-	test parameters( `value comparisonStrings` )
+	test parameterized( `value comparisonStrings` )
 	shared void less (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,
@@ -80,7 +80,7 @@ class Compare() {
 		context.complete();
 	}
 	
-	test parameters( `value comparisonStrings` )
+	test parameterized( `value comparisonStrings` )
 	shared void greater (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String toCompare,

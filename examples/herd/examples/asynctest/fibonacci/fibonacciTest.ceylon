@@ -1,13 +1,13 @@
 import ceylon.test {
 
-	parameters,
 	test,
 	testExecutor
 }
 import herd.asynctest {
 
 	AsyncTestContext,
-	AsyncTestExecutor
+	AsyncTestExecutor,
+	parameterized
 }
 import herd.asynctest.match {
 
@@ -19,9 +19,9 @@ import herd.asynctest.match {
 
 "Fibonacci test parameters."
 see( `function runFibonacciTest` )
-{[Integer, Integer]*} fibonacciNumbers =>
+{[[],[Integer, Integer]]*} fibonacciNumbers =>
 		{
-			[3, 2], [4, 3], [5, 5], [6, 8], [7, 13], [8, 21], [9, 34], [10, 55]
+			[[],[3, 2]], [[],[4, 3]], [[],[5, 5]], [[],[6, 8]], [[],[7, 13]], [[],[8, 21]], [[],[9, 34]], [[],[10, 55]]
 		};
 
 
@@ -32,7 +32,7 @@ see( `function runFibonacciTest` )
  
  The function is marked with `testExecutor` annotation in order to perform asynchronous test.
  Alternatively `testExecutor` annotation can be used at module level."
-test parameters( `value fibonacciNumbers` )
+test parameterized( `value fibonacciNumbers` )
 testExecutor( `class AsyncTestExecutor` )
 shared void runFibonacciTest (
 	"Context to send test results." AsyncTestContext context,
