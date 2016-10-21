@@ -66,7 +66,6 @@ shared class AsyncTestExecutor (
 )
 		satisfies TestExecutor
 {
-	
 	String getName() {
 		if ( functionDeclaration.toplevel ) {
 			return functionDeclaration.qualifiedName;

@@ -21,7 +21,6 @@
    to execute test functions.
  * [[TestSuite]] interface the test suite class has to satisfy
    and [[TestInitContext]] interface used for test suite initialization.
- * [[TestMaintainer]] controls test execution order.
  * [[package herd.asynctest.chart]] which is intended to organize reporting with charts.
  * [[package herd.asynctest.match]] which contains match API.
  
@@ -39,11 +38,6 @@
 		4. Mark appropriate `method`, `class`, `package` or `module` with `testExecutor(`\`class AsyncTestExecutor\``)`.
  * If you prefer to execute test functions in sequential mode rather then in default concurrent one:
    mark `class`, `package` or `module` with [[sequential]] annotation.
- * If you would like to sort an order the tests are executed in:
-		1. Create your tests.
-		2. Implement [[TestMaintainer]].
-		3. Mark `package` or `module` with [[maintainer]] annotation specifying
-		   declaration of your [[TestMaintainer]] implementation. 
  
  -------------------------------------------
  
@@ -172,27 +166,7 @@
  
  
  >Test class can be instantiated with arguments using [[arguments]] annotation.
- 
- 
- ### Test maintainer
- 
- Combines a number of test groups into a one assembly and indented to sort the test groups execution order
- (by default test groups are executed in alphabetical order). This can be used to execute more important tests before
- less important ones.    
- Maintainer has to satisfy [[TestMaintainer]] interface and can be specified using [[maintainer]] annotation
- at `package` or `module` level.
- 
- Only one maintainer of a given type is instantiated for any number of [[maintainer]] annotation application.  
- In the below example only one instance of `MyMaintainer` is used to manage the overall test assembly:
- 		maintainer( `class MyMaintainer`) package xxx
- 		...
- 		maintainer( `class MyMaintainer`) package yyy
- 		...
- 		maintainer( `class MyMaintainer`) package zzz
- 		...
- 
- >Test maintainer can be instantiated with arguments using [[arguments]] annotation.
- 
+  
  
  ### Conditional execution
  

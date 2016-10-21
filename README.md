@@ -2,7 +2,6 @@
 is an extension to SDK `ceylon.test` module with following capabilities:
  * testing asynchronous multithread code
  * common initialization for a test suite
- * controlling test execution order
  * executing tests concurrently or sequentially
  * value-parameterized testing
  * type-parameterized testing
@@ -48,4 +47,3 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
   comparative performance test of Ceylon / Java HashMap and TreeMap.
 * [Matchers](examples/herd/examples/asynctest/matchers) - matchers usage.
 * [Generics](examples/herd/examples/asynctest/generics) - type-parameterized testing.
-* [Maintainer](examples/herd/examples/asynctest/maintainer) - controlling test execution order.

@@ -25,11 +25,8 @@ object asyncTestRunner {
 	"Emitting results of the test."
 	GeneralEventEmitter resultEmitter = GeneralEventEmitter();
 		
-	"Test runner for a given maintainer declaration."
-	HashMap<ClassDeclaration, TestRunner> runners = HashMap<ClassDeclaration, TestRunner>();
-	
-	"Test runner used if maintainer is not specified."
-	UnmaintainedTestRunner defaultRunner = UnmaintainedTestRunner( resultEmitter );
+	"Executors of test groups - package or class level."
+	HashMap<String, TestGroupExecutor> executors = HashMap<String, TestGroupExecutor>(); 
 	
 	
 	"total number of tests"
@@ -42,7 +39,7 @@ object asyncTestRunner {
 	ClassDeclaration asyncTestDeclaration = `class AsyncTestExecutor`;
 	
 	
-	"Returns total number of test run using `AsyncTestContext` from the given desciptions."
+	"Returns total number of test run using `AsyncTestContext` from the given descriptions."
 	Integer numberOfAsyncTest( TestDescription* descriptions ) {
 		variable Integer ret = 0;
 		for ( descr in descriptions ) {
@@ -54,38 +51,22 @@ object asyncTestRunner {
 		return ret;
 	}
 	
-	
-	"Returns runner corresponding to the given module or creates new one."
-	TestRunner getRunner( Package container ) {
-		if ( exists decl = maintainerDeclaration( container ) ) {
-			if ( exists ret = runners.get( decl ) ) {
-				return ret;
-			}
-			else if ( is TestMaintainer maintainer = instantiateFromClassDeclaration( decl ) ){
-				MaintainedTestRunner runner = MaintainedTestRunner( maintainer, resultEmitter );
-				runners.put( decl, runner );
-				return runner;
-			}
-			else {
-				throw AssertionError( "Maintainer declaration ``decl`` has to satisfy 'TestMaintainer' interface" );
-			}
+	"Returns registered test executor for the given container or creates new one."
+	TestGroupExecutor getTestExecutor (
+		"Group the executor is looked for." ClassDeclaration | Package container,
+		"Context the group executed on." TestExecutionContext groupContext
+	) {
+		if ( exists groupExecutor = executors.get( container.qualifiedName ) ) {
+			return groupExecutor;
 		}
 		else {
-			return defaultRunner;
-		}
-	}
-	
-	
-	"Returns maintainer declaration or `null` if not specified."
-	ClassDeclaration? maintainerDeclaration( Package container ) {
-		if ( exists maintainerDeclaration = container.annotations<MaintainerAnnotation>().first?.maintainerDeclaration ) {
-			return maintainerDeclaration;
-		}
-		else if ( exists maintainerDeclaration = container.container.annotations<MaintainerAnnotation>().first?.maintainerDeclaration ) {
-			return maintainerDeclaration;
-		}
-		else {
-			return null;
+			TestGroupExecutor groupExecutor = TestGroupExecutor (
+				container,
+				resultEmitter,
+				groupContext
+			);
+			executors.put( container.qualifiedName, groupExecutor );
+			return groupExecutor;
 		}
 	}
 
@@ -96,28 +77,26 @@ object asyncTestRunner {
 		ClassDeclaration? classDeclaration,
 		TestExecutionContext parent,
 		TestDescription description
-	) {
+	) {		
 		// calculates number of async tests
 		if ( totalTestNumber < 0 ) {
 			totalTestNumber = numberOfAsyncTest( parent.runner.description );
 		}
 		
 		// add test
-		TestRunner testRunner = getRunner( functionDeclaration.containingPackage );
-		testRunner.addTest( functionDeclaration, classDeclaration, parent, description );
+		getTestExecutor( classDeclaration else functionDeclaration.containingPackage, parent )
+				.addTest( functionDeclaration, description );
 		addedTestNumber ++;
 		
 		// if it is last test - execute all tests
 		if ( addedTestNumber == totalTestNumber ) {
-			for ( runner in runners.items ) {
-				runner.run();
+			for ( executor in executors.items ) {
+				executor.run();
 			}
-			runners.clear();
-			defaultRunner.run();
 		}
 	}
 	
-		
+	
 	"`true` if execution is performed using `AsyncTestExecutor`"
 	Boolean isAsyncExecutedTest( FunctionDeclaration functionDeclaration ) {
 		if ( nonempty ann = functionDeclaration.annotations<TestExecutorAnnotation>() ) {

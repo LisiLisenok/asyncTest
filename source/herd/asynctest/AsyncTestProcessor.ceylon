@@ -35,9 +35,7 @@ class AsyncTestProcessor(
 	"Object contained function or `null` if function is top level" Object? instance,
 	"Parent execution context." TestExecutionContext parent,
 	"Description the test performed on." TestDescription description
-)
-		//satisfies RunnableTestContext
-{
+) {
 	
 	"Executes one variant.
 	 Returns output from this variant."

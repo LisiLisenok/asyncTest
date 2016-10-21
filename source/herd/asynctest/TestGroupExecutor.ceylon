@@ -164,7 +164,7 @@ class TestGroupExecutor (
 	}
 	
 	"Finalizes testing - raised test finish event and collects test results."
-	TestSummary finalizeTest() {
+	void finalizeTest() {
 		executions.clear();
 		resultCollector.stopRecording();
 		resultCollector.finishEvent (
@@ -177,17 +177,6 @@ class TestGroupExecutor (
 				resultCollector.overallTestTime
 			),
 			0
-		);
-		
-		return TestSummary (
-			resultCollector.overallState,
-			resultCollector.successTotal,
-			resultCollector.failureTotal,
-			resultCollector.errorTotal,
-			resultCollector.skipTotal,
-			resultCollector.abortTotal,
-			resultCollector.executionTotal,
-			resultCollector.overallTestTime
 		);
 	}
 	
@@ -208,19 +197,18 @@ class TestGroupExecutor (
 	}
 	
 	"Skips all tests in the group."
-	shared TestSummary skipGroupTest( [TestOutput+] outputs ) {
+	shared void skipGroupTest( [TestOutput+] outputs ) {
 		resultCollector.startRecording();
 		resultCollector.startEvent( groupContext );
 		for ( execution in executions ) {
 			TestExecutionContext context = groupContext.childContext( execution.description );
 			resultCollector.fillTestResults( context, outputs, 0, 0 );
 		}
-		
-		return finalizeTest();
+		finalizeTest();
 	}
 	
 	"Runs tests in this group."
-	shared TestSummary run() {
+	shared void run() {
 		resultCollector.startRecording();
 		resultCollector.startEvent( groupContext );
 		
@@ -229,10 +217,7 @@ class TestGroupExecutor (
 			if ( is TestSuite instance ) {
 				if ( exists ret = InitializerContext().run( instance ) ) {
 					value testOuts = [ret];
-					for ( test in executions ) {
-						TestExecutionContext context = groupContext.childContext( test.description );
-						resultCollector.fillTestResults( context, testOuts, 0, 0 );
-					}
+					resultCollector.fillTestResults( groupContext, testOuts, 0, 0 );
 				}
 				else {
 					if ( isSequential() ) { runSequentially( instance ); }
@@ -252,7 +237,7 @@ class TestGroupExecutor (
 			}
 		}
 		
-		return finalizeTest();
+		finalizeTest();
 	}
 	
 }

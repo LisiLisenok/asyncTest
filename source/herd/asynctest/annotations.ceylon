@@ -27,35 +27,6 @@ by( "Lis" )
 shared annotation SequentialAnnotation sequential() => SequentialAnnotation();
 
 
-"Annotation class for [[maintainer]]."
-see( `interface  TestMaintainer` )
-since( "0.5.0" )
-by( "Lis" )
-shared final annotation class MaintainerAnnotation (
-	"Declaration of a maintainer which has to have empty initializer list
-	 and has to satisfy [[TestMaintainer]] interface."
-	shared ClassDeclaration maintainerDeclaration
-)
-		satisfies OptionalAnnotation<MaintainerAnnotation, Module | Package>
-{}
-
-
-"Identifies maintainer for the all test groups within annotated `module`.  
- Test groups are:
- * All test functions of `ClassDeclaration`.
- * All toplevel test functions of a `package`.
- 
- Maintainer has to satisfy [[TestMaintainer]] interface.  
- "
-see( `interface  TestMaintainer`, `function arguments` )
-since( "0.5.0" )
-by( "Lis" )
-shared annotation MaintainerAnnotation maintainer (
-	"Declaration of a maintainer which has to have empty initializer list
-	 and has to satisfy [[TestMaintainer]] interface."
-	ClassDeclaration maintainerDeclaration
-) => MaintainerAnnotation( maintainerDeclaration );
-
 
 "Annotation class for [[arguments]]."
 since( "0.5.0" )
@@ -100,7 +71,6 @@ shared final annotation class ArgumentsAnnotation (
  		}
  
  "
-see( `function maintainer`, `interface TestMaintainer` )
 since( "0.5.0" )
 by( "Lis" )
 shared annotation ArgumentsAnnotation arguments (
