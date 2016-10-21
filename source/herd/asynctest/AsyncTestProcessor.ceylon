@@ -20,9 +20,14 @@ import herd.asynctest.match {
 
 	stringify
 }
+import ceylon.language.meta.model {
+
+	Type
+}
 
 
 "Processes test execution."
+since( "0.2.0" )
 by( "Lis" )
 class AsyncTestProcessor(
 	"Emitting test results to." TestEventEmitter resultEmitter,
@@ -31,30 +36,30 @@ class AsyncTestProcessor(
 	"Parent execution context." TestExecutionContext parent,
 	"Description the test performed on." TestDescription description
 )
-		satisfies RunnableTestContext
+		//satisfies RunnableTestContext
 {
 	
 	"Executes one variant.
 	 Returns output from this variant."
-	VariantTestOutput executeVariant( TestExecutionContext context, Anything[] args ) {
+	VariantTestOutput executeVariant( TestExecutionContext context, Type<Anything>[] typeParameters, Anything[] args ) {
 		// run test
 		Tester tester = Tester();
-		value output = tester.run( functionDeclaration, instance, *args );
+		value output = tester.run( functionDeclaration, instance, typeParameters, *args );
 		// test results
 		return VariantTestOutput( output, tester.runInterval );
 	}
 	
 	
 	"Executes all variants for the given list of argument variants `argsVariants`"
-	void executeVariants( TestExecutionContext context, {Anything[]*} argsVariants ) {
+	void executeVariants( TestExecutionContext context, {[Type<Anything>[], Anything[]]*} argsVariants ) {
 		variable Integer startTime = system.milliseconds;
 		resultEmitter.startEvent( context );
 		variable TestState state = TestState.skipped;
 		variable Integer index = 1;
 		for ( args in argsVariants ) {
 			// for each argument in collection results are stored as separated test variant
-			value executionResults = executeVariant( context, args );
-			String varName = variantName( args );
+			value executionResults = executeVariant( context, args[0], args[1] );
+			String varName = variantName( args[0], args[1] );
 			if ( executionResults.outs.empty ) {
 				// test has been succeeded
 				resultEmitter.variantResultEvent (
@@ -95,7 +100,7 @@ class AsyncTestProcessor(
 	}
 
 	
-	shared actual void runTest() {
+	shared void runTest() {
 		TestExecutionContext context = parent.childContext( description );
 		try {
 			if ( nonempty conditions = evaluateAnnotatedConditions( functionDeclaration, context ) ) {
@@ -115,11 +120,11 @@ class AsyncTestProcessor(
 				Integer size = argLists.size;
 				// execute test
 				if ( size == 0 ) {
-					value res = executeVariant( context, [] );
+					value res = executeVariant( context, [], [] );
 					resultEmitter.fillTestResults( context, res.outs, res.totalElapsedTime, 1 );
 				}
 				else if ( size == 1, exists args = argLists.first ) {
-					value res = executeVariant( context, args );
+					value res = executeVariant( context, args[0], args[1] );
 					resultEmitter.fillTestResults( context, res.outs, res.totalElapsedTime, 1 );
 				}
 				else {
@@ -138,11 +143,27 @@ class AsyncTestProcessor(
 	}
 	
 	
-	String variantName( Anything[] args ) {
+	String variantName( Type<Anything>[] typeParameters, Anything[] args ) {
 		StringBuilder builder = StringBuilder();
-		Integer size = args.size - 1;
-		if ( size > 0 ) { builder.append( "parameters (" ); }
-		else { builder.append( "parameter (" ); }
+		
+		// add type parameters
+		variable Integer size = typeParameters.size;
+		if ( size > 0 ) {
+			size --;
+			builder.append( "<" );
+			for( arg in typeParameters.indexed ) {
+				builder.append( arg.item.string );
+				if( arg.key < size ) {
+					builder.append(", ");
+				}
+			}
+			builder.append( "> " );
+		}
+		
+		// add function arguments
+		size = args.size - 1;
+		if ( size > 0 ) { builder.append( "with arguments (" ); }
+		else { builder.append( "with argument (" ); }
 		for( arg in args.indexed ) {
 			builder.append( stringify( arg.item ) );
 			if( arg.key < size ) {

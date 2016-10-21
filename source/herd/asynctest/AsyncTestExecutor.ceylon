@@ -57,8 +57,9 @@ import ceylon.test.engine.spi {
  
  --------------------------------------------
  "
-by( "Lis" )
 see( `function testExecutor`, `interface AsyncTestContext` )
+since( "0.0.1" )
+by( "Lis" )
 shared class AsyncTestExecutor (
 	FunctionDeclaration functionDeclaration,
 	ClassDeclaration? classDeclaration

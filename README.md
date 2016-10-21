@@ -4,7 +4,8 @@ is an extension to SDK `ceylon.test` module with following capabilities:
  * common initialization for a test suite
  * controlling test execution order
  * executing tests concurrently or sequentially
- * parameterized testing
+ * value-parameterized testing
+ * type-parameterized testing
  * conditional test execution
  * organizing complex test conditions into a one flexible expression with matchers
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
@@ -46,4 +47,5 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
 * [Microbenchmark](examples/herd/examples/asynctest/mapperformance) -
   comparative performance test of Ceylon / Java HashMap and TreeMap.
 * [Matchers](examples/herd/examples/asynctest/matchers) - matchers usage.
+* [Generics](examples/herd/examples/asynctest/generics) - type-parameterized testing.
 * [Maintainer](examples/herd/examples/asynctest/maintainer) - controlling test execution order.

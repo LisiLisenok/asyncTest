@@ -61,6 +61,7 @@ import ceylon.promise {
  "
 by( "Lis" )
 see( `class AsyncTestExecutor`, `package herd.asynctest.match` )
+since( "0.0.1" )
 shared interface AsyncTestContext
 {
 	
@@ -82,6 +83,7 @@ shared interface AsyncTestContext
 	"Fails the test if `val` doesn't match `matcher` or succeeds the test otherwise.  
 	 Returns `promise` resolved with results of the matching."
 	see( `package herd.asynctest.match` )
+	since( "0.4.0" )
 	shared formal Promise<MatchResult> assertThat<Value> (
 		"Value or promise on value to be matched."
 		Value | Promise<Value> val,
@@ -115,6 +117,7 @@ shared interface AsyncTestContext
 	"Aborts the test if `val` doesn't match `matcher`.  
 	 Returns `promise` resolved with results of the matching."
 	see( `package herd.asynctest.match` )
+	since( "0.4.0" )
 	shared formal Promise<MatchResult> assumeThat<Value> (
 		"Value or promise on value to be matched."
 		Value | Promise<Value> val,
