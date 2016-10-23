@@ -196,10 +196,7 @@ class TestGroupExecutor (
 	{
 		if ( exists instance, exists instanceType ) {
 			return [ for ( item in instanceType.getMethods<Nothing, Anything, Nothing>( `AnnotationType` ) )
-						item.bind( instance ) ].append(
-				[ for ( item in instanceType.getDeclaredMethods<Nothing, Anything, Nothing>( `AnnotationType` ) )
-						item.bind( instance ) ]
-			);
+						item.bind( instance ) ];
 		}
 		else if ( is Package cont = container ) {
 			return [ for ( item in cont.annotatedMembers<FunctionDeclaration, AnnotationType>() )

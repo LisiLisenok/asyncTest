@@ -3,7 +3,7 @@
  
  is an extension to SDK `ceylon.test` module with following capabilities:
  * testing asynchronous multithread code
- * common initialization for a test class
+ * initialization and disposing
  * executing tests concurrently or sequentially
  * value-parameterized testing
  * type-parameterized testing
@@ -26,7 +26,8 @@
  -------------------------------------------
  Basically:
  * If you would like to run test using [[AsyncTestExecutor]]: 
-		1. Implement test function taking [[AsyncTestContext]] as first argument.
+		1. Implement test function taking [[AsyncTestContext]] as first argument
+		   and code it according to [[AsyncTestContext]] contract.
 		2. Mark test function with `ceylon.test::test` annotation.
 		3. Mark appropriate `function`, `class`, `package` or `module` with [[async]] annotation.
  * If you need to run common initialization for a complex test:
@@ -34,9 +35,9 @@
 		2. Implement some initialize functions and mark them with:
 			* `ceylon.test::beforeTestsRun` annotation in order to call them _once before all_ tests to be executed.
 			* `ceylon.test::beforeTest` annotation in order to call them _before each_ test function execution.
- 		3. Implement some cleaneror dispose functions and mark them with:
- 			* `ceylon.test::afterTestsRun` annotation in order to call them _once after_ all tests to be executed.
- 			* `ceylon.test::afterTest` annotation in order to call them _after each_ test function execution.
+		3. Implement some cleaner or dispose functions and mark them with:
+			* `ceylon.test::afterTestsRun` annotation in order to call them _once after_ all tests to be executed.
+			* `ceylon.test::afterTest` annotation in order to call them _after each_ test function execution.
 		4. Implement test methods taking [[AsyncTestContext]] as first argument.
 		5. Mark test methods with `ceylon.test::test` annotation.
 		6. Mark appropriate `method`, `class`, `package` or `module` with `async`.
@@ -100,22 +101,12 @@
  Top-level functions or methods marked with `ceylon.test::beforeTest` are executed _each_ time
  before executing _each_ test in its scope (package for top-level and class for methods).  
 
- Test initializers may take arguments:
+ Test initializers may take arguments (except top-level function marked with `ceylon.test::beforeTestRun`):
  * According to [[arguments]] annotation. In this case the functions are executed as synchronous and
    may asserting or throw exceptions.
  * First argument of [[AsyncInitContext]] type and other arguments according to [[arguments]] annotation.
    The initializer has to complete initialization by calling [[AsyncInitContext.proceed]] method or
    abort the initialization by calling [[AsyncInitContext.abort]] method.  
- 
- If test initializer reports on failure (throwing exception or calling [[AsyncInitContext.abort]] method)
- the test procedure for every test function in the scope (package for top-level and class for methods)
- is interrupted and failure is reported.
- 
- >Top-level functions marked with `ceylon.test::beforeTestRun` have to take no arguments!  
-  
- >Test executor blocks current thread until [[AsyncInitContext.proceed]] or [[AsyncInitContext.abort]] is called.  
- 
- >Inherited initializers have to be shared while methods declared in the given container may be unshared.
  
  
  #### Disposing
@@ -126,22 +117,29 @@
  Top-level functions or methods marked with `ceylon.test::afterTest` are executed _each_ time
  after _each_ test in its scope is completed.  
  
- Test cleaners may take arguments:
+ Test cleaners may take arguments (except top-level function marked with `ceylon.test::afterTestRun`):
  * According to [[arguments]] annotation. In this case the functions are executed as synchronous and
    may asserting or throw exceptions.
  * First argument of [[AsyncTestContext]] type and other arguments according to [[arguments]] annotation.
    The cleaner has to complete disposing by calling [[AsyncTestContext.complete]] method.
    The cleaner may notify on errors using appropriate methods of [[AsyncTestContext]].  
  
- If test cleaner reports on failure (throwing exception or calling appropriate [[AsyncTestContext]] methods)
- the test procedure for every test function in the scope (package for top-level and class for methods)
- is interrupted and failure is reported.
  
- >Top-level functions marked with `ceylon.test::afterTestRun` have to take no arguments!  
+ #### Notes
+ 
+ If test initializer or cleaner reports on failure (throwing exception or calling [[AsyncInitContext.abort]] method
+ or appropriate [[AsyncTestContext]] methods) the test procedure for every test function in the scope
+ (package for top-level and class for methods) is interrupted and failure is reported.
+ 
+ >Top-level functions marked with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` have to take no arguments!
+  While methods may take.  
   
- >Test executor blocks current thread until [[AsyncTestContext.complete]] is called.  
+ >Test executor blocks current thread until initializer calls [[AsyncTestContext.complete]] or until cleaner
+  calls [[AsyncInitContext.proceed]] or [[AsyncInitContext.abort]].  
  
- >Inherited initializers have to be shared while methods declared in the given container may be unshared.
+ >Both initializer and cleaner methods have to be shared! Top-level functions may not be shared.
+ 
+ >Inherited initializer or cleaner methods are executed also.
  
  
  #### Test initialization and disposing example
@@ -152,18 +150,18 @@
  		class StarshipTest(Integer universeSize) {
 			
 			// called just a once before all tests to be run
- 			beforeTestRun void createUniverse() { ... }
+ 			shared beforeTestRun void createUniverse() { ... }
  			
  			// called just a once after all tests to be completed
- 			afterTestRun void destroyUniverse() { ... } 
+ 			shared afterTestRun void destroyUniverse() { ... } 
 			
 			// called before each test function is executed
-			beforeTest void init() => starship.chargePhasers();
+ 			shared beforeTest void init() => starship.chargePhasers();
  			
  			// called after each test function is completed
-			afterTest void dispose() => starship.shutdownSystems();
+ 			shared afterTest void dispose() => starship.shutdownSystems();
 			
-			test async testPhasersAiming() { ... }
+ 			test async testPhasersAiming() { ... }
  			test async testPhasersFire(AsynctestContext context) { ... context.complete(); }
 		}
   
@@ -189,6 +187,8 @@
  Any number of test conditions can be specified at function, class, package or module level.  
  All conditions at every level are evaluated before test execution started
  and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.  
+ 
+ For a example, see `ceylon.test::ignore` annotation.
  
  
  ### Value- and type- parameterized testing

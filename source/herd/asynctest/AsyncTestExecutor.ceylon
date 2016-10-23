@@ -20,22 +20,21 @@ import ceylon.test.engine.spi {
  * running test functions concurrently or sequentialy, see [[sequential]] annotation and [[module herd.asynctest]]
  * multi-reporting: several failures or successes can be reported for a one test execution,
    each report is represented as test variant and might be marked with `String` title
- * parameterized testing with a set of function arguments,
-   see `ceylon.test::parameters` annotation and `ceylon.test.engine.spi::ArgumentListProvider` for details
+ * value- and type- parameterized testing with a set of function arguments, see [[parameterized]] for details
  * conditional execution with annotations satisfied `ceylon.test.engine.spi::TestCondition` interface
  
  In order to utilize this executor capabilities test function has to accept [[AsyncTestContext]] as the first argument:
- 		test testExecutor(\`class AsyncTestExecutor\`)
+ 		test async)
  		void doTesting(AsyncTestContext context) {...}
- Test function can have more arguments if it is annotated with `ceylon.test::parameters` annotation
- or another one which supports `ceylon.test.engine.spi::ArgumentListProvider`. 
+ Test function can have more arguments if it is annotated with [[parameterized]] annotation. 
  
  #### Running
  
- To run the test using this executor `ceylon.test::testExecutor` annotation with \`class AsyncTestExecutor\`
- argument has to be applied at function, class, package or module level.  
+ To run the test using this executor apply [[async]] annotation at function, class, package or module level
+ (alternatively, `ceylon.test::testExecutor` annotation with \`class AsyncTestExecutor\`
+ argument may be applied).  
  Following procedure is as usual for SDK `ceylon.test` module - mark tested functions with `ceylon.test::test` annotation
- and run test in IDE or command line.
+ and run test in IDE or command line.  
  
  
  #### Test logic 
@@ -56,7 +55,7 @@ import ceylon.test.engine.spi {
  
  --------------------------------------------
  "
-see( `function testExecutor`, `interface AsyncTestContext` )
+see( `function testExecutor`, `function async`, `interface AsyncTestContext` )
 since( "0.0.1" )
 by( "Lis" )
 shared class AsyncTestExecutor (

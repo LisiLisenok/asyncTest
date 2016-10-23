@@ -5,7 +5,7 @@
  Initializer has to call [[AsyncInitContext.proceed]] or [[AsyncInitContext.abort]] when initialization is completed or errored
  since executor blocks execution thread until [[AsyncInitContext.proceed]] or [[AsyncInitContext.abort]] is called.
  
- --------------------------------------------
+ See details about initialization in [[module herd.asynctest]].
  "
 see( `interface AsyncTestContext` )
 since( "0.5.0" )

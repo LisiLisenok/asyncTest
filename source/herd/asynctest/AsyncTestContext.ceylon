@@ -21,7 +21,7 @@ import ceylon.promise {
  	
  	
  Example of tested function:
- 	test testExecutor(\`class AsyncTestExecutor\`)
+ 	test async
  	void doTesting(AsyncTestContext context) {
  		// perform test procedure and notify about fails, if no fails notified test is considered successfull
  		context.fail(Exception(\"exception\"), \"some exception\");

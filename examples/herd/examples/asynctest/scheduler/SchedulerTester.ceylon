@@ -157,7 +157,6 @@ sequential class SchedulerTester() {
 	}
 	
 	afterTestRun shared void dispose( AsyncTestContext context ) {
-		print( "disposing!" );
 		scheduler.stopAll();
 		context.complete();
 	}
