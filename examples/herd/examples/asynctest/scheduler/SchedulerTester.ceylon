@@ -1,7 +1,6 @@
 import herd.asynctest {
 
 	AsyncTestContext,
-	sequential,
 	parameterized,
 	async
 }
@@ -63,7 +62,7 @@ shared {[[], [{{Integer*}*}, Integer]]*} combinedTimers
  timer actual delays and timer total time with expected ones.
  
  "
-sequential class SchedulerTester() {
+class SchedulerTester() {
 	
 	// instantiate scheduler
 	Scheduler scheduler = Scheduler( 2 );

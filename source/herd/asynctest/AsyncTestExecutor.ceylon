@@ -17,14 +17,14 @@ import ceylon.test.engine.spi {
  #### Capabilities
  
  * testing asynchronous multithread code
- * running test functions concurrently or sequentialy, see [[sequential]] annotation and [[module herd.asynctest]]
+ * running test functions concurrently or sequentialy, see [[concurrent]] annotation and [[module herd.asynctest]]
  * multi-reporting: several failures or successes can be reported for a one test execution,
    each report is represented as test variant and might be marked with `String` title
  * value- and type- parameterized testing with a set of function arguments, see [[parameterized]] for details
  * conditional execution with annotations satisfied `ceylon.test.engine.spi::TestCondition` interface
  
  In order to utilize this executor capabilities test function has to accept [[AsyncTestContext]] as the first argument:
- 		test async)
+ 		test async
  		void doTesting(AsyncTestContext context) {...}
  Test function can have more arguments if it is annotated with [[parameterized]] annotation. 
  

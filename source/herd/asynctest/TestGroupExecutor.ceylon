@@ -73,6 +73,7 @@ class TestGroupExecutor (
 	Object? instantiate() {
 		if ( is ClassDeclaration declaration = container ) {
 			if ( declaration.anonymous ) {
+				"Something wrong when get top-level object instance."
 				assert ( exists objectInstance = declaration.objectValue?.get() );
 				return objectInstance;
 			}
@@ -85,25 +86,25 @@ class TestGroupExecutor (
 		}
 	}
 	
-	"`True` if package or module marked with `sequential`."
-	Boolean isPackageOrModuleSequential( Package pac )
-			=> pac.annotated<SequentialAnnotation>() || pac.container.annotated<SequentialAnnotation>();
+	"`True` if package or module marked with [[concurrent]] annotation."
+	Boolean isPackageOrModuleConcurrent( Package pac )
+			=> pac.annotated<ConcurrentAnnotation>() || pac.container.annotated<ConcurrentAnnotation>();
 	
-	"`True` if the test to be performed in sequential order and `false` otherwise."
-	Boolean isSequential() {
+	"`True` if the test to be performed in concurrent order and `false` otherwise."
+	Boolean isConcurrent() {
 		switch ( container )
 		case ( is Package ) {
-			return isPackageOrModuleSequential( container );
+			return isPackageOrModuleConcurrent( container );
 		}
 		case ( is ClassDeclaration ) {
 			variable ClassDeclaration? exDecl = container;
 			while ( exists decl = exDecl ) {
-				if ( decl.annotated<SequentialAnnotation>() ) {
+				if ( decl.annotated<ConcurrentAnnotation>() ) {
 					return true;
 				}
 				exDecl = decl.extendedType?.declaration;
 			}
-			return isPackageOrModuleSequential( container.containingPackage );
+			return isPackageOrModuleConcurrent( container.containingPackage );
 		}
 	}
 	
@@ -324,14 +325,14 @@ class TestGroupExecutor (
 					value testCleaners = getContainerCleaners<AfterTestAnnotation>( instance, intanceType );
 					
 					// perform testing
-					if ( !testInitializers.empty || !testCleaners.empty || isSequential() ) {
+					if ( testInitializers.empty && testCleaners.empty && isConcurrent() ) {
+						runConcurrently( instance );
+					}
+					else {
 						// if there are initializers or cleaners test can be performed only in sequential mode
 						// since cleaner may clear some resources which are required for parallel execution
 						// or must way completion which leads to the same sequential mode
 						runSequentially( instance, testInitializers, testCleaners );
-					}
-					else {
-						runConcurrently( instance );
 					}
 					
 					// perform disposing only for member functions

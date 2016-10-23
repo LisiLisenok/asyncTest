@@ -21,18 +21,19 @@ import ceylon.test {
 }
 
 
-"Annotation class for [[sequential]]."
-since( "0.3.0" )
+"Annotation class for [[concurrent]]."
+since( "0.6.0" )
 by( "Lis" )
-shared final annotation class SequentialAnnotation()
-		satisfies OptionalAnnotation<SequentialAnnotation, ClassDeclaration | Package | Module>
+shared final annotation class ConcurrentAnnotation()
+		satisfies OptionalAnnotation<ConcurrentAnnotation, ClassDeclaration | Package | Module>
 {}
 
 
-"Indicates that all test functions of the marked container to be run in sequential mode."
-since( "0.3.0" )
+"Indicates that all test functions of the marked container (package for top-level functions and class for methods)
+ ave to be run in conccurent mode."
+since( "0.6.0" )
 by( "Lis" )
-shared annotation SequentialAnnotation sequential() => SequentialAnnotation();
+shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
 
 
 "The same as `testExecutor(`\`class AsyncTestExecutor\``)`"

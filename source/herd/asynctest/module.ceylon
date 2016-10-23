@@ -41,8 +41,8 @@
 		4. Implement test methods taking [[AsyncTestContext]] as first argument.
 		5. Mark test methods with `ceylon.test::test` annotation.
 		6. Mark appropriate `method`, `class`, `package` or `module` with `async`.
- * If you prefer to execute test functions in sequential mode rather then in default concurrent one:
-   mark `class`, `package` or `module` with [[sequential]] annotation.
+ * If you prefer to execute test functions in concurrent mode rather then in default sequential one:
+   mark `class`, `package` or `module` with [[concurrent]] annotation.
  
  -------------------------------------------
  
@@ -170,15 +170,19 @@
  
  Test functions are collected into groups, which are defined by:
  * `ClassDeclaration` for methods.
- * `Package` for top level functions.
+ * `Package` for top-level functions.
  
- The groups are executed in sequential order. While functions in each group are executed concurrently using
- thread pool with fixed number of threads eqauls to number of available processors (cores).  
- In order to force sequential execution mark a container (`ClassDeclaration`, `Package` or `Module`)
- with [[sequential]] annotation.  
+ The groups are always executed in sequential mode. By default test functions in each group are executed in
+ sequential mode also. In order to execute functions within some group in concurrent mode
+ mark a container (`ClassDeclaration`, `Package` or `Module`) with [[concurrent]] annotation.
+ Thread pool with fixed number of threads eqauls to number of available processors (cores)
+ is used to execute functions in concurrent mode.  
  
- 
- >Test class can be instantiated with arguments using [[arguments]] annotation.
+ > If the container (package for top-level functions or class for methods) contains initializers or cleaners marked
+   with `ceylon.test::beforeTest` or `ceylon.test::afterTest` sequential order is applied nevetherless exists
+   [[concurrent]] annotation or not.  
+ > Functions annotated with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` are executed _once_ before / after
+   all test executions and have no influence on the test functions execution order.
   
  
  ### Conditional execution

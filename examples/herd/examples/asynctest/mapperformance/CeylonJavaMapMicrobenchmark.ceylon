@@ -1,7 +1,6 @@
 import herd.asynctest {
 
 	AsyncTestContext,
-	sequential,
 	parameterized
 }
 import ceylon.test {
@@ -52,7 +51,7 @@ import herd.asynctest.match {
 		};
 
 
-sequential class CeylonJavaMapMicrobenchmark()
+class CeylonJavaMapMicrobenchmark()
 {
 	
 	"Reporter used to report plots"
