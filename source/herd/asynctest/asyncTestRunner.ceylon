@@ -4,7 +4,9 @@ import ceylon.collection {
 import ceylon.language.meta.declaration {
 	FunctionDeclaration,
 	ClassDeclaration,
-	Package
+	Package,
+	InterfaceDeclaration,
+	OpenInterfaceType
 }
 import ceylon.test {
 	TestDescription
@@ -21,6 +23,17 @@ import ceylon.test.engine.spi {
 since( "0.0.1" )
 by( "Lis" )
 object asyncTestRunner {
+
+	
+	"Async declaration memoization."
+	InterfaceDeclaration asyncContextDeclaration = `interface AsyncTestContext`;
+	
+	"InitContext declaration memoization."
+	InterfaceDeclaration initContextDeclaration = `interface AsyncInitContext`;
+	
+	"Cache async test executor declaration"
+	ClassDeclaration asyncTestDeclaration = `class AsyncTestExecutor`;
+
 		
 	"Emitting results of the test."
 	GeneralEventEmitter resultEmitter = GeneralEventEmitter();
@@ -34,9 +47,6 @@ object asyncTestRunner {
 	
 	"number of added tests"
 	variable Integer addedTestNumber = 0;
-	
-	"Cache async test executor declaration"
-	ClassDeclaration asyncTestDeclaration = `class AsyncTestExecutor`;
 	
 	
 	"Returns total number of test run using `AsyncTestContext` from the given descriptions."
@@ -87,7 +97,6 @@ object asyncTestRunner {
 		getTestExecutor( classDeclaration else functionDeclaration.containingPackage, parent )
 				.addTest( functionDeclaration, description );
 		addedTestNumber ++;
-		
 		// if it is last test - execute all tests
 		if ( addedTestNumber == totalTestNumber ) {
 			for ( executor in executors.items ) {
@@ -121,5 +130,33 @@ object asyncTestRunner {
 			return false;
 		}
 	}
+	
+	
+	"Returns `true` if function runs async test == takes `AsyncTestContext` as first argument."
+	shared Boolean isAsyncDeclaration( FunctionDeclaration functionDeclaration ) {
+		if (
+			is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
+			argType.declaration == asyncContextDeclaration
+		) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	"Returns `true` if function runs async test initialization == takes `AsyncInitContext` as first argument."
+	shared Boolean isAsyncInitDeclaration( FunctionDeclaration functionDeclaration ) {
+		if (
+			is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
+			argType.declaration == initContextDeclaration
+		) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	
 }

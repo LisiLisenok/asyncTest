@@ -1,14 +1,13 @@
 import herd.asynctest {
 
 	AsyncTestContext,
-	TestSuite,
-	TestInitContext,
 	sequential,
 	parameterized
 }
 import ceylon.test {
 
-	test
+	test,
+	afterTestRun
 }
 import ceylon.collection {
 
@@ -53,7 +52,7 @@ import herd.asynctest.match {
 		};
 
 
-sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
+sequential class CeylonJavaMapMicrobenchmark()
 {
 	
 	"Reporter used to report plots"
@@ -103,16 +102,14 @@ sequential class CeylonJavaMapMicrobenchmark() satisfies TestSuite
 	Plotter getTreeRatioPlooter = treeMapRatioChart.addPlot( titles.get );
 	Plotter removeTreeRatioPlooter = treeMapRatioChart.addPlot( titles.remove );
 
-	
-	shared actual void dispose( AsyncTestContext context ) {
+	afterTestRun
+	shared void dispose( AsyncTestContext context ) {
 		plotReporter.report (
 			putChart.build(), getChart.build(), removeChart.build(),
 			hashMapRatioChart.build(), treeMapRatioChart.build()
 		);
 		context.complete();
 	}
-	
-	shared actual void initialize( TestInitContext initContext ) => initContext.proceed();
 	
 
 	"Runs HashMap test. Compares Ceylon map to Java one.  

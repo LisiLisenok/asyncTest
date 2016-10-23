@@ -22,7 +22,12 @@ import herd.asynctest.match {
 }
 import ceylon.language.meta.model {
 
-	Type
+	Type,
+	Function
+}
+import ceylon.language.meta {
+
+	type
 }
 
 
@@ -34,19 +39,76 @@ class AsyncTestProcessor(
 	"Test function." FunctionDeclaration functionDeclaration,
 	"Object contained function or `null` if function is top level" Object? instance,
 	"Parent execution context." TestExecutionContext parent,
-	"Description the test performed on." TestDescription description
+	"Description the test performed on." TestDescription description,
+	"Functions called before each test." Anything(AsyncInitContext)[] intializers,
+	"Functions called after each test." Anything(AsyncTestContext)[] cleaners
 ) {
+
+	Type<Object>? instanceType = if ( exists i = instance ) then type( i ) else null;
+
+	"`true` if test function is run on async test context."
+	Boolean runOnAsyncContext = asyncTestRunner.isAsyncDeclaration( functionDeclaration );
+
+	"Tester to run a one function execution."
+	Tester tester = Tester();
+	"init context to perform test initialization."
+	InitializerContext initContext = InitializerContext();
 	
-	"Executes one variant.
-	 Returns output from this variant."
-	VariantTestOutput executeVariant( TestExecutionContext context, Type<Anything>[] typeParameters, Anything[] args ) {
-		// run test
-		Tester tester = Tester();
-		value output = tester.run( functionDeclaration, instance, typeParameters, *args );
-		// test results
-		return VariantTestOutput( output, tester.runInterval );
+	
+	"Applies function from declaration, container and a given type parameters."
+	Function<Anything, Nothing> applyFunction( Type<Anything>* typeParams ) {
+		if ( exists container = instance, exists containerType = instanceType ) {
+			return functionDeclaration.memberApply<Nothing, Anything, Nothing> (
+				containerType, *typeParams ).bind( container );
+		}
+		else {
+			return functionDeclaration.apply<Anything, Nothing>( *typeParams );
+		}
 	}
 	
+	"Executes one variant and performs initialization and dispose.
+	 Returns output from this variant."
+	VariantTestOutput executeVariant (
+		TestExecutionContext context, Type<Anything>[] typeParameters, Anything[] args
+	) {
+		// run initializers firstly
+		if ( exists errOut = initContext.run( intializers ) ) {
+			// initialization has been failed
+			return VariantTestOutput( [errOut], 0, false );
+		}
+		else {
+			// run test
+			value testFunction = applyFunction( *typeParameters );
+			TestOutput[] output = tester.run (
+				( AsyncTestContext context ) {
+					if ( runOnAsyncContext ) {
+						testFunction.apply( context, *args );
+					}
+					else {
+						// test function doesn't take async context - call it as sync and complete the execution
+						testFunction.apply( *args );
+						context.complete();
+					}
+				}
+			);
+			// run cleaners
+			variable TestOutput[] disposeOut = [];
+			for ( cleaner in cleaners ) {
+				value cleanerOut = tester.run( cleaner );
+				if ( !cleanerOut.empty ) {
+					disposeOut = disposeOut.append( cleanerOut );
+				}
+			}
+			if ( disposeOut.empty ) {
+				// everything is OK
+				return VariantTestOutput( output, tester.runInterval, true );
+			}
+			else {
+				// dispose has been failed
+				return VariantTestOutput( output.append( disposeOut ), tester.runInterval, false );
+			}
+		}
+	}
 	
 	"Executes all variants for the given list of argument variants `argsVariants`"
 	void executeVariants( TestExecutionContext context, {[Type<Anything>[], Anything[]]*} argsVariants ) {
@@ -54,40 +116,41 @@ class AsyncTestProcessor(
 		resultEmitter.startEvent( context );
 		variable TestState state = TestState.skipped;
 		variable Integer index = 1;
+		
+		// for each argument in collection results are stored as separated test variant
 		for ( args in argsVariants ) {
-			// for each argument in collection results are stored as separated test variant
-			value executionResults = executeVariant( context, args[0], args[1] );
+			// execute variant
+			VariantTestOutput executionResults = executeVariant( context, args[0], args[1] );
+			// fill with test results
 			String varName = variantName( args[0], args[1] );
 			if ( executionResults.outs.empty ) {
 				// test has been succeeded
 				resultEmitter.variantResultEvent (
 					context,
 					TestOutput (
-						TestState.success,
-						null,
-						executionResults.totalElapsedTime,
-						"``varName`` - ``TestState.success``"
+						TestState.success, null, executionResults.totalElapsedTime, "``varName`` - ``TestState.success``"
 					),
 					index ++
 				);
 				if ( state < TestState.success ) { state = TestState.success; }
 			}
 			else {
-				// ome outputs are available - it doesn't mean the test has been failured!
+				// some outputs are available - it doesn't mean the test has been failured!
 				for ( variantOutput in executionResults.outs ) {
 					String strTitle =	if ( variantOutput.title.empty )
-					then " - ``variantOutput.state``"
-					else " - ``variantOutput.state``: ``variantOutput.title``";
+						then " - ``variantOutput.state``"
+						else " - ``variantOutput.state``: ``variantOutput.title``";
 					resultEmitter.variantResultEvent (
 						context,
 						TestOutput (
-							variantOutput.state, variantOutput.error, variantOutput.elapsedTime,
-							"``varName````strTitle``"
+							variantOutput.state, variantOutput.error, variantOutput.elapsedTime, "``varName````strTitle``"
 						),
 						index ++
 					);
 					if ( state < variantOutput.state ) { state = variantOutput.state; }
 				}
+				// initialization or disposing hasbeen failed - stop testing
+				if ( !executionResults.proceeded ) { break; }
 			}
 		}
 		resultEmitter.finishEvent (
@@ -103,18 +166,11 @@ class AsyncTestProcessor(
 		try {
 			if ( nonempty conditions = evaluateAnnotatedConditions( functionDeclaration, context ) ) {
 				// test has been skipped due to unsatisfying some conditions
-				variable TestState state = TestState.skipped;
-				variable Integer index = 1;
-				resultEmitter.startEvent( context );
-				for ( outErr in conditions ) {
-					resultEmitter.variantResultEvent( context, outErr, index ++ );
-					if ( state < outErr.state ) { state = outErr.state; }
-				}
-				resultEmitter.finishEvent( context, TestResult( context.description, state, true, null, 0 ), 0 );
+				resultEmitter.fillTestResults( context, conditions, 0, 1 );
 			}
 			else {
 				// test parameters - series of arguments
-				value argLists = resolveArgumentList( functionDeclaration );
+				value argLists = resolveParameterizedList( functionDeclaration );
 				Integer size = argLists.size;
 				// execute test
 				if ( size == 0 ) {
@@ -141,6 +197,7 @@ class AsyncTestProcessor(
 	}
 	
 	
+	"Constructs variant name from type parameters and function arguments."
 	String variantName( Type<Anything>[] typeParameters, Anything[] args ) {
 		StringBuilder builder = StringBuilder();
 		

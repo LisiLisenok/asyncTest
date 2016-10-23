@@ -3,8 +3,7 @@ import ceylon.collection {
 }
 import ceylon.language.meta.model {
 	IncompatibleTypeException,
-	InvocationException,
-	Type
+	InvocationException
 }
 import ceylon.test {
 	TestState
@@ -25,10 +24,6 @@ import herd.asynctest.match {
 
 	Matcher,
 	MatchResult
-}
-import ceylon.language.meta.declaration {
-
-	FunctionDeclaration
 }
 import ceylon.promise {
 
@@ -57,8 +52,8 @@ class Tester() satisfies AsyncTestContext
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 
 	
-	variable Integer startTime = system.milliseconds;
-	variable Integer completeTime = startTime; 
+	variable Integer startTime = 0;
+	variable Integer completeTime = 0; 
 	
 	"total running interval, milliseconds"
 	shared Integer runInterval => completeTime - startTime;
@@ -210,27 +205,14 @@ class Tester() satisfies AsyncTestContext
 	
 	
 	"Returns output from the test."
-	shared TestOutput[] run( FunctionDeclaration functionDeclaration, Object? instance,
-		Type<Anything>[] typeParameters, Anything* args
-	) {
+	shared TestOutput[] run( Anything(AsyncTestContext) testFunction ) {
 		if ( running.compareAndSet( false, true ) ) {
 			locker.lock();
+			startTime = system.milliseconds;
+			completeTime = startTime; 
 			try {
 				// invoke test function
-				if ( functionDeclaration.toplevel ) {
-					functionDeclaration.invoke( typeParameters, this, *args );
-				}
-				else if ( exists i = instance ) {
-					functionDeclaration.memberInvoke( i, typeParameters, this, *args );
-				}
-				else {
-					abort (
-						AssertionError (
-							"Unable to instantiate container object of test function ``functionDeclaration``."
-						)
-					);
-					complete();
-				}
+				testFunction( this );
 				if ( running.get() ) { condition.await(); }
 			}
 			catch ( Throwable err ) {

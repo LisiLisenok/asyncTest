@@ -30,12 +30,12 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.examples.asynctest "0.5.3" {
+module herd.examples.asynctest "0.6.0" {
 	shared import ceylon.collection "1.3.0";
 	shared import ceylon.json "1.3.0";
 	shared import ceylon.file "1.3.0";
 	shared import ceylon.promise "1.3.0";
 	shared import ceylon.test "1.3.0";
-	shared import herd.asynctest "0.5.3";
+	shared import herd.asynctest "0.6.0";
 	shared import java.base "8";
 }

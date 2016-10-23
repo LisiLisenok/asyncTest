@@ -1,16 +1,14 @@
 import herd.asynctest {
 
 	AsyncTestContext,
-	TestInitContext,
-	AsyncTestExecutor,
-	TestSuite,
 	sequential,
-	parameterized
+	parameterized,
+	async
 }
 import ceylon.test {
 
 	test,
-	testExecutor
+	afterTestRun
 }
 import herd.asynctest.match {
 
@@ -65,14 +63,13 @@ shared {[[], [{{Integer*}*}, Integer]]*} combinedTimers
  timer actual delays and timer total time with expected ones.
  
  "
-sequential class SchedulerTester() satisfies TestSuite {
+sequential class SchedulerTester() {
 	
 	// instantiate scheduler
 	Scheduler scheduler = Scheduler( 2 );
 	
 	
-	test
-	testExecutor( `class AsyncTestExecutor` )
+	test async
 	parameterized( `value combinedTimers` )
 	shared void scheduleFires (
 		"Context the test is performed on." AsyncTestContext context,
@@ -159,11 +156,10 @@ sequential class SchedulerTester() satisfies TestSuite {
 		);
 	}
 	
-	shared actual void dispose( AsyncTestContext context ) {
+	afterTestRun shared void dispose( AsyncTestContext context ) {
+		print( "disposing!" );
 		scheduler.stopAll();
 		context.complete();
 	}
-	
-	shared actual void initialize( TestInitContext initContext ) => initContext.proceed();
 	
 }

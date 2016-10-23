@@ -11,6 +11,14 @@ import ceylon.language.meta.model {
 
 	Type
 }
+import ceylon.test.annotation {
+
+	TestExecutorAnnotation
+}
+import ceylon.test {
+
+	testExecutor
+}
 
 
 "Annotation class for [[sequential]]."
@@ -27,6 +35,11 @@ by( "Lis" )
 shared annotation SequentialAnnotation sequential() => SequentialAnnotation();
 
 
+"The same as `testExecutor(`\`class AsyncTestExecutor\``)`"
+since( "0.6.0" )
+by( "Lis" )
+shared annotation TestExecutorAnnotation async() => testExecutor(`class AsyncTestExecutor`);
+
 
 "Annotation class for [[arguments]]."
 since( "0.5.0" )
@@ -35,25 +48,25 @@ shared final annotation class ArgumentsAnnotation (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of values."
 	shared FunctionOrValueDeclaration source
 )
-		satisfies OptionalAnnotation<ArgumentsAnnotation, ClassDeclaration>
+		satisfies OptionalAnnotation<ArgumentsAnnotation, ClassDeclaration|FunctionDeclaration>
 {
 	
-	"Calls [[source]] to get arguments stream."
-	shared {Anything*} arguments() {
+	"Calls [[source]] to get argument stream."
+	shared Anything[] argumentList() {
 		switch ( source )
 		case ( is FunctionDeclaration ) {
-			return source.apply<{Anything*},[]>()();
+			return source.apply<Anything[], []>()();
 		}
 		case ( is ValueDeclaration ) {
-			return source.apply<{Anything*}>().get();
+			return source.apply<Anything[]>().get();
 		}
 	}
 	
 }
 
 
-"Indicates that test container or test maintainer class has to be instantiated using arguments provided
- by this annotation, see [[ArgumentsAnnotation.arguments]].  
+"Indicates that test container class or test initializer or cleaner function have to be instantiated
+ or called using arguments provided by this annotation, see [[ArgumentsAnnotation.argumentList]].  
  
  Example:
  		[Hobbit] who => [bilbo];
@@ -61,7 +74,7 @@ shared final annotation class ArgumentsAnnotation (
  		
  		arguments(`value who`)
  		class HobbitTester(Hobbit hobbit) {
- 			shared test testExecutor(`class AsyncTestExecutor`)
+ 			shared test async
  			parameterized(`value dwarves`)
  			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
  				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
@@ -85,7 +98,7 @@ since( "0.6.0" )
 by( "Lis" )
 shared final annotation class ParameterizedAnnotation (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
-	 contained a lis of type parameters and a list of function arguments: `{[Type<Anything>[], Anything[]]*}`."
+	 contained a list of type parameters and a list of function arguments: `{[Type<Anything>[], Anything[]]*}`."
 	shared FunctionOrValueDeclaration source
 )
 		satisfies SequencedAnnotation<ParameterizedAnnotation, FunctionDeclaration>
@@ -124,7 +137,7 @@ shared final annotation class ParameterizedAnnotation (
  			[[\`Float\`], [1.0]]
  		};
  		
- 		shared test testExecutor(\`class AsyncTestExecutor\`)
+ 		shared test async
  		parameterized(\`value identityArgs\`)
  		void testIdentity<Value>(AsyncTestContext context, Value arg)
  			given Value satisfies Object
@@ -144,7 +157,7 @@ shared final annotation class ParameterizedAnnotation (
  		
  		arguments(`value who`)
  		class HobbitTester(Hobbit hobbit) {
- 			shared test testExecutor(`class AsyncTestExecutor`)
+ 			shared test async
  			parameterized(`value dwarves`)
  			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
  				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);

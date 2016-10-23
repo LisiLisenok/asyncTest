@@ -1,13 +1,12 @@
 import ceylon.test {
 
-	test,
-	testExecutor
+	test
 }
 import herd.asynctest {
 
 	AsyncTestContext,
-	AsyncTestExecutor,
-	parameterized
+	parameterized,
+	async
 }
 import herd.asynctest.match {
 
@@ -32,8 +31,7 @@ see( `function runFibonacciTest` )
  
  The function is marked with `testExecutor` annotation in order to perform asynchronous test.
  Alternatively `testExecutor` annotation can be used at module level."
-test parameterized( `value fibonacciNumbers` )
-testExecutor( `class AsyncTestExecutor` )
+test async parameterized( `value fibonacciNumbers` )
 shared void runFibonacciTest (
 	"Context to send test results." AsyncTestContext context,
 	"Index of Fibonacci number to be calculated." Integer indexOfFibonacciNumber,

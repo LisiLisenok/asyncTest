@@ -1,15 +1,11 @@
-import ceylon.test {
-
-	testExecutor
-}
 import herd.asynctest {
 
-	AsyncTestExecutor
+	async
 }
 
 
 "Using matchers."
 see( `package herd.asynctest.match` )
 by( "Lis" )
-testExecutor( `class AsyncTestExecutor` )
+async
 shared package herd.examples.asynctest.matchers;

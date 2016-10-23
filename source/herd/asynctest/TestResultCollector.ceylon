@@ -24,32 +24,11 @@ class TestResultCollector( "Redirected emitter." TestEventEmitter emitter ) sati
 	variable Integer endTime = 0;
 	
 	AtomicReference<TestState> totalState = AtomicReference<TestState>( TestState.skipped );
-	
-	AtomicLong successCount = AtomicLong( 0 );
-	AtomicLong failureCount = AtomicLong( 0 );
-	AtomicLong errorCount = AtomicLong( 0 );
-	AtomicLong skipCount = AtomicLong( 0 );
-	AtomicLong abortCount = AtomicLong( 0 );
 	AtomicLong executionCount = AtomicLong( 0 );
 
 	
 	"The worst state from the all test results."
 	shared TestState overallState => totalState.get();
-	
-	"Overall number of success events."
-	shared Integer successTotal => successCount.get();
-	
-	"Overall number of failure events."
-	shared Integer failureTotal => failureCount.get();
-	
-	"Overall number of error events."
-	shared Integer errorTotal => errorCount.get();
-	
-	"Overall number of skip events."
-	shared Integer skipTotal => skipCount.get();
-	
-	"Overall number of abort events."
-	shared Integer abortTotal => abortCount.get();
 	
 	"Overall number of executions."
 	shared Integer executionTotal => executionCount.get();
@@ -65,12 +44,6 @@ class TestResultCollector( "Redirected emitter." TestEventEmitter emitter ) sati
 		while ( totalState.get() < state ) {
 			totalState.set( state );
 		}
-		switch ( state )
-		case ( TestState.success ) { successCount.incrementAndGet(); }
-		case ( TestState.failure ) { failureCount.incrementAndGet(); }
-		case ( TestState.error ) { errorCount.incrementAndGet(); }
-		case ( TestState.skipped ) { skipCount.incrementAndGet(); }
-		case ( TestState.aborted ) { abortCount.incrementAndGet(); }
 	}
 	
 	

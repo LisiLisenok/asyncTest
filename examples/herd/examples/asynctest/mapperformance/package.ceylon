@@ -1,10 +1,6 @@
-import ceylon.test {
-
-	testExecutor
-}
 import herd.asynctest {
 
-	AsyncTestExecutor
+	async
 }
 
 
@@ -32,5 +28,5 @@ import herd.asynctest {
  See [[package herd.asynctest.chart]] with charts description.
  
  "
-testExecutor( `class AsyncTestExecutor` )
+async
 shared package herd.examples.asynctest.mapperformance;

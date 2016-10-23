@@ -36,13 +36,23 @@ TestOutput[] runAnnotatedConditions (
 ) {
 	ArrayList<TestOutput> builder = ArrayList<TestOutput>(); 
 	for ( condition in conditions ) {
-		value result = condition.evaluate( context );
-		if ( !result.successful ) {
+		try {
+			value result = condition.evaluate( context );
+			if ( !result.successful ) {
+				builder.add (
+					TestOutput (
+						TestState.skipped,
+						TestSkippedException( result.reason ),
+						0,
+						"skipped by condition '``type( condition )``'"
+					)
+				);
+			}
+		}
+		catch ( Throwable err ) {
 			builder.add (
 				TestOutput (
-					TestState.skipped,
-					TestSkippedException( result.reason ),
-					0,
+					TestState.skipped, err, 0,
 					"skipped by condition '``type( condition )``'"
 				)
 			);

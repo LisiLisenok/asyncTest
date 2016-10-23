@@ -14,7 +14,7 @@ import ceylon.test {
 "Performs initialization and stores initialized values."
 since( "0.5.0" )
 by( "Lis" )
-class InitializerContext() satisfies TestInitContext
+class InitializerContext() satisfies AsyncInitContext
 {
 	
 	"locks concurent access"
@@ -32,7 +32,7 @@ class InitializerContext() satisfies TestInitContext
 	
 	shared actual void abort( Throwable reason, String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			String msg = if ( title.empty ) then "initialization" else "initialization '``title``'";
+			String msg = if ( title.empty ) then "initialization" else "initialization with ``title``";
 			abortOuts = TestOutput( TestState.aborted, reason, 0, msg );
 			if ( locker.tryLock() ) {
 				try { condition.signal(); }
@@ -52,17 +52,21 @@ class InitializerContext() satisfies TestInitContext
 
 	
 	"Runs initialization process. Returns error if occured"
-	shared TestOutput? run( TestSuite suite ) {
+	shared TestOutput? run( Anything(AsyncInitContext)[] inits ) {
 		locker.lock();
+		running.set( true );
 		try {
-			suite.initialize( this );
-			// await initialization completion
-			if ( running.get() ) { condition.await(); }
-				
-			if ( exists ret = abortOuts ) { return ret; }
-			else { return null; }
+			abortOuts = null;
+			for ( init in inits ) {
+				init( this );
+				// await initialization completion
+				if ( running.get() ) { condition.await(); }
+				if ( exists ret = abortOuts ) { return ret; }
+			}
+			return null;
 		}
 		catch ( Throwable err ) {
+			running.set( false );
 			return TestOutput( TestState.aborted, err, 0, "initialization" );
 		}
 		finally {
@@ -76,5 +80,8 @@ class InitializerContext() satisfies TestInitContext
 		return "TestInitContext, status: '``compl``'";
 	}
 	
-	
 }
+
+
+
+
