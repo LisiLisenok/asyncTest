@@ -90,7 +90,6 @@
  * [[ResourceRule]] represents a file packaged within a module and loaded before all tests started.  
  * [[TemporaryDirectoryRule]] represents a temporary directory which is created before _each_ test and destroyed after.  
  * [[TemporaryFileRule]] represents a temporary file which is created before _each_ test and destroyed after.  
- * [[TimeOutReport]] reports failure if test takes more time than expected.  
  * [[VerifyRule]] extends [[AtomicValueRule]] and additionally verifies the stored value against a given matcher
    after the test.  
    
