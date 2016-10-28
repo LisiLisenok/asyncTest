@@ -1,9 +1,7 @@
 
 
 "Maps matching value to another one using `convert` and passes converted value to the given `matcher`."
-tagged( "Utilities" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Utilities" ) since( "0.4.0" ) by( "Lis" )
 shared class Mapping<From, To>( To convert( From val ), Matcher<To> matcher )
 		satisfies Matcher<From>
 {
@@ -20,9 +18,7 @@ shared class Mapping<From, To>( To convert( From val ), Matcher<To> matcher )
 "Maps matching value if it is not `null` to another type `To` using `convert`
  and passes converted to the given `matcher`.  
  Rejects matching if value is `null`."
-tagged( "Utilities" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Utilities" ) since( "0.4.0" ) by( "Lis" )
 shared class MapExisted<From, To>( To convert( From&Object val ), Matcher<To> matcher )
 		satisfies Matcher<From>
 {
@@ -45,9 +41,7 @@ shared class MapExisted<From, To>( To convert( From&Object val ), Matcher<To> ma
 
 "Pass matching value if it satisfies given type `Value` to another `matcher`.  
  Rejects matching if value is is not `Value`."
-tagged( "Utilities" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Utilities" ) since( "0.4.0" ) by( "Lis" )
 shared class PassType<Value>( Matcher<Value> matcher )
 		satisfies Matcher<Anything>
 {
@@ -70,9 +64,7 @@ shared class PassType<Value>( Matcher<Value> matcher )
 
 "Pass matching value to the given `matcher` if the value is not `null`.  
  Rejects matching if the value is `null`."
-tagged( "Utilities" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Utilities" ) since( "0.4.0" ) by( "Lis" )
 shared class PassExisted<Value>( Matcher<Value> matcher )
 		satisfies Matcher<Value?>
 		given Value satisfies Object
@@ -95,9 +87,7 @@ shared class PassExisted<Value>( Matcher<Value> matcher )
 
 "Redirects matching to a `predicate` function.  
  If `predicate` returns `true` matching is accepted otherwise it is rejected"
-tagged( "Utilities" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Utilities" ) since( "0.4.0" ) by( "Lis" )
 shared class Predicate<Value>( Boolean predicate( Value val ) )
 		satisfies Matcher<Value>
 {
@@ -108,5 +98,4 @@ shared class Predicate<Value>( Boolean predicate( Value val ) )
 		return "predicate '``tValue``'";
 	}
 }
-
 

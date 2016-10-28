@@ -4,8 +4,7 @@
  * state - accepted or rejected
  * `String` message with operation details
  "
-since( "0.4.0" )
-by( "Lis" )
+since( "0.4.0" ) by( "Lis" )
 shared final class MatchResult (
 	"Message of the match operation."
 	String message,

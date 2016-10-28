@@ -54,16 +54,17 @@ class Tester() satisfies AsyncTestContext
 	
 	variable Integer startTime = 0;
 	variable Integer completeTime = 0; 
-	
-	"total running interval, milliseconds"
-	shared Integer runInterval => completeTime - startTime;
-	
+	variable TestState totalState = TestState.skipped;
+			
 	
 	"adds new output to `outputs`"
 	void addOutput(	TestState state, Throwable? error, String title ) {
 		Integer elapsed = if ( startTime > 0 ) then system.milliseconds - startTime else 0;
 		outputLocker.lock();
-		try { outputs.add( TestOutput( state, error, elapsed, title ) ); }
+		try {
+			outputs.add( TestOutput( state, error, elapsed, title ) );
+			if ( totalState < state ) { totalState = state; }
+		}
 		finally { outputLocker.unlock(); }
 	}
 	
@@ -96,25 +97,22 @@ class Tester() satisfies AsyncTestContext
 		}
 	}
 	
-	"Aborts if matcher is rejected, reports and returns results."
-	void abortIfNotMatched<Value>( Deferred<MatchResult> deferred, Value val, Matcher<Value> matcher, String title ) {
-		try {
-			value m = matcher.match( val );
-			if ( !m.accepted ) {
-				addOutput( TestState.aborted, AssertionError( m.string ), title );
-			}
-			deferred.fulfill( m );
+	void failWithError( Throwable reason, String title ) {
+		if ( is AssertionError reason ) {
+			addOutput( TestState.failure, reason, title );
 		}
-		catch ( Throwable err ) {
-			addOutput( TestState.aborted, err, title );
-			deferred.reject( err );
+		else {
+			addOutput( TestState.error, reason, title );
 		}
 	}
-	
+
 	
 	shared actual void complete( String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			if ( outputs.empty && !title.empty ) { addOutput( TestState.success, null, title ); }
+			if ( outputs.empty ) {
+				if ( title.empty ) { totalState = TestState.success; }
+				else { addOutput( TestState.success, null, title ); }
+			}
 			completeTime = system.milliseconds;
 			if ( startTime == 0 ) { startTime = completeTime; }
 			if ( locker.tryLock() ) {
@@ -132,80 +130,102 @@ class Tester() satisfies AsyncTestContext
 	}
 
 	shared actual Promise<MatchResult> assertThat<Value> (
-		Value | Promise<Value> val, Matcher<Value> matcher, String title, Boolean reportSuccess
+		Value | Value() | Promise<Value> source, Matcher<Value> matcher, String title, Boolean reportSuccess
 	) {
 		Deferred<MatchResult> ret = Deferred<MatchResult>();
-		if ( is Promise<Value> val ) {
-			val.completed (
-				( Value val ) {
+		if ( is Promise<Value> source ) {
+			source.completed (
+				( Value source ) {
 					if ( running.get() ) {
-						fillMatcher( ret, val, matcher, title, reportSuccess );
+						fillMatcher( ret, source, matcher, title, reportSuccess );
 					}
 				},
 				( Throwable err ) {
 					if ( running.get() ) {
 						addOutput( TestState.failure, err, title );
+						ret.reject( err );
 					}
-					ret.reject( err );
 				}
 			);
 		}
+		else if ( is Value() source ) {
+			if ( running.get() ) {
+				try {
+					Value v = source();
+					fillMatcher( ret, v, matcher, title, reportSuccess );
+				}
+				catch ( Throwable err ) {
+					addOutput( TestState.failure, err, title );
+					ret.reject( err );
+				}
+			}
+		}
 		else {
 			if ( running.get() ) {
-				fillMatcher( ret, val, matcher, title, reportSuccess );
+				fillMatcher( ret, source, matcher, title, reportSuccess );
 			}
 		}
 		return ret.promise;
 	}
 
 	
-	shared actual void fail( Throwable reason, String title ) {
+	shared actual void fail( Throwable | Anything() exceptionSource, String title ) {
 		if ( running.get() ) {
-			if ( is AssertionError reason ) {
-				addOutput( TestState.failure, reason, title );
+			if ( is Throwable exceptionSource ) {
+				failWithError( exceptionSource, title );
 			}
 			else {
-				addOutput( TestState.error, reason, title );
+				try { exceptionSource(); }
+				catch ( Throwable err ) { failWithError( err, title ); }
 			}
 		}
 	}
 	
-	shared actual void abort( Throwable? reason, String title ) {
-		if ( running.get() ) {
-			addOutput( TestState.aborted, reason, title );
-		}
-	}
-		
-	shared actual Promise<MatchResult> assumeThat<Value> (
-		Value | Promise<Value> val, Matcher<Value> matcher, String title
+	
+	shared actual Promise<MatchResult> assertThatException (
+		Throwable | Anything() | Promise<Anything> source, Matcher<Throwable> matcher, String title, Boolean reportSuccess
 	) {
-		Deferred<MatchResult> ret = Deferred<MatchResult>();  
-		if ( is Promise<Value> val ) {
-			val.completed (
-				( Value val ) {
+		Deferred<MatchResult> ret = Deferred<MatchResult>();
+		if ( is Promise<Anything> source ) {
+			source.completed (
+				( Anything source ) {
 					if ( running.get() ) {
-						abortIfNotMatched( ret, val, matcher, title );
+						value err = AssertionError( "assertion failed: exception was not thrown." );
+						addOutput( TestState.failure, err, title );
+						ret.reject( err );
 					}
 				},
 				( Throwable err ) {
 					if ( running.get() ) {
-						abort( err, title );
+						fillMatcher( ret, err, matcher, title, reportSuccess );
 					}
-					ret.reject( err );
 				}
 			);
 		}
+		else if ( is Anything() source ) {
+			if ( running.get() ) {
+				try {
+					source();
+					value err = AssertionError( "assertion failed: exception was not thrown." );
+					addOutput( TestState.failure, err, title );
+					ret.reject( err );
+				}
+				catch ( Throwable err ) {
+					fillMatcher( ret, err, matcher, title, reportSuccess );
+				}
+			}
+		}
 		else {
 			if ( running.get() ) {
-				abortIfNotMatched( ret, val, matcher, title );
+				fillMatcher( ret, source, matcher, title, reportSuccess );
 			}
 		}
 		return ret.promise;
 	}
-	
+
 	
 	"Returns output from the test."
-	shared TestOutput[] run( Anything(AsyncTestContext) testFunction ) {
+	shared TestFunctionOutput run( Anything(AsyncTestContext) testFunction ) {
 		if ( running.compareAndSet( false, true ) ) {
 			locker.lock();
 			startTime = system.milliseconds;
@@ -220,10 +240,10 @@ class Tester() satisfies AsyncTestContext
 					addOutput( TestState.skipped, err, "skipped with exception" );
 				}
 				else if ( err is TestAbortedException ) {
-					abort( err, "aborted with exception" );
+					addOutput( TestState.aborted, err, "aborted with exception" );
 				}
 				else if  ( err is IncompatibleTypeException | InvocationException ) {
-					abort( err, "incompatible invocation" );
+					addOutput( TestState.aborted, err, "incompatible invocation" );
 				}
 				else {
 					fail( err, "failed with exception" );
@@ -238,19 +258,13 @@ class Tester() satisfies AsyncTestContext
 			try {
 				value ret = outputs.sequence();
 				outputs.clear();
-				return ret;
+				return TestFunctionOutput( ret, completeTime - startTime, totalState );
 			}
 			finally { outputLocker.unlock(); }
 		}
 		else {
-			return [];
+			return TestFunctionOutput( [], 0, totalState );
 		}
-	}	
-	
-	
-	shared actual String string {
-		String compl = if ( running.get() ) then "running" else "completed";
-		return "AsyncTestContext, status: '``compl``', current number of reports = ``outputs.size``, running time = ``runInterval``";
 	}
 	
 }

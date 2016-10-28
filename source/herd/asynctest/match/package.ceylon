@@ -15,11 +15,9 @@
  	asyncTestContext.assertThat(joda, IsType(Jedi).and(Mapping((Master master)=>master.padawans, Contains(luke)));
 
   
- >Matchers are aimed to be used in conjunction with [[herd.asynctest::AsyncTestContext.assertThat]]
-  and [[herd.asynctest::AsyncTestContext.assumeThat]] methods.  
+ > Matchers are aimed to be used in conjunction with [[herd.asynctest::AsyncTestContext.assertThat]] method.  
  
  --------------------------------------------
  "
-since( "0.4.0" )
-by( "Lis" )
+since( "0.4.0" ) by( "Lis" )
 shared package herd.asynctest.match;

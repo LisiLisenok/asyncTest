@@ -39,13 +39,16 @@ TestOutput[] runAnnotatedConditions (
 		try {
 			value result = condition.evaluate( context );
 			if ( !result.successful ) {
+				String title =
+					if ( exists reason = result.reason, !reason.empty )
+					then "skipped with ``reason``"
+					else "skipped by condition '``type( condition )``'";
+				String exTitle =
+						if ( exists reason = result.reason, !reason.empty )
+						then "'``type( condition )``' condition with ``reason``"
+						else "'``type( condition )``' condition";
 				builder.add (
-					TestOutput (
-						TestState.skipped,
-						TestSkippedException( result.reason ),
-						0,
-						"skipped by condition '``type( condition )``'"
-					)
+					TestOutput( TestState.skipped, TestSkippedException( exTitle ), 0, title )
 				);
 			}
 		}

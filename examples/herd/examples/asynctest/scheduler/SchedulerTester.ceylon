@@ -2,7 +2,9 @@ import herd.asynctest {
 
 	AsyncTestContext,
 	parameterized,
-	async
+	async,
+	arguments,
+	AsyncPrePostContext
 }
 import ceylon.test {
 
@@ -15,6 +17,11 @@ import herd.asynctest.match {
 	PassType,
 	IsType
 }
+import java.lang {
+
+	Runtime
+}
+
 
 
 shared {[[], [{{Integer*}*}, Integer]]*} oneConstantTimer
@@ -40,12 +47,17 @@ shared {[[], [{{Integer*}*}, Integer]]*} combinedTimers
 			.chain( twoConstantTimers ).chain( twoDoubleTimers ).chain( threeConstantTimers ).chain( threeDoubleTimers );
 
 
+
+"Returns number of available cores."
+Integer[1] schedulerArgs() => [Runtime.runtime.availableProcessors()];
+
+
 "Performs scheduler test.
  
  ####Annotations:
  * `test` - asks Ceylon test tool to run this function
- * `testExecutor` - asks to run this test using executor provided by the annotation argument
- * `parameter` - asks to perform test using parameters provided by the annotation argument
+ * `async` - asks to run this test using executor provided by the annotation argument
+ * `parameterized` - asks to perform test using parameters provided by the annotation argument
  
  
  ####Test procedure:
@@ -62,11 +74,11 @@ shared {[[], [{{Integer*}*}, Integer]]*} combinedTimers
  timer actual delays and timer total time with expected ones.
  
  "
-class SchedulerTester() {
+arguments( `function schedulerArgs` )
+class SchedulerTester( Integer corePoolSize ) {
 	
 	// instantiate scheduler
-	Scheduler scheduler = Scheduler( 2 );
-	
+	Scheduler scheduler = Scheduler( corePoolSize );
 	
 	test async
 	parameterized( `value combinedTimers` )
@@ -155,9 +167,9 @@ class SchedulerTester() {
 		);
 	}
 	
-	afterTestRun shared void dispose( AsyncTestContext context ) {
+	afterTestRun shared void dispose( AsyncPrePostContext context ) {
 		scheduler.stopAll();
-		context.complete();
+		context.proceed();
 	}
 	
 }

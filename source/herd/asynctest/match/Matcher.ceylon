@@ -10,8 +10,7 @@
  
  --------------------------------------------
  "
-since( "0.4.0" )
-by( "Lis" )
+since( "0.4.0" ) by( "Lis" )
 shared interface Matcher<in Value> {
 	
 	"Returns [[MatchResult]] which contains `Boolean` result (accepted or rejected) and message."
@@ -42,8 +41,7 @@ shared interface Matcher<in Value> {
 
 
 "Combination of matchers with logical <i>and</i>."
-since( "0.4.0" )
-by( "Lis" )
+since( "0.4.0" ) by( "Lis" )
 class AndMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
 	shared actual MatchResult match( Value val ) {
@@ -58,8 +56,7 @@ class AndMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies
 
 
 "Combination of matchers with logical <i>or</i>."
-since( "0.4.0" )
-by( "Lis" )
+since( "0.4.0" ) by( "Lis" )
 class OrMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
 	shared actual MatchResult match( Value val ) {
@@ -74,8 +71,7 @@ class OrMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies 
 
 
 "Combination of matchers with logical <i>xor</i> - accepted if only one is accepted."
-since( "0.4.0" )
-by( "Lis" )
+since( "0.4.0" ) by( "Lis" )
 class XorMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
 	
 	shared actual MatchResult match( Value val ) {
@@ -90,8 +86,7 @@ class XorMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies
 
 
 "Logical <i>not</i> matcher."
-since( "0.4.0" )
-by( "Lis" )
+since( "0.4.0" ) by( "Lis" )
 class NotMatcher<Value>( Matcher<Value> matcher ) satisfies Matcher<Value> {
 	
 	shared actual MatchResult match( Value val ) {

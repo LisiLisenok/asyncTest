@@ -22,8 +22,7 @@ import ceylon.test {
 
 
 "Annotation class for [[concurrent]]."
-since( "0.6.0" )
-by( "Lis" )
+since( "0.6.0" ) by( "Lis" )
 shared final annotation class ConcurrentAnnotation()
 		satisfies OptionalAnnotation<ConcurrentAnnotation, ClassDeclaration | Package | Module>
 {}
@@ -31,20 +30,31 @@ shared final annotation class ConcurrentAnnotation()
 
 "Indicates that all test functions of the marked container (package for top-level functions and class for methods)
  ave to be run in conccurent mode."
-since( "0.6.0" )
-by( "Lis" )
+since( "0.6.0" ) by( "Lis" )
 shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
 
 
 "The same as `testExecutor(`\`class AsyncTestExecutor\``)`"
-since( "0.6.0" )
-by( "Lis" )
+since( "0.6.0" ) by( "Lis" )
 shared annotation TestExecutorAnnotation async() => testExecutor(`class AsyncTestExecutor`);
 
 
+"Calls [[source]] to get argument stream."
+since( "0.6.0" ) by( "Lis" )
+Anything[] extractArgumentList( FunctionOrValueDeclaration source ) {
+	switch ( source )
+	case ( is FunctionDeclaration ) {
+		return source.apply<Anything[], []>()();
+	}
+	case ( is ValueDeclaration ) {
+		return source.apply<Anything[]>().get();
+	}
+}
+
+
+
 "Annotation class for [[arguments]]."
-since( "0.5.0" )
-by( "Lis" )
+since( "0.5.0" ) by( "Lis" )
 shared final annotation class ArgumentsAnnotation (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of values."
 	shared FunctionOrValueDeclaration source
@@ -53,15 +63,7 @@ shared final annotation class ArgumentsAnnotation (
 {
 	
 	"Calls [[source]] to get argument stream."
-	shared Anything[] argumentList() {
-		switch ( source )
-		case ( is FunctionDeclaration ) {
-			return source.apply<Anything[], []>()();
-		}
-		case ( is ValueDeclaration ) {
-			return source.apply<Anything[]>().get();
-		}
-	}
+	shared Anything[] argumentList() => extractArgumentList( source );
 	
 }
 
@@ -84,8 +86,7 @@ shared final annotation class ArgumentsAnnotation (
  		}
  
  "
-since( "0.5.0" )
-by( "Lis" )
+since( "0.5.0" ) by( "Lis" )
 shared annotation ArgumentsAnnotation arguments (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of values."
 	FunctionOrValueDeclaration source
@@ -95,8 +96,7 @@ shared annotation ArgumentsAnnotation arguments (
 
 
 "Annotation class for [[parameterized]]."
-since( "0.6.0" )
-by( "Lis" )
+since( "0.6.0" ) by( "Lis" )
 shared final annotation class ParameterizedAnnotation (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
 	 contained a list of type parameters and a list of function arguments: `{[Type<Anything>[], Anything[]]*}`."
@@ -170,8 +170,7 @@ shared final annotation class ParameterizedAnnotation (
  method `thereAndBackAgain` is called multiply times according to size of dwarves stream.  
  
  "
-since( "0.6.0" )
-by( "Lis" )
+since( "0.6.0" ) by( "Lis" )
 shared annotation ParameterizedAnnotation parameterized (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
 	 contained a list of type parameters and a list of arguments: `{[Type<Anything>[], Anything[]]*}`."
@@ -179,3 +178,46 @@ shared annotation ParameterizedAnnotation parameterized (
 )
 		=> ParameterizedAnnotation( source );
 
+
+"Annotation class for [[factory]]."
+see( `interface AsyncFactoryContext` )
+since( "0.6.0" ) by( "Lis" )
+shared final annotation class FactoryAnnotation (
+	"Function used to instantiate anotated class.  
+	 Has to take arguments according to [[arguments]] or first argument of
+	 [[AsyncFactoryContext]] type followed with arguments returned by [[arguments]].
+	 "
+	shared FunctionDeclaration factoryFunction,
+	"The source of factory function arguments function or value declaration.
+	 Which has to take no arguments and has to return a stream of values."
+	shared FunctionOrValueDeclaration arguments
+)
+		satisfies OptionalAnnotation<FactoryAnnotation, ClassDeclaration>
+{
+	
+	"Calls [[arguments]] to get argument stream."
+	shared Anything[] argumentList() => extractArgumentList( arguments );
+	
+}
+
+
+"Indicates that class has to be instantiated using a given factory function.
+ [[factoryFunction]] has to take arguments according to [[arguments]] or first argument of
+ [[AsyncFactoryContext]] type followed with arguments returned by [[arguments]].
+ If [[factoryFunction]] takes [[AsyncFactoryContext]] as first argument itis executed
+ asynchronously and has to pass instantiated object according to [[AsyncFactoryContext]] contract.
+ Otherwise it is execute synchronously and has to return instantiated object or throw if some error has been occurred.
+ "
+see( `interface AsyncFactoryContext` )
+since( "0.6.0" ) by( "Lis" )
+shared annotation FactoryAnnotation factory (
+	"Function used to instantiate anotated class.  
+	 Has to take arguments according to [[arguments]] or first argument of
+	 [[AsyncFactoryContext]] type followed with arguments returned by [[arguments]].
+	 "
+	FunctionDeclaration factoryFunction,
+	"The source of factory function arguments function or value declaration.
+	 Which has to take no arguments and has to return a stream of values."
+	FunctionOrValueDeclaration arguments
+	
+) => FactoryAnnotation( factoryFunction, arguments );

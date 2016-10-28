@@ -9,12 +9,7 @@ import ceylon.language.meta.declaration {
 import ceylon.test {
 
 	TestState,
-	TestResult,
 	TestDescription
-}
-import ceylon.test.engine {
-
-	TestSkippedException
 }
 import herd.asynctest.match {
 
@@ -29,19 +24,27 @@ import ceylon.language.meta {
 
 	type
 }
+import ceylon.collection {
+
+	ArrayList
+}
+import ceylon.test.engine {
+
+	TestSkippedException
+}
 
 
 "Processes test execution."
 since( "0.2.0" )
 by( "Lis" )
 class AsyncTestProcessor(
-	"Emitting test results to." TestEventEmitter resultEmitter,
 	"Test function." FunctionDeclaration functionDeclaration,
 	"Object contained function or `null` if function is top level" Object? instance,
 	"Parent execution context." TestExecutionContext parent,
 	"Description the test performed on." TestDescription description,
-	"Functions called before each test." Anything(AsyncInitContext)[] intializers,
-	"Functions called after each test." Anything(AsyncTestContext)[] cleaners
+	"Functions called before each test." Anything(AsyncPrePostContext)[] intializers,
+	"Functions called after each test and may add reportings." Anything(AsyncTestContext)[] statements,
+	"Functions called after each test." Anything(AsyncPrePostContext)[] cleaners
 ) {
 
 	Type<Object>? instanceType = if ( exists i = instance ) then type( i ) else null;
@@ -51,8 +54,8 @@ class AsyncTestProcessor(
 
 	"Tester to run a one function execution."
 	Tester tester = Tester();
-	"init context to perform test initialization."
-	InitializerContext initContext = InitializerContext();
+	"Init context to perform test initialization."
+	PrePostContext prePostContext = PrePostContext();
 	
 	
 	"Applies function from declaration, container and a given type parameters."
@@ -72,14 +75,17 @@ class AsyncTestProcessor(
 		TestExecutionContext context, Type<Anything>[] typeParameters, Anything[] args
 	) {
 		// run initializers firstly
-		if ( exists errOut = initContext.run( intializers ) ) {
+		if ( nonempty initErrs = prePostContext.run( intializers ) ) {
 			// initialization has been failed
-			return VariantTestOutput( [errOut], 0, false );
+			// run disposing and return results
+			value disposeErrs = prePostContext.run( cleaners );
+			return VariantTestOutput( initErrs, [], disposeErrs, 0, variantName( typeParameters, args ), TestState.aborted );
 		}
 		else {
 			// run test
+			String varName = variantName( typeParameters, args );
 			value testFunction = applyFunction( *typeParameters );
-			TestOutput[] output = tester.run (
+			TestFunctionOutput output = tester.run (
 				( AsyncTestContext context ) {
 					if ( runOnAsyncContext ) {
 						testFunction.apply( context, *args );
@@ -91,82 +97,62 @@ class AsyncTestProcessor(
 					}
 				}
 			);
-			// run cleaners
-			variable TestOutput[] disposeOut = [];
-			for ( cleaner in cleaners ) {
-				value cleanerOut = tester.run( cleaner );
-				if ( !cleanerOut.empty ) {
-					disposeOut = disposeOut.append( cleanerOut );
-				}
+			// run test statements which may add something to the test
+			value statementOuts = [ for ( statement in statements ) tester.run( statement ) ];
+			variable Integer totalElapsedTime = output.totalElapsedTime;
+			variable TestState totalState = output.totalState;
+			for ( item in statementOuts ) {
+				totalElapsedTime += item.totalElapsedTime;
+				if ( totalState < item.totalState ) { totalState = item.totalState; }
 			}
-			if ( disposeOut.empty ) {
-				// everything is OK
-				return VariantTestOutput( output, tester.runInterval, true );
+			value variantOuts = output.testOutput.append( concatenate( *statementOuts*.testOutput ) );
+			// run cleaners
+			value disposeErrs = prePostContext.run( cleaners );
+			if ( !disposeErrs.empty && variantOuts.empty ) {
+				return VariantTestOutput (
+					[], [TestOutput( totalState, null, totalElapsedTime, "" )],
+					disposeErrs, totalElapsedTime, varName, totalState
+				);
 			}
 			else {
-				// dispose has been failed
-				return VariantTestOutput( output.append( disposeOut ), tester.runInterval, false );
+				return VariantTestOutput (
+					[], variantOuts, disposeErrs, totalElapsedTime, varName, totalState
+				);
 			}
 		}
 	}
 	
 	"Executes all variants for the given list of argument variants `argsVariants`"
-	void executeVariants( TestExecutionContext context, {[Type<Anything>[], Anything[]]*} argsVariants ) {
+	ExecutionTestOutput executeVariants( TestExecutionContext context, {[Type<Anything>[], Anything[]]*} argsVariants ) {
 		variable Integer startTime = system.milliseconds;
-		resultEmitter.startEvent( context );
 		variable TestState state = TestState.skipped;
-		variable Integer index = 1;
-		
+		ArrayList<VariantTestOutput> variants = ArrayList<VariantTestOutput>();
+		 
 		// for each argument in collection results are stored as separated test variant
 		for ( args in argsVariants ) {
 			// execute variant
-			VariantTestOutput executionResults = executeVariant( context, args[0], args[1] );
-			// fill with test results
-			String varName = variantName( args[0], args[1] );
-			if ( executionResults.outs.empty ) {
-				// test has been succeeded
-				resultEmitter.variantResultEvent (
-					context,
-					TestOutput (
-						TestState.success, null, executionResults.totalElapsedTime, "``varName`` - ``TestState.success``"
-					),
-					index ++
-				);
-				if ( state < TestState.success ) { state = TestState.success; }
-			}
-			else {
-				// some outputs are available - it doesn't mean the test has been failured!
-				for ( variantOutput in executionResults.outs ) {
-					String strTitle =	if ( variantOutput.title.empty )
-						then " - ``variantOutput.state``"
-						else " - ``variantOutput.state``: ``variantOutput.title``";
-					resultEmitter.variantResultEvent (
-						context,
-						TestOutput (
-							variantOutput.state, variantOutput.error, variantOutput.elapsedTime, "``varName````strTitle``"
-						),
-						index ++
-					);
-					if ( state < variantOutput.state ) { state = variantOutput.state; }
-				}
-				// initialization or disposing hasbeen failed - stop testing
-				if ( !executionResults.proceeded ) { break; }
-			}
+			value executionResults = executeVariant( context, args[0], args[1] );
+			variants.add( executionResults );
+			if ( state < executionResults.totalState ) { state = executionResults.totalState; }
+			// initialization or disposing has been failed - stop testing
+			if ( !executionResults.disposeOutput.empty || !executionResults.initOutput.empty ) { break; }
 		}
-		resultEmitter.finishEvent (
-			context,
-			TestResult( context.description, state, true, null, system.milliseconds - startTime ),
-			argsVariants.size
-		);
+		
+		return ExecutionTestOutput( context, variants.sequence(), system.milliseconds - startTime, state );
 	}
 
 	
-	shared void runTest() {
+	"Runs the test of a one function inlucding parameterization."
+	shared ExecutionTestOutput runTest() {
 		TestExecutionContext context = parent.childContext( description );
 		try {
 			if ( nonempty conditions = evaluateAnnotatedConditions( functionDeclaration, context ) ) {
 				// test has been skipped due to unsatisfying some conditions
-				resultEmitter.fillTestResults( context, conditions, 0, 1 );
+				return ExecutionTestOutput (
+					context,
+					[VariantTestOutput( conditions, [], [], 0, "", TestState.skipped )],
+					0, TestState.skipped
+				);
 			}
 			else {
 				// test parameters - series of arguments
@@ -174,25 +160,34 @@ class AsyncTestProcessor(
 				Integer size = argLists.size;
 				// execute test
 				if ( size == 0 ) {
-					value res = executeVariant( context, [], [] );
-					resultEmitter.fillTestResults( context, res.outs, res.totalElapsedTime, 1 );
+					value variantResults = executeVariant( context, [], [] );
+					return ExecutionTestOutput (
+						context, [variantResults], variantResults.totalElapsedTime, variantResults.totalState );
 				}
 				else if ( size == 1, exists args = argLists.first ) {
-					value res = executeVariant( context, args[0], args[1] );
-					resultEmitter.fillTestResults( context, res.outs, res.totalElapsedTime, 1 );
+					value variantResults = executeVariant( context, args[0], args[1] );
+					return ExecutionTestOutput (
+						context, [variantResults], variantResults.totalElapsedTime, variantResults.totalState );
 				}
 				else {
-					executeVariants( context, argLists );
+					return executeVariants( context, argLists );
 				}
 			}
 		}
 		catch ( TestSkippedException e ) {
-			resultEmitter.startEvent( context );
-			resultEmitter.finishEvent( context, TestResult( description, TestState.skipped, false, e ), 0 );
+			return ExecutionTestOutput (
+				context, [ VariantTestOutput( [ TestOutput( TestState.skipped, e, 0, "" ) ],
+						[], [], 0, "", TestState.skipped ) ],
+				0, TestState.skipped
+			);
+			
 		}
 		catch ( Throwable e ) {
-			resultEmitter.startEvent( context );
-			resultEmitter.finishEvent( context, TestResult( description, TestState.error, false, e ), 0 );
+			return ExecutionTestOutput (
+				context, [ VariantTestOutput( [ TestOutput( TestState.error, e, 0, "" ) ],
+					[], [], 0, "", TestState.error ) ],
+				0, TestState.error
+			);
 		}
 	}
 	

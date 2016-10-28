@@ -9,31 +9,34 @@ import ceylon.test {
 
 	TestState
 }
+import ceylon.collection {
+
+	ArrayList
+}
 
 
-"Performs initialization and stores initialized values."
-since( "0.5.0" )
+"Performs initialization or disposing."
+since( "0.6.0" )
 by( "Lis" )
-class InitializerContext() satisfies AsyncInitContext
+class PrePostContext() satisfies AsyncPrePostContext
 {
 	
-	"locks concurent access"
+	"locks concurrent access"
 	ReentrantLock locker = ReentrantLock();
 	"condition behind this running"
 	Condition condition = locker.newCondition();
 
 	
-	"`true` if initialization completed"
+	"`false` if initialization completed"
 	AtomicBoolean running = AtomicBoolean( true );
 	
 	"non-null if aborted"
-	variable TestOutput? abortOuts = null;
+	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 	
 	
 	shared actual void abort( Throwable reason, String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			String msg = if ( title.empty ) then "initialization" else "initialization with ``title``";
-			abortOuts = TestOutput( TestState.aborted, reason, 0, msg );
+			outputs.add( TestOutput( TestState.aborted, reason, 0, title ) );
 			if ( locker.tryLock() ) {
 				try { condition.signal(); }
 				finally { locker.unlock(); }
@@ -51,25 +54,25 @@ class InitializerContext() satisfies AsyncInitContext
 	}
 
 	
-	"Runs initialization process. Returns error if occured"
-	shared TestOutput? run( Anything(AsyncInitContext)[] inits ) {
+	"Runs initialization process. Returns errors if occured."
+	shared TestOutput[] run( Anything(AsyncPrePostContext)[] inits ) {
 		locker.lock();
-		running.set( true );
 		try {
-			abortOuts = null;
+			outputs.clear();
 			for ( init in inits ) {
+				running.set( true );
 				init( this );
 				// await initialization completion
 				if ( running.get() ) { condition.await(); }
-				if ( exists ret = abortOuts ) { return ret; }
 			}
-			return null;
+			return outputs.sequence();
 		}
 		catch ( Throwable err ) {
-			running.set( false );
-			return TestOutput( TestState.aborted, err, 0, "initialization" );
+			return [TestOutput( TestState.aborted, err, 0, "" )];
 		}
 		finally {
+			outputs.clear();
+			running.set( false );
 			locker.unlock();
 		}
 	}

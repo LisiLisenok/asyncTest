@@ -4,6 +4,7 @@
  * [[package herd.examples.asynctest.generics]] - type-parameterized testing
  * [[package herd.examples.asynctest.mapperformance]] - comparative performance test of Ceylon - Java HashMap and TreeMap
  * [[package herd.examples.asynctest.matchers]] - several examples of matchers from `package herd.asynctest.match`
+ * [[package herd.examples.asynctest.rule]] - usage of the test rules.
  * [[package herd.examples.asynctest.scheduler]] - time scheduler testing
  "
 license (

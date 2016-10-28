@@ -17,6 +17,14 @@ import ceylon.test.annotation {
 import ceylon.test.engine.spi {
 	TestExecutionContext
 }
+import herd.asynctest.rule {
+
+	TestRuleAnnotation
+}
+import ceylon.language.meta.model {
+
+	Class
+}
 
 
 "Performs test initialization and execution."
@@ -25,18 +33,22 @@ by( "Lis" )
 object asyncTestRunner {
 
 	
-	"Async declaration memoization."
+	"Memoization of [[TestRuleAnnotation]]."
+	shared Class<TestRuleAnnotation, []> ruleAnnotationClass = `TestRuleAnnotation`;
+
+	
+	"AsyncTestContext declaration memoization."
 	InterfaceDeclaration asyncContextDeclaration = `interface AsyncTestContext`;
 	
-	"InitContext declaration memoization."
-	InterfaceDeclaration initContextDeclaration = `interface AsyncInitContext`;
+	"AsyncPrePostContext declaration memoization."
+	InterfaceDeclaration prepostContextDeclaration = `interface AsyncPrePostContext`;
+	
+	"AsyncFactoryContext declaration memoization."
+	InterfaceDeclaration factoryContextDeclaration = `interface AsyncFactoryContext`;
 	
 	"Cache async test executor declaration"
 	ClassDeclaration asyncTestDeclaration = `class AsyncTestExecutor`;
 
-		
-	"Emitting results of the test."
-	GeneralEventEmitter resultEmitter = GeneralEventEmitter();
 		
 	"Executors of test groups - package or class level."
 	HashMap<String, TestGroupExecutor> executors = HashMap<String, TestGroupExecutor>(); 
@@ -72,7 +84,6 @@ object asyncTestRunner {
 		else {
 			TestGroupExecutor groupExecutor = TestGroupExecutor (
 				container,
-				resultEmitter,
 				groupContext
 			);
 			executors.put( container.qualifiedName, groupExecutor );
@@ -134,8 +145,7 @@ object asyncTestRunner {
 	
 	"Returns `true` if function runs async test == takes `AsyncTestContext` as first argument."
 	shared Boolean isAsyncDeclaration( FunctionDeclaration functionDeclaration ) {
-		if (
-			is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
+		if ( is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
 			argType.declaration == asyncContextDeclaration
 		) {
 			return true;
@@ -145,11 +155,10 @@ object asyncTestRunner {
 		}
 	}
 	
-	"Returns `true` if function runs async test initialization == takes `AsyncInitContext` as first argument."
-	shared Boolean isAsyncInitDeclaration( FunctionDeclaration functionDeclaration ) {
-		if (
-			is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
-			argType.declaration == initContextDeclaration
+	"Returns `true` if function runs async test initialization == takes `AsyncPrePostContext` as first argument."
+	shared Boolean isAsyncPrepostDeclaration( FunctionDeclaration functionDeclaration ) {
+		if ( is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
+			argType.declaration == prepostContextDeclaration
 		) {
 			return true;
 		}
@@ -158,5 +167,16 @@ object asyncTestRunner {
 		}
 	}
 	
+	"Returns `true` if function runs async test initialization == takes `AsyncFactoryContext` as first argument."
+	shared Boolean isAsyncFactoryDeclaration( FunctionDeclaration functionDeclaration ) {
+		if ( is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
+			argType.declaration == factoryContextDeclaration
+		) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 	
 }

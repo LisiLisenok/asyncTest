@@ -1,8 +1,6 @@
 
 "Verifies if matching value equals to `merit` using operator `==`."
-tagged( "Checkers" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class EqualObjects<Value> (
 	"Value to compare with matching one." Value merit
 )
@@ -20,9 +18,7 @@ shared class EqualObjects<Value> (
 
 
 "Verifies if matching value is identical to `merit` using operator `===`."
-tagged( "Checkers" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class Identical<Value> (
 	"Value to compare with matching one." Value merit
 )
@@ -40,9 +36,7 @@ shared class Identical<Value> (
 
 
 "Verifies if matching value is equal to `merit` using given comparator."
-tagged( "Checkers" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class EqualWith<Value> (
 	"Value to compare with matching one."
 	Value merit,
@@ -67,9 +61,7 @@ shared class EqualWith<Value> (
 
 
 "Verifies if matching value is of `Check` type."
-tagged( "Checkers" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class IsType<Check>()
 		satisfies Matcher<Anything>
 {
@@ -86,9 +78,7 @@ shared class IsType<Check>()
 
 
 "Verifies if matching value is `null`."
-tagged( "Checkers" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class IsNull() satisfies Matcher<Anything> 
 {
 	shared actual MatchResult match( Anything val ) => MatchResult( "``stringify( val )`` is <null>", !val exists );
@@ -98,9 +88,7 @@ shared class IsNull() satisfies Matcher<Anything>
 
 
 "Verifies if matching value is not `null`."
-tagged( "Checkers" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class IsNotNull() satisfies Matcher<Anything> 
 {
 	shared actual MatchResult match( Anything val ) => MatchResult( "``stringify( val )`` is not <null>", val exists );
@@ -110,9 +98,7 @@ shared class IsNotNull() satisfies Matcher<Anything>
 
 
 "Verifies if matching value is `true`."
-tagged( "Checkers" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class IsTrue() satisfies Matcher<Boolean>
 {
 	shared actual MatchResult match( Boolean val ) => MatchResult( "is <true>", val );
@@ -122,9 +108,7 @@ shared class IsTrue() satisfies Matcher<Boolean>
 
 
 "Verifies if matching value is `false`."
-tagged( "Checkers" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class IsFalse() satisfies Matcher<Boolean>
 {
 	shared actual MatchResult match( Boolean val ) => MatchResult( "is <false>", !val );

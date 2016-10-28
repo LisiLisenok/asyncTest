@@ -1,9 +1,7 @@
 
 
 "Verifies if matching `map` defines the given key `key`, see `Map.defines`."
-tagged( "Streams", "Maps" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
 shared class DefinesKey<Value>( "Item to check if map defines." Value key )
 		satisfies Matcher<Map<Value, Anything>>
 		given Value satisfies Object
@@ -16,9 +14,7 @@ shared class DefinesKey<Value>( "Item to check if map defines." Value key )
 
 
 "Verifies if matching `map` contains the given item `item`."
-tagged( "Streams", "Maps" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
 shared class ContainsItem<Value>( "Item to check if map contains." Value item )
 		satisfies Matcher<Map<Anything, Value>>
 		given Value satisfies Object
@@ -32,9 +28,7 @@ shared class ContainsItem<Value>( "Item to check if map contains." Value item )
 
 "Verifies if matching `map` contains the given item `item` with the given key `key`.
  Items are compared using operator `==`."
-tagged( "Streams", "Maps" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
 shared class ItemByKey<Value> (
 	"Key to look `item` at." Object key,
 	"Item to check if map contains under given `key`." Value item
@@ -50,9 +44,7 @@ shared class ItemByKey<Value> (
 
 
 "Verifies if matching value is a key in the given `map`, see `Map.defines`."
-tagged( "Streams", "Maps" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
 shared class HasKey<Value>( "Item to check if map defines." Map<Value, Anything> map )
 		satisfies Matcher<Value>
 		given Value satisfies Object

@@ -3,8 +3,7 @@
 "Generates `String` representation of an `item`.  
  Used everywhere in `asyncTest` to represent results.
  "
-since( "0.4.0" )
-by( "Lis" )
+since( "0.4.0" ) by( "Lis" )
 shared String stringify( Anything item ) {
 	switch ( item )
 	case ( is Null ) { return "<null>"; }

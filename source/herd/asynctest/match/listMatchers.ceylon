@@ -1,9 +1,7 @@
 
 
 "Verifies if matching `List` value starts with the given `subList`."
-tagged( "Streams", "List" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Streams", "List" ) since( "0.4.0" ) by( "Lis" )
 shared class StartsWith<Value>( "Sublist matching value to start with." List<Value> subList )
 		satisfies Matcher<List<Value>>
 {
@@ -21,9 +19,7 @@ shared class StartsWith<Value>( "Sublist matching value to start with." List<Val
 
 
 "Verifies if matching `List` value ends with the given `subList`."
-tagged( "Streams", "List" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Streams", "List" ) since( "0.4.0" ) by( "Lis" )
 shared class EndsWith<Value>( "Sublist matching value to end with." List<Value> subList )
 		satisfies Matcher<List<Value>>
 {
@@ -41,9 +37,7 @@ shared class EndsWith<Value>( "Sublist matching value to end with." List<Value> 
 
 
 "Verifies if matching `List` value is beginning point of the given `list`."
-tagged( "Streams", "List" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Streams", "List" ) since( "0.4.0" ) by( "Lis" )
 shared class Beginning<Value>( "List to start with matching value." List<Value> list )
 		satisfies Matcher<List<Value>>
 {
@@ -58,9 +52,7 @@ shared class Beginning<Value>( "List to start with matching value." List<Value> 
 
 
 "Verifies if matching `List` value is finishing point of the given `list`."
-tagged( "Streams", "List" )
-since( "0.4.0" )
-by( "Lis" )
+tagged( "Streams", "List" ) since( "0.4.0" ) by( "Lis" )
 shared class Finishing<Value>( List<Value> list )
 		satisfies Matcher<List<Value>>
 {

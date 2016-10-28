@@ -1,7 +1,8 @@
 import herd.asynctest {
 
 	AsyncTestContext,
-	parameterized
+	parameterized,
+	AsyncPrePostContext
 }
 import ceylon.test {
 
@@ -102,12 +103,12 @@ class CeylonJavaMapMicrobenchmark()
 	Plotter removeTreeRatioPlooter = treeMapRatioChart.addPlot( titles.remove );
 
 	afterTestRun
-	shared void dispose( AsyncTestContext context ) {
+	shared void dispose( AsyncPrePostContext context ) {
 		plotReporter.report (
 			putChart.build(), getChart.build(), removeChart.build(),
 			hashMapRatioChart.build(), treeMapRatioChart.build()
 		);
-		context.complete();
+		context.proceed();
 	}
 	
 
@@ -269,11 +270,11 @@ class CeylonJavaMapMicrobenchmark()
 	) {
 		
 		if ( is Throwable ceylonResult ) {
-			context.abort( ceylonResult );
+			context.fail( ceylonResult );
 			return "";
 		}
 		else if ( is Throwable javaResult ) {
-			context.abort( javaResult );
+			context.fail( javaResult );
 			return "";
 		}
 		else {

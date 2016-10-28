@@ -14,8 +14,7 @@ import ceylon.language.meta {
 
 
 "Resolves a list of type parameters and function arguments provided by [[parameterized]] annotation."
-since( "0.3.0" )
-by( "Lis" )
+since( "0.3.0" ) by( "Lis" )
 {[Type<Anything>[], Anything[]]*} resolveParameterizedList( FunctionDeclaration declaration ) {
 	return [for ( provider in declaration.annotations<ParameterizedAnnotation>() )
 			for ( arg in provider.arguments() ) arg ];

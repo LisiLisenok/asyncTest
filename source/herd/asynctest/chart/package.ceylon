@@ -41,6 +41,5 @@
  
  --------------------------------------------
  "
-since( "0.3.0" )
-by( "Lis" )
+since( "0.3.0" ) by( "Lis" )
 shared package herd.asynctest.chart;
