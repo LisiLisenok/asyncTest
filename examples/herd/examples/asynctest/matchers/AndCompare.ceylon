@@ -28,7 +28,7 @@ class AndCompare() {
 		context.assertThat (
 			toCompare,
 			EqualTo( expectedFirst ).and( EqualTo( expectedSecond ) ),
-			"equal and equal",
+			"",
 			true
 		);
 		context.complete();
@@ -44,7 +44,7 @@ class AndCompare() {
 		context.assertThat (
 			toCompare,
 			EqualTo( expectedFirst ).and( NotEqualTo( expectedSecond ) ),
-			"equal and not equal",
+			"",
 			true
 		);
 		context.complete();
@@ -60,7 +60,7 @@ class AndCompare() {
 		context.assertThat (
 			toCompare,
 			NotEqualTo( expectedFirst ).and( EqualTo( expectedSecond ) ),
-			"not equal and equal",
+			"",
 			true
 		);
 		context.complete();
@@ -76,7 +76,7 @@ class AndCompare() {
 		context.assertThat (
 			toCompare,
 			NotEqualTo( expectedFirst ).and( NotEqualTo( expectedSecond ) ),
-			"not equal and not equal",
+			"",
 			true
 		);
 		context.complete();
@@ -92,7 +92,7 @@ class AndCompare() {
 		context.assertThat (
 			toCompare,
 			Less( expectedFirst ).and( Less( expectedSecond ) ),
-			"less and less",
+			"",
 			true
 		);
 		context.complete();
@@ -108,7 +108,7 @@ class AndCompare() {
 		context.assertThat (
 			toCompare,
 			Less( expectedFirst ).and( Greater( expectedSecond ) ),
-			"less and greater",
+			"",
 			true
 		);
 		context.complete();
@@ -124,7 +124,7 @@ class AndCompare() {
 		context.assertThat (
 			toCompare,
 			Greater( expectedFirst ).and( Greater( expectedSecond ) ),
-			"greater and greater",
+			"",
 			true
 		);
 		context.complete();
@@ -140,7 +140,7 @@ class AndCompare() {
 		context.assertThat (
 			toCompare,
 			Greater( expectedFirst ).and( Less( expectedSecond ) ),
-			"greater and less",
+			"",
 			true
 		);
 		context.complete();

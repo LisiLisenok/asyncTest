@@ -1,3 +1,8 @@
+import herd.asynctest.internal {
+
+	stringify,
+	typeName
+}
 
 "Verifies if matching value equals to `merit` using operator `==`."
 tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
@@ -12,7 +17,7 @@ shared class EqualObjects<Value> (
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "equal objects of '``tVal``'";
+		return "equal objects of '``typeName( tVal )``'";
 	}
 }
 
@@ -30,7 +35,7 @@ shared class Identical<Value> (
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "identical <``tVal``>";
+		return "identical <``typeName( tVal )``>";
 	}
 }
 
@@ -55,7 +60,7 @@ shared class EqualWith<Value> (
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "equal with comparator <``tVal``>";
+		return "equal with comparator <``typeName( tVal )``>";
 	}
 }
 
@@ -72,7 +77,7 @@ shared class IsType<Check>()
 	
 	shared actual String string {
 		value tCheck = `Check`;
-		return "is <``tCheck``>";
+		return "is <``typeName( tCheck )``>";
 	}
 }
 

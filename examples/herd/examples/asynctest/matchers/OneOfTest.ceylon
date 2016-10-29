@@ -30,7 +30,7 @@ class OneOfTest()
 		context.assertThat (
 			toCompare,
 			OneOf( EqualTo( expectedFirst ), EqualTo( expectedSecond ) ),
-			"one of equal and equal",
+			"",
 			true
 		);
 		context.complete();
@@ -46,7 +46,7 @@ class OneOfTest()
 		context.assertThat (
 			toCompare,
 			OneOf( EqualTo( expectedFirst ), NotEqualTo( expectedSecond ) ),
-			"one of equal and not equal",
+			"",
 			true
 		);
 		context.complete();
@@ -62,7 +62,7 @@ class OneOfTest()
 		context.assertThat (
 			toCompare,
 			OneOf( NotEqualTo( expectedFirst ), EqualTo( expectedSecond ) ),
-			"one of not equal and equal",
+			"",
 			true
 		);
 		context.complete();
@@ -78,7 +78,7 @@ class OneOfTest()
 		context.assertThat (
 			toCompare,
 			OneOf( NotEqualTo( expectedFirst ), NotEqualTo( expectedSecond ) ),
-			"one of not equal and not equal",
+			"",
 			true
 		);
 		context.complete();
@@ -94,7 +94,7 @@ class OneOfTest()
 		context.assertThat (
 			toCompare,
 			OneOf( Less( expectedFirst ), Less( expectedSecond ) ),
-			"one of less and less",
+			"",
 			true
 		);
 		context.complete();
@@ -110,7 +110,7 @@ class OneOfTest()
 		context.assertThat (
 			toCompare,
 			OneOf( Less( expectedFirst ), Greater( expectedSecond ) ),
-			"one of less and greater",
+			"",
 			true
 		);
 		context.complete();
@@ -126,7 +126,7 @@ class OneOfTest()
 		context.assertThat (
 			toCompare,
 			OneOf( Greater( expectedFirst ), Greater( expectedSecond ) ),
-			"one of greater and greater",
+			"",
 			true
 		);
 		context.complete();
@@ -142,7 +142,7 @@ class OneOfTest()
 		context.assertThat (
 			toCompare,
 			OneOf( Greater( expectedFirst ), Less( expectedSecond ) ),
-			"one of greater and less",
+			"",
 			true
 		);
 		context.complete();

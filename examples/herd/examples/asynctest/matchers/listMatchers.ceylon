@@ -20,22 +20,22 @@ import herd.asynctest.match {
 class ListMatchers() {
 	
 	test parameterized( `value subListStrings` )
-	shared void listStart (
+	shared void listStartsWith (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String list,
 		"String to compare to" String subList
 	) {
-		context.assertThat( list, StartsWith( subList ), "list starts with", true );
+		context.assertThat( list, StartsWith( subList ), "", true );
 		context.complete();
 	}
 
 	test parameterized( `value subListStrings` )
-	shared void listEnd (
+	shared void listEndsWith (
 		"Context the test is performed on." AsyncTestContext context,
 		"String to be compared." String list,
 		"String to compare to" String subList
 	) {
-		context.assertThat( list, EndsWith( subList ), "list ends with", true );
+		context.assertThat( list, EndsWith( subList ), "", true );
 		context.complete();
 	}
 
@@ -45,7 +45,7 @@ class ListMatchers() {
 		"String to be compared." String subList,
 		"String to compare to" String list
 	) {
-		context.assertThat( subList, Beginning( list ), "list beginning", true );
+		context.assertThat( subList, Beginning( list ), "", true );
 		context.complete();
 	}
 	
@@ -58,6 +58,6 @@ void listFinishing (
 	"String to be compared." String subList,
 	"String to compare to" String list
 ) {
-	context.assertThat( subList, Finishing( list ), "list finishing", true );
+	context.assertThat( subList, Finishing( list ), "", true );
 	context.complete();
 }

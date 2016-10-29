@@ -30,6 +30,24 @@ import ceylon.promise {
 	Promise,
 	Deferred
 }
+import java.lang {
+
+	ThreadGroup,
+	Thread
+}
+import java.util.concurrent {
+
+	CountDownLatch,
+	TimeUnit { milliseconds }
+}
+
+
+class TestThread( ThreadGroup group, String name, run )
+		extends Thread( group, name )
+{
+	
+	shared actual void run();
+}
 
 
 "Performs a one test execution."
@@ -37,6 +55,8 @@ since( "0.0.1" )
 by( "Lis" )
 class Tester() satisfies AsyncTestContext
 {
+	
+	ThreadGroup group = ThreadGroup( "asynctester" );
 	
 	"`true` if currently run"
 	AtomicBoolean running = AtomicBoolean( false );
@@ -55,7 +75,7 @@ class Tester() satisfies AsyncTestContext
 	variable Integer startTime = 0;
 	variable Integer completeTime = 0; 
 	variable TestState totalState = TestState.skipped;
-			
+		
 	
 	"adds new output to `outputs`"
 	void addOutput(	TestState state, Throwable? error, String title ) {
@@ -222,38 +242,64 @@ class Tester() satisfies AsyncTestContext
 		}
 		return ret.promise;
 	}
-
 	
+	void execute( Anything(AsyncTestContext) testFunction ) {
+		locker.lock();
+		startTime = system.milliseconds;
+		completeTime = startTime; 
+		try {
+			// invoke test function
+			testFunction( this );
+			if ( running.get() ) { condition.await(); }
+		}
+		catch ( Throwable err ) {
+			if ( err is TestSkippedException ) {
+				addOutput( TestState.skipped, err, "skipped with exception" );
+			}
+			else if ( err is TestAbortedException ) {
+				addOutput( TestState.aborted, err, "aborted with exception" );
+			}
+			else if  ( err is IncompatibleTypeException | InvocationException ) {
+				addOutput( TestState.aborted, err, "incompatible invocation" );
+			}
+			else {
+				fail( err, "failed with exception" );
+			}
+			complete();
+		}
+		finally {
+			locker.unlock();
+		}
+	}
+
+
 	"Returns output from the test."
-	shared TestFunctionOutput run( Anything(AsyncTestContext) testFunction ) {
+	shared TestFunctionOutput run( Anything(AsyncTestContext) testFunction, Integer timeOutMilliseconds = -1 ) {
 		if ( running.compareAndSet( false, true ) ) {
-			locker.lock();
-			startTime = system.milliseconds;
-			completeTime = startTime; 
-			try {
-				// invoke test function
-				testFunction( this );
-				if ( running.get() ) { condition.await(); }
+			
+			// execute the test
+			if ( timeOutMilliseconds > 0 ) {
+				CountDownLatch latch = CountDownLatch( 1 );
+				TestThread thr = TestThread (
+					group, "asynctester",
+					() {
+						execute( testFunction );
+						latch.countDown();
+					}
+				);
+				thr.start();
+				if ( !latch.await( timeOutMilliseconds, milliseconds ) ) {
+					group.interrupt();
+					value excep = TimeOutException( timeOutMilliseconds );
+					addOutput( TestState.error, excep, excep.message );
+					complete();
+				}
 			}
-			catch ( Throwable err ) {
-				if ( err is TestSkippedException ) {
-					addOutput( TestState.skipped, err, "skipped with exception" );
-				}
-				else if ( err is TestAbortedException ) {
-					addOutput( TestState.aborted, err, "aborted with exception" );
-				}
-				else if  ( err is IncompatibleTypeException | InvocationException ) {
-					addOutput( TestState.aborted, err, "incompatible invocation" );
-				}
-				else {
-					fail( err, "failed with exception" );
-				}
-				complete();
-			}
-			finally {
-				locker.unlock();
+			else {
+				execute( testFunction );
 			}
 			
+			// return results
 			outputLocker.lock();
 			try {
 				value ret = outputs.sequence();

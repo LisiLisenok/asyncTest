@@ -1,3 +1,8 @@
+import herd.asynctest.internal {
+
+	stringify,
+	typeName
+}
 
 
 "Maps matching value to another one using `convert` and passes converted value to the given `matcher`."
@@ -10,7 +15,7 @@ shared class Mapping<From, To>( To convert( From val ), Matcher<To> matcher )
 	shared actual String string {
 		value tFrom = `From`;
 		value tTo = `To`;
-		return "mapping from '``tFrom``' to '``tTo``' and match with '``matcher``'";
+		return "mapping from '``typeName( tFrom )``' to '``typeName( tTo )``' and match with '``matcher``'";
 	}
 }
 
@@ -34,7 +39,7 @@ shared class MapExisted<From, To>( To convert( From&Object val ), Matcher<To> ma
 	shared actual String string {
 		value tFrom = `From`;
 		value tTo = `To`;
-		return "map if exists from '``tFrom``' to '``tTo``' and match with '``matcher``'";
+		return "map if exists from '``typeName( tFrom )``' to '``typeName( tTo )``' and match with '``matcher``'";
 	}
 }
 
@@ -57,7 +62,7 @@ shared class PassType<Value>( Matcher<Value> matcher )
 	
 	shared actual String string {
 		value tValue = `Value`;
-		return "pass type '``tValue``' to '``matcher``'";
+		return "pass type '``typeName( tValue )``' to '``matcher``'";
 	}
 }
 
@@ -80,7 +85,7 @@ shared class PassExisted<Value>( Matcher<Value> matcher )
 	
 	shared actual String string {
 		value tValue = `Value`;
-		return "pass existed value '``tValue``' to '``matcher``'";
+		return "pass existed value '``typeName( tValue )``' to '``matcher``'";
 	}
 }
 
@@ -95,7 +100,7 @@ shared class Predicate<Value>( Boolean predicate( Value val ) )
 	
 	shared actual String string {
 		value tValue = `Value`;
-		return "predicate '``tValue``'";
+		return "predicate '``typeName( tValue )``'";
 	}
 }
 

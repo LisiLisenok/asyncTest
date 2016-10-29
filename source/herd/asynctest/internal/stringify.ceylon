@@ -1,3 +1,7 @@
+import ceylon.language.meta.model {
+
+	Type
+}
 
 
 "Generates `String` representation of an `item`.  
@@ -5,14 +9,14 @@
  "
 since( "0.4.0" ) by( "Lis" )
 shared String stringify( Anything item ) {
-	switch ( item )
-	case ( is Null ) { return "<null>"; }
-	case ( is Character ) { return "'``item``'"; }
-	case ( is Float ) { return formatFloat( item, 0, 3 ); }
-	case ( is Entry<Object, Anything> ) {
+	//switch ( item )
+	if ( is Null item ) { return "<null>"; }
+	else if ( is Character item ) { return "'``item``'"; }
+	else if ( is Float item ) { return formatFloat( item, 0, 3 ); }
+	else if ( is Entry<Object, Anything> item ) {
 		return "<``stringify( item.key )``->``stringify( item.item )``>";
 	}
-	case ( is Iterable<Anything> ) {
+	else if ( is Iterable<Anything> item ) {
 		if ( is String str = item ) {
 			return "\"``str``\"";
 		}
@@ -32,6 +36,9 @@ shared String stringify( Anything item ) {
 				return builder.string;
 			}
 		}
+	}
+	else if ( is Type<Anything> item ) {
+		return typeName( item );
 	}
 	else { return item.string; }
 }

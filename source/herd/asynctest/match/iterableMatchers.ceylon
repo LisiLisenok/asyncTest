@@ -2,6 +2,11 @@ import ceylon.collection {
 
 	ArrayList
 }
+import herd.asynctest.internal {
+
+	stringify,
+	typeName
+}
 
 "Verifies if matching stream of `Iterable` is empty."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
@@ -98,7 +103,7 @@ shared class ContainsEvery<Value>( "Elements to check if matching stream contain
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "stream contains every <``tVal``>";
+		return "stream contains every <``typeName( tVal )``>";
 	}
 }
 
@@ -133,7 +138,7 @@ shared class ContainsAny<Value>( "Elements to check if matching stream contains 
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "stream contains every <``tVal``>";
+		return "stream contains every <``typeName( tVal )``>";
 	}
 }
 
@@ -151,7 +156,7 @@ shared class Any<Value> (
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "any from stream <``tVal``>";
+		return "any from stream <``typeName( tVal )``>";
 	}
 }
 
@@ -169,7 +174,7 @@ shared class Every<Value> (
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "every from stream <``tVal``>";
+		return "every from stream <``typeName( tVal )``>";
 	}
 }
 

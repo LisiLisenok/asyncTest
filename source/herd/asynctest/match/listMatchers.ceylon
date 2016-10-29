@@ -1,3 +1,8 @@
+import herd.asynctest.internal {
+
+	stringify,
+	typeName
+}
 
 
 "Verifies if matching `List` value starts with the given `subList`."
@@ -13,7 +18,7 @@ shared class StartsWith<Value>( "Sublist matching value to start with." List<Val
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "list of <``tVal``> starts with";
+		return "list of <``typeName( tVal )``> starts with";
 	}
 }
 
@@ -31,7 +36,7 @@ shared class EndsWith<Value>( "Sublist matching value to end with." List<Value> 
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "list of <``tVal``> ends with";
+		return "list of <``typeName( tVal )``> ends with";
 	}
 }
 
@@ -46,7 +51,7 @@ shared class Beginning<Value>( "List to start with matching value." List<Value> 
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "beginning list of <``tVal``>";
+		return "beginning list of <``typeName( tVal )``>";
 	}
 }
 
@@ -61,6 +66,6 @@ shared class Finishing<Value>( List<Value> list )
 	
 	shared actual String string {
 		value tVal = `Value`;
-		return "finishing list of <``tVal``>";
+		return "finishing list of <``typeName( tVal )``>";
 	}
 }

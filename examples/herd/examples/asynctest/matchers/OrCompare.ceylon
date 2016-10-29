@@ -26,7 +26,7 @@ class OrCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.assertThat(
-			toCompare, EqualTo( expectedFirst ).or( EqualTo( expectedSecond ) ), "equal or equal", true
+			toCompare, EqualTo( expectedFirst ).or( EqualTo( expectedSecond ) ), "", true
 		);
 		context.complete();
 	}
@@ -39,7 +39,7 @@ class OrCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.assertThat (
-			toCompare, EqualTo( expectedFirst ).or( NotEqualTo( expectedSecond ) ), "equal or not equal", true
+			toCompare, EqualTo( expectedFirst ).or( NotEqualTo( expectedSecond ) ), "", true
 		);
 		context.complete();
 	}
@@ -52,7 +52,7 @@ class OrCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.assertThat (
-			toCompare, NotEqualTo( expectedFirst ).or( EqualTo( expectedSecond ) ), "not equal or equal", true
+			toCompare, NotEqualTo( expectedFirst ).or( EqualTo( expectedSecond ) ), "", true
 		);
 		context.complete();
 	}
@@ -65,7 +65,7 @@ class OrCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.assertThat (
-			toCompare, NotEqualTo( expectedFirst ).or( NotEqualTo( expectedSecond ) ), "not equal or not equal", true
+			toCompare, NotEqualTo( expectedFirst ).or( NotEqualTo( expectedSecond ) ), "", true
 		);
 		context.complete();
 	}
@@ -77,7 +77,7 @@ class OrCompare() {
 		"First string to compare to." String expectedFirst,
 		"Second string to compare to." String expectedSecond
 	) {
-		context.assertThat( toCompare, Less( expectedFirst ).or( Less( expectedSecond ) ), "less or less", true );
+		context.assertThat( toCompare, Less( expectedFirst ).or( Less( expectedSecond ) ), "", true );
 		context.complete();
 	}
 	
@@ -89,7 +89,7 @@ class OrCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.assertThat (
-			toCompare, Less( expectedFirst ).or( Greater( expectedSecond ) ), "less or greater", true
+			toCompare, Less( expectedFirst ).or( Greater( expectedSecond ) ), "", true
 		);
 		context.complete();
 	}
@@ -102,7 +102,7 @@ class OrCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.assertThat (
-			toCompare, Greater( expectedFirst ).or( Greater( expectedSecond ) ), "greater or greater", true
+			toCompare, Greater( expectedFirst ).or( Greater( expectedSecond ) ), "", true
 		);
 		context.complete();
 	}
@@ -115,7 +115,7 @@ class OrCompare() {
 		"Second string to compare to." String expectedSecond
 	) {
 		context.assertThat (
-			toCompare, Greater( expectedFirst ).or( Less( expectedSecond ) ), "greater or less", true
+			toCompare, Greater( expectedFirst ).or( Less( expectedSecond ) ), "", true
 		);
 		context.complete();
 	}

@@ -23,6 +23,7 @@ arguments( `function resourceArgs` )
 class ResourceRuleExample( String fileName, String fileContent ) {
 	
 	shared testRule ResourceRule resource = ResourceRule( `module`, fileName );
+
 	
 	"Verifies that `resource` name is equal to `fileName`."
 	shared test async void fileNameTest( AsyncTestContext context ) {

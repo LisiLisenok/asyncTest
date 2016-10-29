@@ -1,3 +1,7 @@
+import herd.asynctest.internal {
+
+	stringify
+}
 
 
 "Verifies if matching `map` defines the given key `key`, see `Map.defines`."
@@ -9,7 +13,7 @@ shared class DefinesKey<Value>( "Item to check if map defines." Value key )
 	shared actual MatchResult match( Map<Value, Anything> val )
 			=> MatchResult( "map ``stringify( val )`` defines ``stringify( key )``", val.defines( key ) );
 	
-	shared actual String string => "map defines ``key``";
+	shared actual String string => "map defines ``stringify( key )``";
 }
 
 
@@ -22,7 +26,7 @@ shared class ContainsItem<Value>( "Item to check if map contains." Value item )
 	shared actual MatchResult match( Map<Anything, Value> val )
 			=> MatchResult( "map ``stringify( val )`` contains ``stringify( item )``", val.items.contains( item ) );
 	
-	shared actual String string => "map contains ``item``";
+	shared actual String string => "map contains ``stringify( item )``";
 }
 
 

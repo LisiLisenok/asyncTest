@@ -1,3 +1,8 @@
+import herd.asynctest.internal {
+
+	stringify,
+	typeName
+}
 
 
 "Verifies if matching value is greater than given `merit`."
@@ -13,7 +18,7 @@ shared class Greater<Value> (
 
  	shared actual String string {
  		value tVal = `Value`;
- 		return "greater <``tVal``>";
+ 		return "greater <``typeName( tVal )``>";
  	}
 }
 
@@ -31,7 +36,7 @@ shared class Less<Value> (
 
 	shared actual String string {
 		value tVal = `Value`;
-		return "less <``tVal``>";
+		return "less <``typeName( tVal )``>";
 	}
 }
 
@@ -49,7 +54,7 @@ shared class LessOrEqual<Value> (
 
 	shared actual String string {
 		value tVal = `Value`;
-		return "less or equal <``tVal``>";
+		return "less or equal <``typeName( tVal )``>";
 	}
 }
 
@@ -67,7 +72,7 @@ shared class GreaterOrEqual<Value> (
 
 	shared actual String string {
 		value tVal = `Value`;
-		return "greater or equal <``tVal``>";
+		return "greater or equal <``typeName( tVal )``>";
 	}
 }
 
@@ -90,7 +95,7 @@ shared class Within<Value> (
 
 	shared actual String string {
 		value tVal = `Value`;
-		return "within <``tVal``>";
+		return "within <``typeName( tVal )``>";
 	}
 }
 
@@ -113,7 +118,7 @@ shared class Ranged<Value> (
 
 	shared actual String string {
 		value tVal = `Value`;
-		return "range <``tVal``>";
+		return "range <``typeName( tVal )``>";
 	}
 }
 
@@ -131,7 +136,7 @@ shared class EqualTo<Value> (
 
 	shared actual String string {
 		value tVal = `Value`;
-		return "equal <``tVal``>";
+		return "equal <``typeName( tVal )``>";
 	}
 }
 
@@ -149,7 +154,7 @@ shared class NotEqualTo<Value> (
 
 	shared actual String string {
 		value tVal = `Value`;
-		return "not equal <``tVal``>";
+		return "not equal <``typeName( tVal )``>";
 	}
 }
 

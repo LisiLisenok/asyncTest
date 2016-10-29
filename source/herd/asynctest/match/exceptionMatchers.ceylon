@@ -1,3 +1,6 @@
+import herd.asynctest.internal {
+	typeName
+}
 
 "Verifies if matching exception has type of `ExceptionType`."
 tagged( "Exceptions" ) since( "0.6.0" ) by( "Lis" )
@@ -7,13 +10,13 @@ shared class ExceptionHasType<ExceptionType>()
 {
 	shared actual MatchResult match( Throwable val ) {
 		value tCheck = `ExceptionType`;
-		return MatchResult( "exception has type ``tCheck``", if ( is ExceptionType val ) then true else false );
+		return MatchResult( "exception has type ``typeName( tCheck )``", if ( is ExceptionType val ) then true else false );
 		
 	}
 	
 	shared actual String string {
 		value tCheck = `ExceptionType`;
-		return "exception has type <``tCheck``>";
+		return "exception has type <``typeName( tCheck )``>";
 	}
 }
 
@@ -61,6 +64,3 @@ shared class ExceptionHasCause() satisfies Matcher<Throwable>
 		return "excetion has cause";
 	}
 }
-
-
-

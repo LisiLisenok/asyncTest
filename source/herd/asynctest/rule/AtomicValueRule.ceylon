@@ -1,7 +1,8 @@
 import herd.asynctest {
 	AsyncPrePostContext
 }
-import herd.asynctest.atomic {
+
+import herd.asynctest.internal {
 	Atomic,
 	instantiateAtomic
 }

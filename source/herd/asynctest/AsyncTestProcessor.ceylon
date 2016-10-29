@@ -11,10 +11,7 @@ import ceylon.test {
 	TestState,
 	TestDescription
 }
-import herd.asynctest.match {
 
-	stringify
-}
 import ceylon.language.meta.model {
 
 	Type,
@@ -31,6 +28,11 @@ import ceylon.collection {
 import ceylon.test.engine {
 
 	TestSkippedException
+}
+import herd.asynctest.internal {
+
+	stringify,
+	typeName
 }
 
 
@@ -202,25 +204,26 @@ class AsyncTestProcessor(
 			size --;
 			builder.append( "<" );
 			for( arg in typeParameters.indexed ) {
-				builder.append( arg.item.string );
+				builder.append( typeName( arg.item ) );
 				if( arg.key < size ) {
 					builder.append(", ");
 				}
 			}
-			builder.append( "> " );
+			builder.append( ">" );
 		}
 		
 		// add function arguments
 		size = args.size - 1;
-		if ( size > 0 ) { builder.append( "with arguments (" ); }
-		else { builder.append( "with argument (" ); }
-		for( arg in args.indexed ) {
-			builder.append( stringify( arg.item ) );
-			if( arg.key < size ) {
-				builder.append(", ");
+		if ( size > -1 ) {
+			builder.append( "(" );
+			for( arg in args.indexed ) {
+				builder.append( stringify( arg.item ) );
+				if( arg.key < size ) {
+					builder.append(", ");
+				}
 			}
+			builder.append( ")" );
 		}
-		builder.append( ")" );
 		return builder.string;
 	}
 	

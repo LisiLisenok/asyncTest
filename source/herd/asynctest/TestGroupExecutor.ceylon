@@ -509,7 +509,10 @@ class TestGroupExecutor (
 		if ( is Package container ) {
 			for ( execution in executions ) {
 				TestExecutionContext context = groupContext.childContext( execution.description );
-				fillContextWithTestResults( context, outputs, 0, 0, TestState.skipped );
+				fillContextWithTestResults( context,
+					[VariantTestOutput(
+						[], [], [], 0, "", TestState.skipped
+					)], 0, TestState.skipped );
 			}
 		}
 		else {
@@ -522,7 +525,7 @@ class TestGroupExecutor (
 			}
 			variable Integer index = 0;
 			for ( res in outputs ) {
-				variantResultEvent( groupContext, res, ++ index );
+				variantResultEvent( groupContext, "", res, ++ index );
 			}
 		}
 		groupContext.fire().testFinished( TestFinishedEvent (
@@ -537,10 +540,7 @@ class TestGroupExecutor (
 		variable TestState overallState = TestState.skipped;
 		for ( res in results ) {
 			if ( nonempty vars = res.variants ) {
-				fillContextWithTestResults( res.context,
-					concatenate( *vars*.initOutput.append( vars*.testOutput ).append( vars*.disposeOutput ) ),
-					res.elapsedTime, vars.size, res.state
-				);
+				fillContextWithTestResults( res.context, vars, res.elapsedTime, res.state );
 			}
 			else {
 				res.context.fire().testStarted( TestStartedEvent( res.context.description ) );
@@ -559,41 +559,42 @@ class TestGroupExecutor (
 	"Fills results of the test to execution context. Here in order to avoind race conditions when filling to test runner."
 	shared default void fillContextWithTestResults (
 		"Context to be filled with results." TestExecutionContext context,
-		"Test results." TestOutput[] testOutputs,
+		"List of variants." [VariantTestOutput+] variants,
 		"Total test elapsed time." Integer runInterval,
-		"Total number of performed executions." Integer executions,
-		TestState overallState
+		"Overall test state." TestState overallState
 	) {
 		context.fire().testStarted( TestStartedEvent( context.description ) );
-		TestDescription runDescription = context.description;
-		if ( nonempty testOutputs ) {
-			variable Integer index = 0;
-			for ( res in testOutputs ) {
-				variantResultEvent( context, res, ++ index );
+		variable Integer index = 0;
+		for ( var in variants ) {
+			String variantName = if ( var.variantName.empty ) then "" else var.variantName + ": ";
+			for ( res in var.initOutput ) {
+				variantResultEvent( context, variantName, res, ++ index );
 			}
-			context.fire().testFinished( TestFinishedEvent (
-				TestResult( runDescription, overallState, true, null, runInterval )
-			) );
+			for ( res in var.testOutput ) {
+				variantResultEvent( context, variantName, res, ++ index );
+			}
+			for ( res in var.disposeOutput ) {
+				variantResultEvent( context, variantName, res, ++ index );
+			}
 		}
-		else {
-			context.fire().testFinished( TestFinishedEvent (
-				TestResult( runDescription, TestState.success, true, null, runInterval )
-			) );
-		}
+		context.fire().testFinished( TestFinishedEvent (
+			TestResult( context.description, overallState, true, null, runInterval )
+		) );
 	}
 	
 	"Raises test variant results event."
 	void variantResultEvent (
 		"Context to raise event on." TestExecutionContext context,
+		"Name of the variant." String variantName,
 		"Test output to be passed as variant result." TestOutput testOutput,
 		"Variant index." Integer index
 	) {
-		TestDescription variant = context.description.forVariant( testOutput.title, index );
+		TestDescription variant = context.description.forVariant( variantName + testOutput.title, index );
 		TestExecutionContext child = context.childContext( variant );
 		TestListener listener = child.fire();
 		listener.testStarted( TestStartedEvent( variant ) );
 		listener.testFinished( TestFinishedEvent(
-			TestResult( variant, testOutput.state, false, testOutput.error, testOutput.elapsedTime )
+			TestResult( variant, testOutput.state, true, testOutput.error, testOutput.elapsedTime )
 		) );
 	}
 	

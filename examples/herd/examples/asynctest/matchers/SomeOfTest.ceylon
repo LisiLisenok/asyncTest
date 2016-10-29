@@ -28,7 +28,7 @@ class SomeOfTest()
 		"Second string to compare to." String expectedSecond
 	) {
 		context.assertThat (
-			toCompare, SomeOf( EqualTo( expectedFirst ), EqualTo( expectedSecond ) ), "some of equal and equal", true
+			toCompare, SomeOf( EqualTo( expectedFirst ), EqualTo( expectedSecond ) ), "", true
 		);
 		context.complete();
 	}
@@ -43,7 +43,7 @@ class SomeOfTest()
 		context.assertThat (
 			toCompare,
 			SomeOf( EqualTo( expectedFirst ), NotEqualTo( expectedSecond ) ),
-			"some of equal and not equal",
+			"",
 			true
 		);
 		context.complete();
@@ -59,7 +59,7 @@ class SomeOfTest()
 		context.assertThat (
 			toCompare,
 			SomeOf( NotEqualTo( expectedFirst ), EqualTo( expectedSecond ) ),
-			"some of not equal and equal",
+			"",
 			true
 		);
 		context.complete();
@@ -75,7 +75,7 @@ class SomeOfTest()
 		context.assertThat (
 			toCompare,
 			SomeOf( NotEqualTo( expectedFirst ), NotEqualTo( expectedSecond ) ),
-			"some of not equal and not equal",
+			"",
 			true
 		);
 		context.complete();
@@ -91,7 +91,7 @@ class SomeOfTest()
 		context.assertThat (
 			toCompare,
 			SomeOf( Less( expectedFirst ), Less( expectedSecond ) ),
-			"some of less and less",
+			"",
 			true
 		);
 		context.complete();
@@ -107,7 +107,7 @@ class SomeOfTest()
 		context.assertThat (
 			toCompare,
 			SomeOf( Less( expectedFirst ), Greater( expectedSecond ) ),
-			"some of less and greater",
+			"",
 			true
 		);
 		context.complete();
@@ -123,7 +123,7 @@ class SomeOfTest()
 		context.assertThat (
 			toCompare,
 			SomeOf( Greater( expectedFirst ), Greater( expectedSecond ) ),
-			"some of greater and greater",
+			"",
 			true
 		);
 		context.complete();
@@ -139,7 +139,7 @@ class SomeOfTest()
 		context.assertThat (
 			toCompare,
 			SomeOf( Greater( expectedFirst ), Less( expectedSecond ) ),
-			"some of greater and less",
+			"",
 			true
 		);
 		context.complete();

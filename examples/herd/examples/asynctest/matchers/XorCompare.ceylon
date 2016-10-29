@@ -28,7 +28,7 @@ class XorCompare() {
 		context.assertThat (
 			toCompare,
 			EqualTo( expectedFirst ).xor( EqualTo( expectedSecond ) ),
-			"equal xor equal",
+			"",
 			true
 		);
 		context.complete();
@@ -44,7 +44,7 @@ class XorCompare() {
 		context.assertThat (
 			toCompare,
 			EqualTo( expectedFirst ).xor( NotEqualTo( expectedSecond ) ),
-			"equal xor not equal",
+			"",
 			true
 		);
 		context.complete();
@@ -60,7 +60,7 @@ class XorCompare() {
 		context.assertThat (
 			toCompare,
 			NotEqualTo( expectedFirst ).xor( EqualTo( expectedSecond ) ),
-			"not equal xor equal",
+			"",
 			true
 		);
 		context.complete();
@@ -76,7 +76,7 @@ class XorCompare() {
 		context.assertThat (
 			toCompare,
 			NotEqualTo( expectedFirst ).xor( NotEqualTo( expectedSecond ) ),
-			"not equal xor not equal",
+			"",
 			true
 		);
 		context.complete();
@@ -92,7 +92,7 @@ class XorCompare() {
 		context.assertThat (
 			toCompare,
 			Less( expectedFirst ).xor( Less( expectedSecond ) ),
-			"less xor less",
+			"",
 			true
 		);
 		context.complete();
@@ -108,7 +108,7 @@ class XorCompare() {
 		context.assertThat (
 			toCompare,
 			Less( expectedFirst ).xor( Greater( expectedSecond ) ),
-			"less xor greater",
+			"",
 			true
 		);
 		context.complete();
@@ -124,7 +124,7 @@ class XorCompare() {
 		context.assertThat (
 			toCompare,
 			Greater( expectedFirst ).xor( Greater( expectedSecond ) ),
-			"greater xor greater",
+			"",
 			true
 		);
 		context.complete();
@@ -140,7 +140,7 @@ class XorCompare() {
 		context.assertThat (
 			toCompare,
 			Greater( expectedFirst ).xor( Less( expectedSecond ) ),
-			"greater xor less",
+			"",
 			true
 		);
 		context.complete();
