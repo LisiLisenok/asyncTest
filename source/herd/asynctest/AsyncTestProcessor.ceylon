@@ -44,9 +44,10 @@ class AsyncTestProcessor(
 	"Object contained function or `null` if function is top level" Object? instance,
 	"Parent execution context." TestExecutionContext parent,
 	"Description the test performed on." TestDescription description,
-	"Functions called before each test." Anything(AsyncPrePostContext)[] intializers,
-	"Functions called after each test and may add reportings." Anything(AsyncTestContext)[] statements,
-	"Functions called after each test." Anything(AsyncPrePostContext)[] cleaners
+	"Functions called before each test." PrePostFunction[] intializers,
+	"Functions called after each test and may add reportings." TestFunction[] statements,
+	"Functions called after each test." PrePostFunction[] cleaners,
+	"Time out for a one function run" Integer timeOutMilliseconds
 ) {
 
 	Type<Object>? instanceType = if ( exists i = instance ) then type( i ) else null;
@@ -88,16 +89,19 @@ class AsyncTestProcessor(
 			String varName = variantName( typeParameters, args );
 			value testFunction = applyFunction( *typeParameters );
 			TestFunctionOutput output = tester.run (
-				( AsyncTestContext context ) {
-					if ( runOnAsyncContext ) {
-						testFunction.apply( context, *args );
-					}
-					else {
-						// test function doesn't take async context - call it as sync and complete the execution
-						testFunction.apply( *args );
-						context.complete();
-					}
-				}
+				TestFunction (
+					( AsyncTestContext context ) {
+						if ( runOnAsyncContext ) {
+							testFunction.apply( context, *args );
+						}
+						else {
+							// test function doesn't take async context - call it as sync and complete the execution
+							testFunction.apply( *args );
+							context.complete();
+						}
+					},
+					timeOutMilliseconds, functionDeclaration.name
+				)
 			);
 			// run test statements which may add something to the test
 			value statementOuts = [ for ( statement in statements ) tester.run( statement ) ];

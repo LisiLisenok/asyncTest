@@ -21,19 +21,6 @@ import ceylon.test {
 }
 
 
-"Annotation class for [[concurrent]]."
-since( "0.6.0" ) by( "Lis" )
-shared final annotation class ConcurrentAnnotation()
-		satisfies OptionalAnnotation<ConcurrentAnnotation, ClassDeclaration | Package | Module>
-{}
-
-
-"Indicates that all test functions of the marked container (package for top-level functions and class for methods)
- ave to be run in conccurent mode."
-since( "0.6.0" ) by( "Lis" )
-shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
-
-
 "The same as `testExecutor(`\`class AsyncTestExecutor\``)`"
 since( "0.6.0" ) by( "Lis" )
 shared annotation TestExecutorAnnotation async() => testExecutor(`class AsyncTestExecutor`);
@@ -221,3 +208,30 @@ shared annotation FactoryAnnotation factory (
 	FunctionOrValueDeclaration arguments
 	
 ) => FactoryAnnotation( factoryFunction, arguments );
+
+
+"Annotation class for [[concurrent]]."
+since( "0.6.0" ) by( "Lis" )
+shared final annotation class ConcurrentAnnotation()
+		satisfies OptionalAnnotation<ConcurrentAnnotation, ClassDeclaration | Package | Module>
+		{}
+
+
+"Indicates that all test functions of the marked container (package for top-level functions and class for methods)
+ ave to be run in conccurent mode."
+since( "0.6.0" ) by( "Lis" )
+shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
+
+
+"Annotation class for [[timeOut]]."
+since( "0.6.0" ) by( "Lis" )
+shared final annotation class TimeOutAnnotation( shared Integer timeOutMilliseconds )
+		satisfies OptionalAnnotation<TimeOutAnnotation, FunctionDeclaration | ValueDeclaration
+		 	| ClassDeclaration | Package | Module>
+		{}
+
+
+"Indicates that if test function execution takes more than `timeOutMilliseconds` thetest has to be interrupted."
+since( "0.6.0" ) by( "Lis" )
+shared annotation TimeOutAnnotation timeOut( Integer timeOutMilliseconds ) => TimeOutAnnotation( timeOutMilliseconds );
+

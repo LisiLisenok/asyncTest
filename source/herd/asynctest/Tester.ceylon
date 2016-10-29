@@ -32,28 +32,22 @@ import ceylon.promise {
 }
 import java.lang {
 
-	ThreadGroup,
-	Thread
+	ThreadGroup
 }
 import java.util.concurrent {
 
 	CountDownLatch,
 	TimeUnit { milliseconds }
 }
+import herd.asynctest.internal {
 
-
-class TestThread( ThreadGroup group, String name, run )
-		extends Thread( group, name )
-{
-	
-	shared actual void run();
+	ExecutionThread
 }
 
 
 "Performs a one test execution."
-since( "0.0.1" )
-by( "Lis" )
-class Tester() satisfies AsyncTestContext
+since( "0.0.1" ) by( "Lis" )
+class Tester()
 {
 	
 	ThreadGroup group = ThreadGroup( "asynctester" );
@@ -75,10 +69,64 @@ class Tester() satisfies AsyncTestContext
 	variable Integer startTime = 0;
 	variable Integer completeTime = 0; 
 	variable TestState totalState = TestState.skipped;
+	
+	
+	"Provides atest context to tested function."
+	class InternalContext() satisfies AsyncTestContext {
+		AtomicBoolean running = AtomicBoolean( true );
+		shared void stop() { running.set( false ); }
 		
+		shared void addOutput( TestState state, Throwable? error, String title ) {
+			if ( running.get() ) {
+				outer.addOutput( state, error, title );
+			}
+		}
+		
+		shared actual Promise<MatchResult> assertThat<Value> (
+			Value|Value()|Promise<Value> source, Matcher<Value> matcher, String title, Boolean reportSuccess
+		) {
+			if ( running.get() ) {
+				return outer.assertThat<Value>(source, matcher, title, reportSuccess );
+			}
+			Deferred<MatchResult> def = Deferred<MatchResult>();
+			def.reject( TestContextHasBeenStopped() );
+			return def.promise;
+		}
+		
+		shared actual Promise<MatchResult> assertThatException (
+			Throwable|Anything()|Promise<Anything> source, Matcher<Throwable> matcher, String title, Boolean reportSuccess
+		) {
+			if ( running.get() ) {
+				return outer.assertThatException(source, matcher, title, reportSuccess );
+			}
+			Deferred<MatchResult> def = Deferred<MatchResult>();
+			def.reject( TestContextHasBeenStopped() );
+			return def.promise;
+		}
+		
+		shared actual void complete( String title ) {
+			if ( running.compareAndSet( true,false ) ) {
+				outer.complete( title );
+			}
+		}
+		
+		shared actual void fail( Throwable|Anything() exceptionSource, String title ) {
+			if ( running.get() ) {
+				outer.fail( exceptionSource, title );
+			}
+		}
+		
+		shared actual void succeed( String message ) {
+			if ( running.get() ) {
+				outer.succeed( message );
+			}
+		}
+		
+	}
+	
 	
 	"adds new output to `outputs`"
-	void addOutput(	TestState state, Throwable? error, String title ) {
+	void addOutput( TestState state, Throwable? error, String title ) {
 		Integer elapsed = if ( startTime > 0 ) then system.milliseconds - startTime else 0;
 		outputLocker.lock();
 		try {
@@ -127,7 +175,7 @@ class Tester() satisfies AsyncTestContext
 	}
 
 	
-	shared actual void complete( String title ) {
+	void complete( String title ) {
 		if ( running.compareAndSet( true, false ) ) {
 			if ( outputs.empty ) {
 				if ( title.empty ) { totalState = TestState.success; }
@@ -143,13 +191,13 @@ class Tester() satisfies AsyncTestContext
 	}
 
 
-	shared actual void succeed( String message ) {
+	void succeed( String message ) {
 		if ( running.get() ) {
 			addOutput( TestState.success, null, message );
 		}
 	}
 
-	shared actual Promise<MatchResult> assertThat<Value> (
+	Promise<MatchResult> assertThat<Value> (
 		Value | Value() | Promise<Value> source, Matcher<Value> matcher, String title, Boolean reportSuccess
 	) {
 		Deferred<MatchResult> ret = Deferred<MatchResult>();
@@ -159,12 +207,15 @@ class Tester() satisfies AsyncTestContext
 					if ( running.get() ) {
 						fillMatcher( ret, source, matcher, title, reportSuccess );
 					}
+					else {
+						ret.reject( TestContextHasBeenStopped() );
+					}
 				},
 				( Throwable err ) {
 					if ( running.get() ) {
 						addOutput( TestState.failure, err, title );
-						ret.reject( err );
 					}
+					ret.reject( err );
 				}
 			);
 		}
@@ -179,17 +230,23 @@ class Tester() satisfies AsyncTestContext
 					ret.reject( err );
 				}
 			}
+			else {
+				ret.reject( TestContextHasBeenStopped() );
+			}
 		}
 		else {
 			if ( running.get() ) {
 				fillMatcher( ret, source, matcher, title, reportSuccess );
+			}
+			else {
+				ret.reject( TestContextHasBeenStopped() );
 			}
 		}
 		return ret.promise;
 	}
 
 	
-	shared actual void fail( Throwable | Anything() exceptionSource, String title ) {
+	void fail( Throwable | Anything() exceptionSource, String title ) {
 		if ( running.get() ) {
 			if ( is Throwable exceptionSource ) {
 				failWithError( exceptionSource, title );
@@ -202,7 +259,7 @@ class Tester() satisfies AsyncTestContext
 	}
 	
 	
-	shared actual Promise<MatchResult> assertThatException (
+	Promise<MatchResult> assertThatException (
 		Throwable | Anything() | Promise<Anything> source, Matcher<Throwable> matcher, String title, Boolean reportSuccess
 	) {
 		Deferred<MatchResult> ret = Deferred<MatchResult>();
@@ -214,10 +271,16 @@ class Tester() satisfies AsyncTestContext
 						addOutput( TestState.failure, err, title );
 						ret.reject( err );
 					}
+					else {
+						ret.reject( TestContextHasBeenStopped() );
+					}
 				},
 				( Throwable err ) {
 					if ( running.get() ) {
 						fillMatcher( ret, err, matcher, title, reportSuccess );
+					}
+					else {
+						ret.reject( TestContextHasBeenStopped() );
 					}
 				}
 			);
@@ -232,71 +295,95 @@ class Tester() satisfies AsyncTestContext
 				}
 				catch ( Throwable err ) {
 					fillMatcher( ret, err, matcher, title, reportSuccess );
+					ret.reject( err );
 				}
+			}
+			else {
+				ret.reject( TestContextHasBeenStopped() );
 			}
 		}
 		else {
 			if ( running.get() ) {
 				fillMatcher( ret, source, matcher, title, reportSuccess );
 			}
+			else {
+				ret.reject( TestContextHasBeenStopped() );
+			}
 		}
 		return ret.promise;
 	}
 	
-	void execute( Anything(AsyncTestContext) testFunction ) {
+	void execute( Anything(AsyncTestContext) testFunction, String functionTitle, InternalContext context ) {
 		locker.lock();
 		startTime = system.milliseconds;
 		completeTime = startTime; 
 		try {
 			// invoke test function
-			testFunction( this );
+			testFunction( context );
 			if ( running.get() ) { condition.await(); }
 		}
 		catch ( Throwable err ) {
 			if ( err is TestSkippedException ) {
-				addOutput( TestState.skipped, err, "skipped with exception" );
+				context.addOutput( TestState.skipped, err, if ( functionTitle.empty ) then "skipped with exception"
+					else "``functionTitle`` skipped with exception" );
 			}
 			else if ( err is TestAbortedException ) {
-				addOutput( TestState.aborted, err, "aborted with exception" );
+				context.addOutput( TestState.aborted, err, if ( functionTitle.empty ) then "aborted with exception"
+					else "``functionTitle`` aborted with exception");
 			}
-			else if  ( err is IncompatibleTypeException | InvocationException ) {
-				addOutput( TestState.aborted, err, "incompatible invocation" );
+			else if ( err is IncompatibleTypeException | InvocationException ) {
+				context.addOutput( TestState.aborted, err, if ( functionTitle.empty ) then "incompatible invocation"
+					else "incompatible invocation ``functionTitle``" );
 			}
 			else {
-				fail( err, "failed with exception" );
+				context.fail( err, if ( functionTitle.empty ) then "failed with exception"
+					else  "``functionTitle`` failed with exception" );
 			}
-			complete();
+			context.complete( "" );
 		}
 		finally {
 			locker.unlock();
 		}
 	}
 
+	void executeWithTimeOut (
+		TestFunction testFunction
+	) {
+		CountDownLatch latch = CountDownLatch( 1 );
+		InternalContext context = InternalContext();
+		ExecutionThread thr = ExecutionThread (
+			group, "asynctester",
+			() {
+				execute( testFunction.run, testFunction.functionTitle, context );
+				context.stop();
+				latch.countDown();
+			}
+		);
+		thr.start();
+		if ( !latch.await( testFunction.timeOutMilliseconds, milliseconds ) ) {
+			context.stop();
+			group.interrupt();
+			value excep = TimeOutException( testFunction.timeOutMilliseconds );
+			addOutput( TestState.error, excep,
+				if ( testFunction.functionTitle.empty ) then excep.message
+				else "time out of ``testFunction.functionTitle`` execution"
+			);
+			complete( "" );
+		}
+	}
 
 	"Returns output from the test."
-	shared TestFunctionOutput run( Anything(AsyncTestContext) testFunction, Integer timeOutMilliseconds = -1 ) {
+	shared TestFunctionOutput run( TestFunction testFunction ) {
 		if ( running.compareAndSet( false, true ) ) {
 			
 			// execute the test
-			if ( timeOutMilliseconds > 0 ) {
-				CountDownLatch latch = CountDownLatch( 1 );
-				TestThread thr = TestThread (
-					group, "asynctester",
-					() {
-						execute( testFunction );
-						latch.countDown();
-					}
-				);
-				thr.start();
-				if ( !latch.await( timeOutMilliseconds, milliseconds ) ) {
-					group.interrupt();
-					value excep = TimeOutException( timeOutMilliseconds );
-					addOutput( TestState.error, excep, excep.message );
-					complete();
-				}
+			if ( testFunction.timeOutMilliseconds > 0 ) {
+				executeWithTimeOut( testFunction );
 			}
 			else {
-				execute( testFunction );
+				InternalContext context = InternalContext();
+				execute( testFunction.run, testFunction.functionTitle, context );
+				context.stop();
 			}
 			
 			// return results

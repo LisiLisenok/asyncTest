@@ -2,7 +2,8 @@ import ceylon.language.meta.declaration {
 
 	ClassDeclaration,
 	Package,
-	AnnotatedDeclaration
+	AnnotatedDeclaration,
+	NestableDeclaration
 }
 import ceylon.collection {
 
@@ -40,4 +41,24 @@ Return[] findContainerTypedAnnotations<Return>( Package | ClassDeclaration decla
 		builder.addAll( declaration.container.annotations<Annotation>() );
 	}
 	return builder.narrow<Return>().sequence();
+}
+
+
+"Returns first annotation found indeclaration or its containers."
+AnnotationType? findFirstAnnotation<AnnotationType>( Package | NestableDeclaration declaration )
+	given AnnotationType satisfies Annotation
+{
+	switch ( declaration )
+	case ( is Package ) {
+		return if ( nonempty list = declaration.annotations<AnnotationType>() )
+			then list.first
+			else if ( nonempty list = declaration.container.annotations<AnnotationType>() )
+			then list.first
+			else null;
+	}
+	case ( is NestableDeclaration ) {
+		return if ( nonempty list = declaration.annotations<AnnotationType>() )
+		then list.first
+		else findFirstAnnotation<AnnotationType>( declaration.container );
+	}
 }
