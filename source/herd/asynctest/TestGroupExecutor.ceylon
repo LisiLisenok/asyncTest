@@ -41,8 +41,7 @@ import java.util.concurrent {
 import ceylon.language.meta.model {
 
 	Function,
-	ClassOrInterface,
-	Attribute
+	ClassOrInterface
 }
 import ceylon.language.meta {
 
@@ -97,11 +96,13 @@ class TestGroupExecutor (
 			}
 			else {
 				if ( exists factory = optionalAnnotation( `FactoryAnnotation`, declaration ) ) {
+					// factory exists - use this to instantiate objecy
 					if ( asyncTestRunner.isAsyncFactoryDeclaration( factory.factoryFunction ) ) {
-						return FactoryContext( "factory ``factory.factoryFunction`` has been aborted" ).run (
+						return FactoryContext( "``factory.factoryFunction.name``" ).run (
 							( AsyncFactoryContext context ) {
 								factory.factoryFunction.apply<>().apply( context, *factory.argumentList() );
-							}
+							},
+							extractTimeout( factory.factoryFunction )
 						);
 					}
 					else {
@@ -148,13 +149,16 @@ class TestGroupExecutor (
 	}
 	
 	"Runs all tests concurrently using fixed size thread pool with number of threads equal to number of available cores."
-	ExecutionTestOutput[] runConcurrently( Object? instance ) {
+	ExecutionTestOutput[] runConcurrently( "Instance of the test class." Object? instance ) {
 		Integer totalTests = executions.size;
 		if ( totalTests > 1 ) {
-			ReentrantLock retLock = ReentrantLock();
+			// array to store test results and lockerto synchronize results storing 
 			ArrayList<ExecutionTestOutput> ret = ArrayList<ExecutionTestOutput>(); 
-			CountDownLatch latch = CountDownLatch( totalTests );
+			ReentrantLock retLock = ReentrantLock();
+			// executor and synchronizer
 			ExecutorService executor = Executors.newFixedThreadPool( Runtime.runtime.availableProcessors() );
+			CountDownLatch latch = CountDownLatch( totalTests );
+			// run tests
 			for ( test in executions ) {
 				executor.execute (
 					ConcurrentTestRunner (
@@ -184,10 +188,10 @@ class TestGroupExecutor (
 	
 	"Runs all tests sequentially."
 	ExecutionTestOutput[] runSequentially (
-		Object? instance,
-		PrePostFunction[] intializers,
-		TestFunction[] statements,
-		PrePostFunction[] cleaners
+		"Instance of the test class." Object? instance,
+		"Functions called before each test." PrePostFunction[] intializers,
+		"Statements called after each test - may modify test results." TestFunction[] statements,
+		"Functions called after each test." PrePostFunction[] cleaners
 	) {
 		return [ for ( test in executions )
 			AsyncTestProcessor (
@@ -219,16 +223,16 @@ class TestGroupExecutor (
 	
 	"Extracts timeout for the declaration."
 	Integer extractTimeout( NestableDeclaration declaration ) {
-		return if ( exists ann = findFirstAnnotation<TimeOutAnnotation>( declaration ) )
-			then ann.timeOutMilliseconds else -1;
+		return if ( exists ann = findFirstAnnotation<TimeoutAnnotation>( declaration ) )
+			then ann.timeoutMilliseconds else -1;
 	}
 	
 	"Extracts timeout from value and function name."
 	Integer extractTimeoutFromObject( ValueDeclaration val, String functionName ) {
 		if ( exists functionDecl = val.objectClass?.getDeclaredMemberDeclaration<FunctionDeclaration>( functionName ),
-			nonempty list = functionDecl.annotations<TimeOutAnnotation>()
+			nonempty list = functionDecl.annotations<TimeoutAnnotation>()
 		) {
-				return list.first.timeOutMilliseconds;
+			return list.first.timeoutMilliseconds;
 		}
 	 	return extractTimeout( val );
 	}
@@ -252,6 +256,7 @@ class TestGroupExecutor (
 	
 	"Applies prepost function, may take arguments according to `ArgumentsAnnotation`."
 	PrePostFunction applyPrepostFunction( Object? instance, Function<Anything, Nothing> initFunction ) {
+		// function declaration
 		value decl = initFunction.declaration;
 		// function arguments
 		value args = resolveArgumentList( decl );
@@ -263,8 +268,7 @@ class TestGroupExecutor (
 				( AsyncPrePostContext context ) {
 					initFunction.apply( context, *args );
 				},
-				timeOut,
-				initFunction.declaration.name
+				timeOut, initFunction.declaration.name
 			);
 		}
 		else {
@@ -273,8 +277,7 @@ class TestGroupExecutor (
 					initFunction.apply( *args );
 					context.proceed();
 				},
-				timeOut,
-				initFunction.declaration.name
+				timeOut, initFunction.declaration.name
 			);
 		}
 	}
@@ -287,55 +290,22 @@ class TestGroupExecutor (
 		return [for ( decl in decls ) applyPrepostFunction( instance, decl ) ];
 	}
 	
-	
-	"Aborts initialization / disposing with incorrect `testRule` annotation usage."
-	void reportTestRuleAnnotationError( ValueDeclaration[] incorrectDeclarations )( AsyncPrePostContext context )
-		=> context.abort (
-			AssertionError (
-				"Attributes annotated with testRule have to satisfy TestRule or TestSuite interface:
-			  	``incorrectDeclarations``"
-			),
-			"incorrect testRule annotation usage"
-		);
 
-	
 	"Returns a list of [[SuiteRule]] initializers."
 	PrePostFunction[] getSuiteInitializers( Object? instance, ClassOrInterface<>? instanceType ) {
 		if ( exists container = instance, exists containerType = instanceType ) {
-			value markedWithRule = containerType.getAttributes<Nothing, Anything, Nothing>( asyncTestRunner.ruleAnnotationClass );
-			value incorrectAttrs = [ for ( attr in markedWithRule )
-				if ( !is Attribute<Nothing, SuiteRule|TestRule|TestStatement, Nothing> attr) attr ];
-			value suiteAttrs = markedWithRule.narrow<Attribute<Nothing, SuiteRule, Nothing>>();
-			if ( incorrectAttrs.empty ) {
-				return [ for ( attr in suiteAttrs ) PrePostFunction (
-					attr.bind( container ).get().initialize,
-					extractTimeoutFromObject( attr.declaration, "initialize" ), attr.declaration.name
-				) ];
-			}
-			else {
-				return [ PrePostFunction (
-					reportTestRuleAnnotationError (
-						incorrectAttrs.map( (Attribute<Nothing, Anything, Nothing> attr) => attr.declaration ).sequence() ),
-					-1, "" )
-				];
-			}
+			// attributes marked with `testRule`
+			value suiteAttrs = containerType.getAttributes<Nothing, SuiteRule, Nothing>( asyncTestRunner.ruleAnnotationClass );
+			return [ for ( attr in suiteAttrs ) PrePostFunction (
+				attr.bind( container ).get().initialize,
+				extractTimeoutFromObject( attr.declaration, "initialize" ), attr.declaration.name
+			) ];
 		}
 		else if ( is Package pack = container ) {
 			value attrs = pack.annotatedMembers<ValueDeclaration, TestRuleAnnotation>();
-			value incorrectValues = attrs.filter (
-				( ValueDeclaration decl ) => !decl.get() is SuiteRule|TestRule|TestStatement
-			);
-			if ( incorrectValues.empty ) {
-				return [for ( attr in attrs ) if ( is SuiteRule rule = attr.get() ) PrePostFunction (
-					rule.initialize, extractTimeoutFromObject( attr, "initialize" ), attr.name
-				) ];
-			}
-			else {
-				return [ PrePostFunction (
-					reportTestRuleAnnotationError( incorrectValues.sequence() ),
-					-1, ""
-				) ];
-			}
+			return [for ( attr in attrs ) if ( is SuiteRule rule = attr.get() ) PrePostFunction (
+				rule.initialize, extractTimeoutFromObject( attr, "initialize" ), attr.name
+			) ];
 		}
 		else {
 			return [];
@@ -392,35 +362,18 @@ class TestGroupExecutor (
 	PrePostFunction[] getSuiteCleaners( Object? instance, ClassOrInterface<>? instanceType )
 	{
 		if ( exists container = instance, exists containerType = instanceType ) {
-			value markedWithRule = containerType.getAttributes<Nothing, Anything, Nothing>( asyncTestRunner.ruleAnnotationClass );
-			if ( markedWithRule.find (
-					( Attribute<Nothing, Anything, Nothing> attr )
-						=> !attr is Attribute<Nothing, SuiteRule|TestRule|TestStatement, Nothing>
-				) exists
-			) {
-				// if incorrect attrs exists - returns empty since no initialization has to be performed
-				return [];
-			}
-			else {
-				value attrs = markedWithRule.narrow<Attribute<Nothing, SuiteRule, Nothing>>();
-				return [ for ( attr in attrs ) PrePostFunction (
-					attr.bind( container ).get().dispose,
-					extractTimeoutFromObject( attr.declaration, "dispose" ),
-					attr.declaration.name
-				) ];
-			}
+			value suiteRules = containerType.getAttributes<Nothing, SuiteRule, Nothing>( asyncTestRunner.ruleAnnotationClass );
+			return [ for ( attr in suiteRules ) PrePostFunction (
+				attr.bind( container ).get().dispose,
+				extractTimeoutFromObject( attr.declaration, "dispose" ),
+				attr.declaration.name
+			) ];
 		}
 		else if ( is Package pack = container ) {
 			value attrs = pack.annotatedMembers<ValueDeclaration, TestRuleAnnotation>();
-			if ( attrs.find( ( ValueDeclaration attr ) => !attr.get() is SuiteRule|TestRule|TestStatement ) exists ) {
-				// if incorrect attrs exists - returns empty since no initialization has to be performed
-				return [];
-			}
-			else {
-				return [ for ( attr in attrs ) if ( is SuiteRule rule = attr.get() ) PrePostFunction (
-					rule.dispose, extractTimeoutFromObject( attr, "dispose" ), attr.name
-				) ];
-			}
+			return [ for ( attr in attrs ) if ( is SuiteRule rule = attr.get() ) PrePostFunction (
+				rule.dispose, extractTimeoutFromObject( attr, "dispose" ), attr.name
+			) ];
 		}
 		else {
 			return [];
@@ -514,10 +467,13 @@ class TestGroupExecutor (
 					value disposeOut = prePostContext.run( cleaners );
 					
 					if ( disposeOut.empty ) {
+						// no errors during dispose phase - just report on results
 						fillTestResults( outs, system.milliseconds - startTime );
 					}
 					else {
+						// Disposing failure - report on this
 						if ( is Package container ) {
+							// add dispose failures to each test function
 							fillTestResults (
 								[ for ( o in outs ) ExecutionTestOutput (
 									o.context,
@@ -531,6 +487,7 @@ class TestGroupExecutor (
 							);
 						}
 						else {
+							// test class - report dispose failures as variants for class
 							fillTestResults ( outs.withTrailing (
 								ExecutionTestOutput (
 									groupContext,
@@ -555,6 +512,7 @@ class TestGroupExecutor (
 	shared void skipGroupTest( [TestOutput+] outputs ) {
 		groupContext.fire().testStarted( TestStartedEvent( groupContext.description ) );
 		if ( is Package container ) {
+			// for top-level functions add outputs to each function
 			for ( execution in executions ) {
 				TestExecutionContext context = groupContext.childContext( execution.description );
 				fillContextWithTestResults( context,
@@ -564,11 +522,12 @@ class TestGroupExecutor (
 			}
 		}
 		else {
+			// for class - skipeach function and add failures as class variants
 			for ( execution in executions ) {
 				TestExecutionContext context = groupContext.childContext( execution.description );
 				context.fire().testStarted( TestStartedEvent( context.description ) );
 				context.fire().testFinished( TestFinishedEvent (
-					TestResult( context.description, TestState.skipped, true, null, 0 )
+					TestResult( context.description, TestState.skipped, false, null, 0 )
 				) );
 			}
 			variable Integer index = 0;

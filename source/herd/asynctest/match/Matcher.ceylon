@@ -13,8 +13,9 @@
 since( "0.4.0" ) by( "Lis" )
 shared interface Matcher<in Value> {
 	
-	"Returns [[MatchResult]] which contains `Boolean` result (accepted or rejected) and message."
-	shared formal MatchResult match( Value val );
+	"Performs verification if value `val` satisfies this matcher requirements.  
+	 Returns [[MatchResult]] which contains `Boolean` result (accepted or rejected) and message."
+	shared formal MatchResult match( "Value to be verified." Value val );
 	
 	
 	"Combines this matcher with another one using logical <i>and</i>,

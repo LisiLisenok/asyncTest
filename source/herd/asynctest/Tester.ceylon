@@ -71,11 +71,15 @@ class Tester()
 	variable TestState totalState = TestState.skipped;
 	
 	
-	"Provides atest context to tested function."
+	"Provides a test context to tested function.  
+	 Delegates reporting to `outer` until `stop` called."
 	class InternalContext() satisfies AsyncTestContext {
 		AtomicBoolean running = AtomicBoolean( true );
+		
+		"Stops the context - not any message will be sent."
 		shared void stop() { running.set( false ); }
 		
+		"Adds output if not stopped."
 		shared void addOutput( TestState state, Throwable? error, String title ) {
 			if ( running.get() ) {
 				outer.addOutput( state, error, title );
@@ -121,11 +125,10 @@ class Tester()
 				outer.succeed( message );
 			}
 		}
-		
 	}
 	
 	
-	"adds new output to `outputs`"
+	"Adds new output to `outputs`"
 	void addOutput( TestState state, Throwable? error, String title ) {
 		Integer elapsed = if ( startTime > 0 ) then system.milliseconds - startTime else 0;
 		outputLocker.lock();
@@ -145,8 +148,7 @@ class Tester()
 			if ( m.accepted ) {
 				if ( reportSuccess ) {
 					addOutput (
-						TestState.success,
-						null,
+						TestState.success, null,
 						if ( title.empty ) then m.string else title + " - " + m.string
 					);
 				}
@@ -204,17 +206,11 @@ class Tester()
 		if ( is Promise<Value> source ) {
 			source.completed (
 				( Value source ) {
-					if ( running.get() ) {
-						fillMatcher( ret, source, matcher, title, reportSuccess );
-					}
-					else {
-						ret.reject( TestContextHasBeenStopped() );
-					}
+					if ( running.get() ) { fillMatcher( ret, source, matcher, title, reportSuccess ); }
+					else { ret.reject( TestContextHasBeenStopped() ); }
 				},
 				( Throwable err ) {
-					if ( running.get() ) {
-						addOutput( TestState.failure, err, title );
-					}
+					if ( running.get() ) { addOutput( TestState.failure, err, title ); }
 					ret.reject( err );
 				}
 			);
@@ -235,12 +231,8 @@ class Tester()
 			}
 		}
 		else {
-			if ( running.get() ) {
-				fillMatcher( ret, source, matcher, title, reportSuccess );
-			}
-			else {
-				ret.reject( TestContextHasBeenStopped() );
-			}
+			if ( running.get() ) { fillMatcher( ret, source, matcher, title, reportSuccess ); }
+			else { ret.reject( TestContextHasBeenStopped() ); }
 		}
 		return ret.promise;
 	}
@@ -276,12 +268,8 @@ class Tester()
 					}
 				},
 				( Throwable err ) {
-					if ( running.get() ) {
-						fillMatcher( ret, err, matcher, title, reportSuccess );
-					}
-					else {
-						ret.reject( TestContextHasBeenStopped() );
-					}
+					if ( running.get() ) { fillMatcher( ret, err, matcher, title, reportSuccess ); }
+					else { ret.reject( TestContextHasBeenStopped() ); }
 				}
 			);
 		}
@@ -303,24 +291,19 @@ class Tester()
 			}
 		}
 		else {
-			if ( running.get() ) {
-				fillMatcher( ret, source, matcher, title, reportSuccess );
-			}
-			else {
-				ret.reject( TestContextHasBeenStopped() );
-			}
+			if ( running.get() ) { fillMatcher( ret, source, matcher, title, reportSuccess ); }
+			else { ret.reject( TestContextHasBeenStopped() ); }
 		}
 		return ret.promise;
 	}
 	
+	"Runs test function."
 	void execute( Anything(AsyncTestContext) testFunction, String functionTitle, InternalContext context ) {
-		locker.lock();
 		startTime = system.milliseconds;
 		completeTime = startTime; 
 		try {
 			// invoke test function
 			testFunction( context );
-			if ( running.get() ) { condition.await(); }
 		}
 		catch ( Throwable err ) {
 			if ( err is TestSkippedException ) {
@@ -341,26 +324,39 @@ class Tester()
 			}
 			context.complete( "" );
 		}
-		finally {
-			locker.unlock();
+		if ( running.get() ) {
+			locker.lock();
+			try { condition.await(); }
+			finally { locker.unlock(); }
 		}
 	}
 
+	"Runs test function isseparated thread andlooks for timeout."
 	void executeWithTimeOut (
 		TestFunction testFunction
 	) {
+		// thread to execute test function
 		CountDownLatch latch = CountDownLatch( 1 );
 		InternalContext context = InternalContext();
 		ExecutionThread thr = ExecutionThread (
 			group, "asynctester",
 			() {
-				execute( testFunction.run, testFunction.functionTitle, context );
-				context.stop();
-				latch.countDown();
+				try { execute( testFunction.run, testFunction.functionTitle, context ); }
+				catch ( Throwable err ) {
+					context.fail( err, if ( testFunction.functionTitle.empty ) then "failed with exception"
+						else  "``testFunction.functionTitle`` failed with exception" );
+				}
+				finally {
+					context.stop();
+					latch.countDown();
+				}
 			}
 		);
+		
 		thr.start();
+		
 		if ( !latch.await( testFunction.timeOutMilliseconds, milliseconds ) ) {
+			// timeout!
 			context.stop();
 			group.interrupt();
 			value excep = TimeOutException( testFunction.timeOutMilliseconds );
@@ -375,17 +371,19 @@ class Tester()
 	"Returns output from the test."
 	shared TestFunctionOutput run( TestFunction testFunction ) {
 		if ( running.compareAndSet( false, true ) ) {
-			
 			// execute the test
 			if ( testFunction.timeOutMilliseconds > 0 ) {
 				executeWithTimeOut( testFunction );
 			}
 			else {
 				InternalContext context = InternalContext();
-				execute( testFunction.run, testFunction.functionTitle, context );
+				try { execute( testFunction.run, testFunction.functionTitle, context ); }
+				catch ( Throwable err ) {
+					context.fail( err, if ( testFunction.functionTitle.empty ) then "failed with exception"
+						else  "``testFunction.functionTitle`` failed with exception" );
+				}
 				context.stop();
 			}
-			
 			// return results
 			outputLocker.lock();
 			try {

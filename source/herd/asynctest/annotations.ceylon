@@ -223,15 +223,16 @@ since( "0.6.0" ) by( "Lis" )
 shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
 
 
-"Annotation class for [[timeOut]]."
+"Annotation class for [[timeout]]."
 since( "0.6.0" ) by( "Lis" )
-shared final annotation class TimeOutAnnotation( shared Integer timeOutMilliseconds )
-		satisfies OptionalAnnotation<TimeOutAnnotation, FunctionDeclaration | ValueDeclaration
+shared final annotation class TimeoutAnnotation( "Timeout in milliseconds." shared Integer timeoutMilliseconds )
+		satisfies OptionalAnnotation<TimeoutAnnotation, FunctionDeclaration | ValueDeclaration
 		 	| ClassDeclaration | Package | Module>
 		{}
 
 
-"Indicates that if test function execution takes more than `timeOutMilliseconds` thetest has to be interrupted."
+"Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted."
 since( "0.6.0" ) by( "Lis" )
-shared annotation TimeOutAnnotation timeOut( Integer timeOutMilliseconds ) => TimeOutAnnotation( timeOutMilliseconds );
+shared annotation TimeoutAnnotation timeout( "Timeout in milliseconds." Integer timeoutMilliseconds )
+		=> TimeoutAnnotation( timeoutMilliseconds );
 

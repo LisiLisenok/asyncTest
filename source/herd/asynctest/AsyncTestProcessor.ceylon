@@ -36,7 +36,7 @@ import herd.asynctest.internal {
 }
 
 
-"Processes test execution."
+"Processes test execution with the branch test generic parameters and function arguments."
 since( "0.2.0" )
 by( "Lis" )
 class AsyncTestProcessor(
@@ -166,16 +166,19 @@ class AsyncTestProcessor(
 				Integer size = argLists.size;
 				// execute test
 				if ( size == 0 ) {
+					// just a one variant without arguments
 					value variantResults = executeVariant( context, [], [] );
 					return ExecutionTestOutput (
 						context, [variantResults], variantResults.totalElapsedTime, variantResults.totalState );
 				}
 				else if ( size == 1, exists args = argLists.first ) {
+					// just a one variant with some arguments
 					value variantResults = executeVariant( context, args[0], args[1] );
 					return ExecutionTestOutput (
 						context, [variantResults], variantResults.totalElapsedTime, variantResults.totalState );
 				}
 				else {
+					// a number of variants
 					return executeVariants( context, argLists );
 				}
 			}

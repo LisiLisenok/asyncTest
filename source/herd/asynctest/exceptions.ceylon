@@ -11,3 +11,10 @@ since( "0.6.0" ) by( "Lis" )
 shared class TestContextHasBeenStopped()
 		extends Exception( "Querying to stopped context." )
 {}
+
+"Exception errored when no object instantiated no error throwed by factory."
+see( `function factory`, `interface AsyncFactoryContext` )
+since( "0.6.0" ) by( "Lis" )
+shared class FactoryReturnsNothing( String factoryTitle )
+		extends Exception( "Factory ``factoryTitle`` has neither instantiated object or throwed." )
+{}

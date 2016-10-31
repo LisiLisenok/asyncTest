@@ -20,7 +20,8 @@ since( "0.3.0" ) by( "Lis" )
 			for ( arg in provider.arguments() ) arg ];
 }
 
-
+"Resolves argument list from `ArgumentsAnnotation`."
+since( "0.5.0" ) by( "Lis" )
 {Anything*} resolveArgumentList( FunctionDeclaration|ClassDeclaration declaration ) {
 	if ( exists argProvider = optionalAnnotation( `ArgumentsAnnotation`, declaration ) ) {
 		return argProvider.argumentList();
@@ -28,5 +29,4 @@ since( "0.3.0" ) by( "Lis" )
 	else {
 		return [];
 	}
-	
 }

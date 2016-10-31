@@ -4,10 +4,9 @@
  is an extension to SDK `ceylon.test` module with following capabilities:
  * testing asynchronous multithread code
  * initialization and disposing
- * executing tests concurrently or sequentially
- * value-parameterized testing
- * type-parameterized testing
  * conditional test execution
+ * executing tests concurrently or sequentially
+ * value- or type- parameterized testing
  * organizing complex test conditions into a one flexible expression with matchers
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
    each report is represented as test variant and might be marked with `String` title
@@ -24,100 +23,70 @@
  * [[package herd.asynctest.match]] which contains match API.
  * [[package herd.asynctest.chart]] which is intended to organize reporting with charts.
  
+ It is recommended to read documentation on `module ceylon.test` before starting with **asyncTest**.
  
- -------------------------------------------
- ### Basically:
- * If you would like to run test using [[AsyncTestExecutor]]: 
-		1. Implement test function taking [[AsyncTestContext]] as first argument
-		   and code it according to [[AsyncTestContext]] contract.
-		2. Mark test function with `ceylon.test::test` annotation.
-		3. Mark appropriate `function`, `class`, `package` or `module` with [[async]] annotation.
- * If you need to run common initialization for a complex test:
-		1. Declare some class.
-		2. Implement some initialize functions and mark them with:
-			* `ceylon.test::beforeTestsRun` annotation in order to call them _once before all_ tests to be executed.
-			* `ceylon.test::beforeTest` annotation in order to call them _before each_ test function execution.
-		3. Implement some cleaner or dispose functions and mark them with:
-			* `ceylon.test::afterTestsRun` annotation in order to call them _once after_ all tests to be executed.
-			* `ceylon.test::afterTest` annotation in order to call them _after each_ test function execution.
-		4. Implement test methods taking [[AsyncTestContext]] as first argument.
-		5. Mark test methods with `ceylon.test::test` annotation.
-		6. Mark appropriate `method`, `class`, `package` or `module` with `async`.
- * If you need to instantiate and initialize test container class asynchronously:
-		1. Declare factory function taking [[AsyncTestContext]] as first argument.
-		2. Code the factory function according to [[AsyncFactoryContext]] contract.
-		3. Mark the class with [[factory]] annotation. 
- * If you prefer to execute test functions in concurrent mode rather then in default sequential one:
-   mark `class`, `package` or `module` with [[concurrent]] annotation.
+ The source code and examples are available at [GitHub](https://github.com/LisiLisenok/asyncTest)
  
  
  -------------------------------------------
- ### Test procedure   
+ ### Content  
+ 
+ 1. [Test procedure.](#procedure)   
+ 2. [Test initialization and disposing.](#initialization)  
+ 3. [Test rules.](#rules)  
+ 4. [Instantiation the test container class.](#instantiation)  
+ 5. [Test groups and concurrent execution.](#groups) 
+ 6. [Value- and type- parameterized testing.](#parameterized)  
+ 7. [Matchers.](#matchers)  
+ 8. [Time out.](#timeout)  
+ 9. [Conditional execution.](#conditions)  
+ 10. [Reporting test results using charts.](#charts)  
+
+ 
+ -------------------------------------------
+ ### <a name=\"procedure\"></a> Test procedure   
  
  1. Declare test function, which accepts [[AsyncTestContext]] as the first argument:
  			test async void doTesting(AsyncTestContext context) {...}
-    The other arguments have to be in accordance with [[parameterized]] annotation.  
     Mark test function or upper level container with `ceylon.test::test` annotation.  
     Mark test function or upper level container with [[async]] annotation.
  2. Code test function according to [[AsyncTestContext]] specification:
  	* perform testing and report failures or successes via [[AsyncTestContext]]
  	* call [[AsyncTestContext.complete]] to complete the testing.
- 3. Apply `async` annotation at function, class, package or module level.
- 4. Run test in IDE or command line using Ceylon test tool.
+ 3. Run test in IDE or command line using Ceylon test tool.
  
  
  #### Notes
  
  > Both modules ceylon.test and herd.asynctest have to be imported to run testing.  
- 
+   
  > Test executor blocks the thread until [[AsyncTestContext.complete]] is called. It means test function
    has to notify completion to continue with other testing and to report results.  
- 
- > If a number of test functions are declared within some class just a one instance of the class
-   is used for the overall test runcycle. This opens way to have some test relations. Please, remember
-   best-practices say the tests have to be independent.  
- 
- > [[async]] annotation is almost the same as `testExecutor(`\`class AsyncTestExecutor\``)` annotation.  
+   
+ > [[async]] annotation is almost the same as `\`testExecutor(`class AsyncTestExecutor`)`\` annotation.  
  
  
- #### Test function
+ #### Test functions
  
- Any function or method marked with `test` and `async` annotation. If function (or upper-level container)
- is not marked with `async` annotation it is executed with default `ceylon.test` executor.  
+ Any function or method marked with `test` and `async` annotation.  
+ 
+ > If function (or upper-level container) is not marked with `async` annotation
+   it is executed with default `ceylon.test` executor.  
  
  The function arguments:
  * If no arguments or function takes arguments according to [[parameterized]] annotation
-   then the function is executed as synchronous and may report on failures using assertions or throwing some exceptions.
+   then the function is executed in synchronous mode and may report on failures using assertions or throwing some exception.
  * If function takes the first argument of [[AsyncTestContext]] type and the other arguments according
    to [[parameterized]] annotation then it is executed asynchronously and may report failures, successes and completion
    using [[AsyncTestContext]].
- 
- > If a number of test functions are declared within some class
-   just a one instance of the class is used for the overall test runcycle.  
- 
- 
- -------------------------------------------
- ### Test groups and concurrent execution
- 
- Test functions are collected into groups, which are defined by:
- * `ClassDeclaration` for methods.
- * `Package` for top-level functions.
- 
- The groups are always executed in sequential mode. By default test functions in each group are executed in
- sequential mode also. In order to execute functions within some group in concurrent mode
- mark a container (`ClassDeclaration`, `Package` or `Module`) with [[concurrent]] annotation.
- Thread pool with fixed number of threads eqauls to number of available processors (cores)
- is used to execute functions in concurrent mode.  
- 
- > If the container (package for top-level functions or class for methods) contains initializers or cleaners marked
-   with `ceylon.test::beforeTest` or `ceylon.test::afterTest` or have values marked with [[herd.asynctest.rule::testRule]]
-   sequential order is applied nevetherless exists [[concurrent]] annotation or not.  
- > Functions annotated with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` are executed _once_ before / after
-   all test executions and have no influence on the test functions execution order.  
- 
+   
+ > If a number of test functions are declared within some class just a one instance of the class
+   is used for the overall test runcycle. This opens way to have some test relations. Please, remember
+   best-practices say the tests have to be independent.  
+   
  
  -------------------------------------------
- ### Test initialization and disposing
+ ### <a name=\"initialization\"></a> Test initialization and disposing
  
  Top-level functions or methods marked with `ceylon.test::beforeTestRun` are executed _once_
  before starting all tests in its scope (package for top-level and class for methods).  
@@ -147,32 +116,29 @@
  All initializers and cleaners are called disregard the failure reporting.  
  
  > If some initializer reports on failure the test is skipped but cleaners are executed.  
- 
+  
  > Top-level functions marked with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` have to take no arguments!
    While methods may take.  
-  
+ 
  > Test executor blocks current thread until initializer or cleaner calls 
    [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]].  
  
- > Both initializer and cleaner methods have to be shared! Top-level functions may not be shared.
+ > Both initializer and cleaner methods have to be shared! Top-level functions may not be shared.  
  
- > Inherited initializer or cleaner methods are executed also.
+ > Inherited initializer or cleaner methods are executed also.  
  
  
  #### Test initialization and disposing example
  		
- 		[Integer] testUniverseSize = [1K];
- 
- 		arguments(`value testUniverseSize`)
- 		class StarshipTest(Integer universeSize) {
+ 		class StarshipTest() {
 			
- 			// called just a once before all tests to be run
+ 			// called just a once before all tests ae executed
  			shared beforeTestRun void createUniverse(AsyncPrePostContext context) { 
  				...
  				context.proceed();
  			}
  			
- 			// called just a once after all tests to be completed
+ 			// called just a once after all tests are completed
  			shared afterTestRun void destroyUniverse(AsyncPrePostContext context) {
  				...
  				context.proceed();
@@ -187,28 +153,42 @@
  			test async testPhasersAiming() { ... }
  			test async testPhasersFire(AsynctestContext context) { ... context.complete(); }
 		}
-  
+ 
+ 
+ #### Initializer or cleaner arguments
+ 
+ [[arguments]] annotation is intended to provide arguments for a `one-shot` function like test initializers are.  
+ The annotation takes a one argument - declaration of top-level function or value which returns a tupple with
+ invoked function arguments: 
+ 
+  		[Integer] testUniverseSize = [1K];
+  		
+  		arguments(`value testUniverseSize`)
+ 		beforeTestRun void initializeStarshipTestSync(Integer universeSize) { ... }
+ 
+  		arguments(`value testUniverseSize`)
+ 		beforeTestRun void initializeStarshipTestAsync(AsyncPrePostContext context, Integer universeSize) { ... }
+
+ In the above example both functions `initializeStarshipTestSync` and `initializeStarshipTestAsync`
+ will be called with argument provided by `testUniverseSize`. So, for both sync and async versions arguments
+ provider has to return the same arguments list. But async version will additionally be provided
+ with `AsyncPrePostContext` which has to be the first argument.  
+ 
+ > [[arguments]] annotation is applicable for test container class also.  
+ 
+ > [[arguments]] annotation is not applicable to test functions. [[parameterized]] annotation is aimed
+   to perform parameterized testing, see section [Value- and type- parameterized testing](#parameterized) below.  
+ 
  
  -------------------------------------------
- ### Test rules
+ ### <a name=\"rules\"></a> Test rules
  
  Test rules provide more flexible way for test initialization / disposing and for modification the test behaviour.
  See details in [[package herd.asynctest.rule]]. 
  
  
  -------------------------------------------
- ### Conditional execution
- 
- Test conditions can be specified via custom annotation which satisfies `ceylon.test.engine.spi::TestCondition` interface.  
- Any number of test conditions can be specified at function, class, package or module level.  
- All conditions at every level are evaluated before test execution started
- and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.  
- 
- For a example, see `ceylon.test::ignore` annotation.
- 
- 
- -------------------------------------------
- ### Instantiation the test container class
+ ### <a name=\"instantiation\"></a> Instantiation the test container class
  
  Sometimes instantiation and initialization of the test container class requires
  some complex logic or some asynchronous operations. If the class declaration is marked with [[factory]] annotation
@@ -250,15 +230,38 @@
  
  > Pay attention:  
  > Asynchronous version has to call [[AsyncFactoryContext.fill]] or [[AsyncFactoryContext.abort]].  
- > Synchronous version has to return non-null object or throw.  
+ > Synchronous version has to return non-optional object or throw.  
  
+ If no factory function is provided instantiation is done using metamodel staff calling class initializer with arguments
+ provided with [[arguments]] annotation or without arguments if the annotation is missed.  
  
  > Just a one instance of the test class is used for the overall test runcycle. This opens way to have some test relations.
-   Please, remember best-practices say the tests have to be independent.    
-   
+   Please, remember best-practices say the tests have to be independent.  
+ 
  
  -------------------------------------------
- ### Value- and type- parameterized testing
+ ### <a name=\"groups\"></a> Test groups and concurrent execution
+ 
+ Test functions are collected into groups, which are defined by:
+ * `ClassDeclaration` for methods.
+ * `Package` for top-level functions.
+ 
+ The groups are always executed in sequential mode. By default test functions in each group are executed in
+ sequential mode also. In order to execute functions within some group in concurrent mode
+ mark a container (`ClassDeclaration`, `Package` or `Module`) with [[concurrent]] annotation.
+ Thread pool with fixed number of threads eqauls to number of available processors (cores)
+ is used to execute functions in concurrent mode.  
+ 
+ > If the container (package for top-level functions or class for methods) contains initializers or cleaners marked
+   with `ceylon.test::beforeTest` or `ceylon.test::afterTest` or have values marked with [[herd.asynctest.rule::testRule]]
+   sequential order is applied nevetherless exists [[concurrent]] annotation or not.  
+ >  
+ > Functions annotated with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` are executed _once_ before / after
+   all test executions and have no influence on the test functions execution order.  
+ 
+ 
+ -------------------------------------------
+ ### <a name=\"parameterized\"></a> Value- and type- parameterized testing
  
  In order to perform parameterized testing the test function has to be marked with [[parameterized]] annotation.
  The annotation is similar `ceylon.test::parameters` one but also provides generic type parameters.  
@@ -319,23 +322,50 @@
  
  
  -------------------------------------------
- ### Matchers
+ ### <a name=\"matchers\"></a> Matchers
  
  Matchers are intended to organize complex test conditions into a one flexible expression.  
- Basically, matcher is a rule and verification method which identifies
- if submitted test value satisfies this rule or not.    
+ Each matcher is represented as requirements specification and verification method which identifies
+ if submitted test value satisfies this specification or not. Matchers may be combined using logical operators.  
  
  Details of matching API are described in [[package herd.asynctest.match]].
  
  
  -------------------------------------------
- ### Reporting test results using charts
+ ### <a name=\"timeout\"></a> Time out
+ 
+ [[timeout]] annotation indicates that if test has not been completed during some time it has to be interrupted.  
+ Annotation applied at class, package or module level acts for each function within the scope. Lower-level declaration
+ overrides definitions of upper-level. So, if both function and class annotated with [[timeout]] the function annotation
+ is applied.  
+ 
+ [[timeout]] annotation is applicable to every function executed during test: test function, initialization, disposing,
+ rule or factory.  
+ 
+ Example, function `doMyTest` will be interrupted if not completed during 1 second:
+ 		timeout( 1K ) test async void doMyTest(...) {...}
+ 
+ 
+ -------------------------------------------
+ ### <a name=\"conditions\"></a> Conditional execution
+ 
+ Test conditions can be specified via custom annotation which satisfies `ceylon.test.engine.spi::TestCondition` interface.  
+ Any number of test conditions can be specified at function, class, package or module level.  
+ All conditions at every level are evaluated before test execution started
+ and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.  
+ 
+ For a example, see `ceylon.test::ignore` annotation.
+ 
+ 
+ -------------------------------------------
+ ### <a name=\"charts\"></a> Reporting test results using charts
  
  Chart is simply a set of plots, where each plot is a sequence of 2D points.  
- Test results can be represented and reported with charts using staff provided by [[package herd.asynctest.chart]].
+ Test results can be represented and reported with charts using staff provided by [[package herd.asynctest.chart]].  
+ 
  
  --------------------------------------------
- "
+"
 license (
 	"
 	 The MIT License (MIT)

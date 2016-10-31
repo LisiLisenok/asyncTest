@@ -12,8 +12,7 @@ import ceylon.collection {
 
 
 "Extracts all annotations from which satisfies given `Return` type from the given declaration only."
-since( "0.0.1" )
-by( "Lis" )
+since( "0.0.1" ) by( "Lis" )
 Return[] findTypedAnnotations<Return>( AnnotatedDeclaration declaration ) {
 	ArrayList<Annotation> builder = ArrayList<Annotation>();
 	builder.addAll( declaration.annotations<Annotation>() );
@@ -22,8 +21,7 @@ Return[] findTypedAnnotations<Return>( AnnotatedDeclaration declaration ) {
 
 
 "Extracts all annotations from chain class-package-module, which satisfies given `Return` type."
-since( "0.0.1" )
-by( "Lis" )
+since( "0.0.1" ) by( "Lis" )
 Return[] findContainerTypedAnnotations<Return>( Package | ClassDeclaration declaration ) {
 	ArrayList<Annotation> builder = ArrayList<Annotation>();
 	builder.addAll( declaration.annotations<Annotation>() );
@@ -45,6 +43,7 @@ Return[] findContainerTypedAnnotations<Return>( Package | ClassDeclaration decla
 
 
 "Returns first annotation found indeclaration or its containers."
+since( "0.6.0" ) by( "Lis" )
 AnnotationType? findFirstAnnotation<AnnotationType>( Package | NestableDeclaration declaration )
 	given AnnotationType satisfies Annotation
 {

@@ -25,6 +25,10 @@ import ceylon.language.meta {
 
 	type
 }
+import herd.asynctest.internal {
+
+	typeName
+}
 
 
 "Evaluates test conditions applied as annotations."
@@ -42,11 +46,11 @@ TestOutput[] runAnnotatedConditions (
 				String title =
 					if ( exists reason = result.reason, !reason.empty )
 					then "skipped with ``reason``"
-					else "skipped by condition '``type( condition )``'";
+					else "skipped by condition '``typeName( type( condition ) )``'";
 				String exTitle =
 						if ( exists reason = result.reason, !reason.empty )
-						then "'``type( condition )``' condition with ``reason``"
-						else "'``type( condition )``' condition";
+						then "'``typeName( type( condition ) )``' condition with ``reason``"
+						else "'``typeName( type( condition ) )``' condition";
 				builder.add (
 					TestOutput( TestState.skipped, TestSkippedException( exTitle ), 0, title )
 				);
@@ -56,7 +60,7 @@ TestOutput[] runAnnotatedConditions (
 			builder.add (
 				TestOutput (
 					TestState.skipped, err, 0,
-					"skipped by condition '``type( condition )``'"
+					"skipped by condition '``typeName( type( condition ) )``'"
 				)
 			);
 		}

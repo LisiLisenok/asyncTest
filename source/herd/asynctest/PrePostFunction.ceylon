@@ -2,16 +2,16 @@
 "Function which run before or after test."
 since( "0.6.0" ) by( "Lis" )
 class PrePostFunction (
-	shared Anything(AsyncPrePostContext) run,
-	shared Integer timeOutMilliseconds,
-	shared String functionTitle
+	"Function to be run." shared Anything(AsyncPrePostContext) run,
+	"Timeout." shared Integer timeOutMilliseconds,
+	"Title used for reporting, usualy declaration name." shared String functionTitle
 ) {}
 
 
-"Function which runs as test."
+"Function which runs the test."
 since( "0.6.0" ) by( "Lis" )
 class TestFunction (
-	shared Anything(AsyncTestContext) run,
-	shared Integer timeOutMilliseconds,
-	shared String functionTitle
+	"Function to be run." shared Anything(AsyncTestContext) run,
+	"Timeout." shared Integer timeOutMilliseconds,
+	"Title used for reporting, usualy declaration name." shared String functionTitle
 ) {}

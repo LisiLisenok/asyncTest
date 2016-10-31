@@ -1,14 +1,15 @@
-"Test rules provide a way to perform initialization / disposing before / after test execution and to modify test behaviour.  
+"
+ ### Test rules
  
- There 3 types of test rule:
- 1. [[SuiteRule]] which performs initialization or disposing before or after execution of _all_ tests in the scope
-    (package for top-level value or class for attribute).
- 2. [[TestRule]] which performs initialization or disposing before or after execution of _each_ test in the scope
-    (package for top-level value or class for attribute).
- 3. [[TestStatement]] which is evaluated after test completion and indended to add
-    success or failure report to the test results. 
+ Provide a way to perform initialization / disposing before / after test execution and to modify test behaviour.
  
- > All 3 types are represented as interfaces and may be combined using types intersection.  
+ Each rule is top-level value or class attribute which satisfies some of the following interfaces:  
+ 1. [[SuiteRule]] performs initialization or disposing before or after execution of _all_ tests in the scope
+    (package for top-level value or class for attribute).  
+ 2. [[TestRule]] performs initialization or disposing before or after execution of _each_ test in the scope
+    (package for top-level value or class for attribute).  
+ 3. [[TestStatement]] is indended to add success or failure report to the test results
+    and is evaluated after _each_ test is completed.  
  
  In order to apply a rule a top-level value or class attribute satisfied some of the rule interfaces has to be declared
  and annotated with [[testRule]] annotation.  
@@ -33,7 +34,7 @@
    in order to complete the statement evaluation.  
 
   
- #### Example:  
+ ### Example:  
  
  		testRule object myRule satisfies TestRule & SuiteRule & TestStatement {
  			shared actual default void after(AsyncPrePostContext context) {
@@ -81,7 +82,7 @@
  while `MyTestClass.myClassRule` is evaluated before / after execution of methods `testMethod1` and `testMethod2`.  
  
  
- #### Build-in test rules:  
+ ### Build-in test rules:  
  * [[AtomicValueRule]] provides atomic operations possibility with some value.
    The value is re-initialized before _each_ test.  
  * [[ContextualRule]] stores values local to the current thread.

@@ -15,6 +15,6 @@ shared interface AsyncFactoryContext
 	shared formal void fill( Object instance );
 	
 	"Aborts instantiation."
-	shared formal void abort( Throwable? reason = null );
+	shared formal void abort( Throwable reason );
 	
 }

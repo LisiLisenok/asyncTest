@@ -53,13 +53,14 @@ class PrePostContext()
 	"non-null if aborted"
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 
-	"Provides prepost context to clients."
+	"Provides prepost context to clients.  
+	 Delegates reporting to `outer` until `stop` called."
 	class InternalContext (	
-			"Title for the currently run function."
-			String currentFunction
+			"Title for the currently run function." String currentFunction
 	) satisfies AsyncPrePostContext {
 		AtomicBoolean running = AtomicBoolean( true );
 		
+		"Stops context. No reporting will be submited to `outer`."
 		shared void stop() { running.set( false ); }
 		
 		shared actual void abort( Throwable reason, String title ) {
@@ -77,10 +78,10 @@ class PrePostContext()
 				outer.proceed();
 			}
 		}
-		
-		
 	}
 	
+	
+	"Aborts the test initialization or disposing."
 	void abort( Throwable reason, String title = "" ) {
 		if ( running.compareAndSet( true, false ) ) {
 			outputs.add( TestOutput( TestState.aborted, reason, 0, title ) );
@@ -91,6 +92,7 @@ class PrePostContext()
 		}
 	}
 	
+	"Initialization or disposing has been completed - proceed next step."
 	void proceed() {
 		if ( running.compareAndSet( true, false ) ) {
 			if ( locker.tryLock() ) {
@@ -101,30 +103,33 @@ class PrePostContext()
 	}
 	
 	
+	"Runs prepost function."
 	void runFunction( PrePostFunction init, InternalContext context ) {
 		try { init.run( context ); }
 		catch ( Throwable err ) {
 			if ( is IncompatibleTypeException | InvocationException err ) {
-				abort( err, "incompatible invocation of ``init.functionTitle``" );
+				context.abort( err, "incompatible invocation of ``init.functionTitle``" );
 			}
 			else {
-				abort( err );
+				context.abort( err );
 			}
 		}
-		if ( running.get() ) { condition.await(); }
+		if ( running.get() ) {
+			locker.lock();
+			try { condition.await(); }
+			finally { locker.unlock(); }
+		}
 	}
 	
+	"Runs prepost function in separated thread and controls timeout."
 	void runWithTimeout( PrePostFunction init ) {
 		CountDownLatch latch = CountDownLatch( 1 );
 		InternalContext context = InternalContext( init.functionTitle );
 		ExecutionThread thr = ExecutionThread (
 			group, "asyncpreposttester",
 			() {
-				try { 
-					runFunction( init, context );
-					if ( running.get() ) { condition.await(); }
-				}
-				catch ( Throwable err ) {}
+				try { runFunction( init, context ); }
+				catch ( Throwable err ) { context.abort( err ); }
 				finally {
 					context.stop();
 					latch.countDown();
@@ -133,6 +138,7 @@ class PrePostContext()
 		);
 		thr.start();
 		if ( !latch.await( init.timeOutMilliseconds, milliseconds ) ) {
+			// timeout!
 			context.stop();
 			try { group.interrupt(); }
 			catch ( Throwable err ) {}
@@ -141,39 +147,24 @@ class PrePostContext()
 		}
 	}
 	
-	"Runs initialization process. Returns errors if occured."
+	"Runs prepost process. Returns errors if occured."
 	shared TestOutput[] run( PrePostFunction[] inits ) {
-		locker.lock();
-		try {
-			outputs.clear();
-			for ( init in inits ) {
-				running.set( true );
-				if ( init.timeOutMilliseconds > 0 ) {
-					runWithTimeout( init );
-				}
-				else {
-					InternalContext context = InternalContext( init.functionTitle );
-					runFunction( init, context );
-					context.stop();
-				}
+		for ( init in inits ) {
+			running.set( true );
+			if ( init.timeOutMilliseconds > 0 ) {
+				runWithTimeout( init );
 			}
-			return outputs.sequence();
+			else {
+				InternalContext context = InternalContext( init.functionTitle );
+				try { runFunction( init, context ); }
+				catch ( Throwable err ) { context.abort( err, err.message ); }
+				context.stop();
+			}
 		}
-		finally {
-			outputs.clear();
-			running.set( false );
-			locker.unlock();
-		}
-	}
-	
-	
-	shared actual String string {
-		String compl = if ( running.get() ) then "running" else "completed";
-		return "TestInitContext, status: '``compl``'";
+		running.set( false );
+		value ret = outputs.sequence(); 
+		outputs.clear();
+		return ret;
 	}
 	
 }
-
-
-
-
