@@ -3,13 +3,13 @@
  
  is an extension to SDK `ceylon.test` module with following capabilities:
  * testing asynchronous multithread code
- * initialization and disposing
- * conditional test execution
  * executing tests concurrently or sequentially
  * value- or type- parameterized testing
  * organizing complex test conditions into a one flexible expression with matchers
+ * initialization and disposing
+ * conditional test execution
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
-   each report is represented as test variant and might be marked with `String` title
+   each report is represented as test variant and might be marked with \`String\` title
  * reporting test results using charts (or plots)
  
  

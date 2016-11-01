@@ -1,19 +1,18 @@
 #### asyncTest
 is an extension to SDK `ceylon.test` module with following capabilities:
  * testing asynchronous multithread code
- * common initialization for a test suite
  * executing tests concurrently or sequentially
- * value-parameterized testing
- * type-parameterized testing
- * conditional test execution
+ * value- or type- parameterized testing
  * organizing complex test conditions into a one flexible expression with matchers
+ * initialization and disposing
+ * conditional test execution
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
    each report is represented as test variant and might be marked with `String` title
- * reporting test results using charts (or graphs)
+ * reporting test results using charts (or plots)
 
 
-The module is available on [CeylonHerd](https://herd.ceylon-lang.org/modules/herd.asynctest).  
-Current version is 0.5.2.  
+The module is available on [Ceylon Herd](https://herd.ceylon-lang.org/modules/herd.asynctest).  
+Current version is 0.6.0.  
 
  
 #### Ceylon compiler / platform
@@ -25,7 +24,7 @@ Available on JVM only
 #### Dependencies
 
 * ceylon.collection/1.3.0
-* ceylon.file/1.3.0
+* ceylon.file/1.3.0 shared
 * ceylon.language/1.3.0
 * ceylon.promise/1.3.0 shared
 * ceylon.test/1.3.0 shared
@@ -35,7 +34,7 @@ Available on JVM only
 #### Usage and documentation
  
 The extension is aimed to be run using Ceylon test tool.  
-See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.5.2/module-doc/api/index.html).
+See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.6.0/module-doc/api/index.html).
  
  
 #### Examples
@@ -47,3 +46,4 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
   comparative performance test of Ceylon / Java HashMap and TreeMap.
 * [Matchers](examples/herd/examples/asynctest/matchers) - matchers usage.
 * [Generics](examples/herd/examples/asynctest/generics) - type-parameterized testing.
+* [Rules](examples/herd/examples/asynctest/rule) - test rules usage

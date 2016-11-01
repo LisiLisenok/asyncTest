@@ -86,7 +86,6 @@ class AsyncTestProcessor(
 		}
 		else {
 			// run test
-			String varName = variantName( typeParameters, args );
 			value testFunction = applyFunction( *typeParameters );
 			TestFunctionOutput output = tester.run (
 				TestFunction (
@@ -114,6 +113,7 @@ class AsyncTestProcessor(
 			value variantOuts = output.testOutput.append( concatenate( *statementOuts*.testOutput ) );
 			// run cleaners
 			value disposeErrs = prePostContext.run( cleaners );
+			String varName = variantName( typeParameters, args );
 			if ( !disposeErrs.empty && variantOuts.empty ) {
 				return VariantTestOutput (
 					[], [TestOutput( totalState, null, totalElapsedTime, "" )],

@@ -572,8 +572,15 @@ class TestGroupExecutor (
 	) {
 		context.fire().testStarted( TestStartedEvent( context.description ) );
 		variable Integer index = 0;
+		variable Integer varIndex = variants.size > 1 then 1 else 0;
 		for ( var in variants ) {
-			String variantName = if ( var.variantName.empty ) then "" else var.variantName + ": ";
+			String variantName =
+					if ( varIndex > 0 ) then
+					if ( var.variantName.empty ) then "arg#``varIndex``: " else
+					if ( var.variantName.size > 40 ) then "arg#``varIndex``(...): "
+					else "arg#``varIndex````var.variantName``: "
+					else "";
+			varIndex ++;
 			for ( res in var.initOutput ) {
 				variantResultEvent( context, variantName, res, ++ index );
 			}
