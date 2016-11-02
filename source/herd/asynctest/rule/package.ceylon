@@ -89,6 +89,7 @@
    This means each thread get its own copy of the value. The value is re-initialized before eqch test.
  * [[CounterRule]] provides an atomic counter reseted to initial value before _each_ test.  
  * [[ResourceRule]] represents a file packaged within a module and loaded before all tests started.  
+ * [[StatisticRule]] provides statistics data for some variate values.  
  * [[TemporaryDirectoryRule]] represents a temporary directory which is created before _each_ test and destroyed after.  
  * [[TemporaryFileRule]] represents a temporary file which is created before _each_ test and destroyed after.  
  * [[VerifyRule]] extends [[AtomicValueRule]] and additionally verifies the stored value against a given matcher
