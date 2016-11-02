@@ -235,4 +235,3 @@ shared final annotation class TimeoutAnnotation( "Timeout in milliseconds." shar
 since( "0.6.0" ) by( "Lis" )
 shared annotation TimeoutAnnotation timeout( "Timeout in milliseconds." Integer timeoutMilliseconds )
 		=> TimeoutAnnotation( timeoutMilliseconds );
-

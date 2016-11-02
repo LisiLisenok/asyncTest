@@ -66,7 +66,7 @@ class ServerCustomRule (
 			if (exists s = server) {
 				s.addListener (
 					(Status status) {
-						if(status==stopped) {
+						if (status==stopped) {
 							context.proceed();
 						}
 					}
@@ -89,7 +89,7 @@ class ServerCustomRule (
 			server = s;
 			s.addListener (
 				(Status status) {
-					if(status==started) {
+					if (status==started) {
 						context.proceed();
 					}
 				}
