@@ -2,7 +2,8 @@ import herd.asynctest {
 
 	AsyncTestContext,
 	parameterized,
-	AsyncPrePostContext
+	AsyncPrePostContext,
+	arguments
 }
 import ceylon.test {
 
@@ -33,26 +34,35 @@ import herd.asynctest.match {
 
 	LessOrEqual
 }
+import herd.asynctest.rule {
+
+	StatisticRule,
+	testRule,
+	Verifier
+}
 
 
 "Test parameters: 
  * total items test map has to contain
  * number of test repeats (test is repeated several times and reported values are mean values)
  * percent of total items to calculate number of items in get / remove tests
- * tolearance to compare Ceylon to Java
-   (if actual ratio exceeded `1 + tolerance` test is considered as failured otherwise it is successfull)
  "
-{[[], [Integer, Integer, Float, Float]]*} mapTestParams
+{[[], [Integer, Integer, Float]]*} mapTestParams
 		=> {
-				[[], [10000, 5, 0.3, 0.25]],
-				[[], [50000, 5, 0.3, 0.25]],
-				[[], [100000, 5, 0.3, 0.25]],
-				[[], [150000, 5, 0.3, 0.25]],
-				[[], [200000, 5, 0.3, 0.25]]
+				[[], [10000, 5, 0.3]],
+				[[], [50000, 5, 0.3]],
+				[[], [100000, 5, 0.3]],
+				[[], [150000, 5, 0.3]],
+				[[], [200000, 5, 0.3]]
 		};
 
+"Tolearance to compare Ceylon to Java
+ (if actual ratio exceeded `1 + tolerance` test is considered as failured otherwise it is successfull)."
+[Float] comparisonTolerance => [0.25];
 
-class CeylonJavaMapMicrobenchmark()
+
+arguments( `value comparisonTolerance` )
+class CeylonJavaMapMicrobenchmark( Float tolerance )
 {
 	
 	"Reporter used to report plots"
@@ -68,6 +78,7 @@ class CeylonJavaMapMicrobenchmark()
 			)
 		};
 	
+	// Charts and plotters to plot test results
 	ChartBuilder putChart = ChartBuilder( titles.put, titles.categoryTitle, titles.valTitle );
 	Plotter ceylonHashPutPlotter = putChart.addPlot( titles.ceylonHashMap );
 	Plotter ceylonTreePutPlotter = putChart.addPlot( titles.ceylonTreeMap );
@@ -102,6 +113,30 @@ class CeylonJavaMapMicrobenchmark()
 	Plotter getTreeRatioPlooter = treeMapRatioChart.addPlot( titles.get );
 	Plotter removeTreeRatioPlooter = treeMapRatioChart.addPlot( titles.remove );
 
+
+	// store statistic data for each test
+	shared testRule StatisticRule putCeylon = StatisticRule();
+	shared testRule StatisticRule putJava = StatisticRule();
+	shared testRule StatisticRule getCeylon = StatisticRule();
+	shared testRule StatisticRule getJava = StatisticRule();
+	shared testRule StatisticRule removeCeylon = StatisticRule();
+	shared testRule StatisticRule removeJava = StatisticRule();
+
+	// verify test success with given tolerance
+	shared testRule Verifier<Float> verifyPut = Verifier<Float>(
+		() => putCeylon.statisticSummary.mean / putJava.statisticSummary.mean,
+		LessOrEqual( 1.0 + tolerance ), "'put' Ceylon / Java ratio", true
+	);
+	shared testRule Verifier<Float> verifyGet = Verifier<Float>(
+		() => getCeylon.statisticSummary.mean / getJava.statisticSummary.mean,
+		LessOrEqual( 1.0 + tolerance ), "'get' Ceylon / Java ratio", true
+	);
+	shared testRule Verifier<Float> verifyRemove = Verifier<Float>(
+		() => removeCeylon.statisticSummary.mean / removeJava.statisticSummary.mean,
+		LessOrEqual( 1.0 + tolerance ), "'remove' Ceylon / Java ratio", true
+	);
+	
+
 	afterTestRun
 	shared void dispose( AsyncPrePostContext context ) {
 		plotReporter.report (
@@ -112,73 +147,69 @@ class CeylonJavaMapMicrobenchmark()
 	}
 	
 
-	"Runs HashMap test. Compares Ceylon map to Java one.  
+	"Runs `HashMap` test. Compares performance Ceylon `HashMap` to Java one.  
 	 Test is performed using `chartMapTest`.  
-	 Results are reported using `fillTestResult`."
-	test
-	parameterized( `value mapTestParams` )
+	 Results are reported using `plotTestResult`."
+	test parameterized( `value mapTestParams` )
 	shared void hashMap (
 		"Context the test is performed on." AsyncTestContext context,
 		"Total number of items to be put in tested map." Integer totalItems,
 		"Number of test repeats." Integer repeats,
-		"Percent of total items to calculate number of items in get / remove tests." Float removePercent,
-		"Tolerance to compare Ceylon to Java." Float tolerance
+		"Percent of total items to calculate number of items in get / remove tests." Float removePercent
 	) {
 		// Ceylon HashMap
-		value ceylonResult = chartMapTest (
+		chartMapTest (
 			context, totalItems, repeats, removePercent,
 			CeylonMapWrapper( HashMap<String, Integer>() ),
-			ceylonHashPutPlotter, ceylonHashGetPlotter, ceylonHashRemovePlotter
+			ceylonHashPutPlotter, ceylonHashGetPlotter, ceylonHashRemovePlotter,
+			putCeylon, getCeylon, removeCeylon
 		);
 	
 		// Java HashMap
-		value javaResult = chartMapTest (
+		chartMapTest (
 			context, totalItems, repeats, removePercent,
 			JavaMapWrapper( JHashMap<String, Integer>() ),
-			javaHashPutPlotter, javaHashGetPlotter, javaHashRemovePlotter
+			javaHashPutPlotter, javaHashGetPlotter, javaHashRemovePlotter,
+			putJava, getJava, removeJava
 		);
 	
-		context.complete (
-			fillTestResult (
-				context, ceylonResult, javaResult, tolerance, totalItems,
-				putHashRatioPlotter, getHashRatioPlooter, removeHashRatioPlooter
-			)
+		plotTestResult (
+			totalItems, putHashRatioPlotter, getHashRatioPlooter, removeHashRatioPlooter
 		);
+		context.complete ();
 	}
 
 
-	"Runs TreeMap test. Compares Ceylon map to Java one.  
+	"Runs `TreeMap` test. Compares performance Ceylon `TreeMap` to Java one.  
 	 Test is performed using `chartMapTest`.  
-	 Results are reported using `fillTestResult`."
-	test
-	parameterized( `value mapTestParams` )
+	 Results are reported using `plotTestResult`."
+	test parameterized( `value mapTestParams` )
 	shared void treeMap (
 		"Context the test is performed on." AsyncTestContext context,
 		"Total number of items to be put in tested map." Integer totalItems,
 		"Number of test repeats." Integer repeats,
-		"Percent of [[totalItems]] used in get / remove tests." Float removePercent,
-		"Tolerance to compare Ceylon to Java." Float tolerance
+		"Percent of [[totalItems]] used in get / remove tests." Float removePercent
 	) {
 		// Ceylon TreeMap
-		value ceylonResult = chartMapTest (
+		chartMapTest (
 			context, totalItems, repeats, removePercent,
 			CeylonMapWrapper( TreeMap<String, Integer>( increasing<String> ) ),
-			ceylonTreePutPlotter, ceylonTreeGetPlotter, ceylonTreeRemovePlotter
+			ceylonTreePutPlotter, ceylonTreeGetPlotter, ceylonTreeRemovePlotter,
+			putCeylon, getCeylon, removeCeylon
 		);
 
 		// Java TreeMap
-		value javaResult = chartMapTest (
+		chartMapTest (
 			context, totalItems, repeats, removePercent,
 			JavaMapWrapper( JTreeMap<String, Integer>( stringComparator ) ),
-			javaTreePutPlotter, javaTreeGetPlotter, javaTreeRemovePlotter
+			javaTreePutPlotter, javaTreeGetPlotter, javaTreeRemovePlotter,
+			putJava, getJava, removeJava
 		);
 	
-		context.complete (
-			fillTestResult (
-				context, ceylonResult, javaResult, tolerance, totalItems,
-				putTreeRatioPlotter, getTreeRatioPlooter, removeTreeRatioPlooter
-			)
+		plotTestResult (
+			totalItems, putTreeRatioPlotter, getTreeRatioPlooter, removeTreeRatioPlooter
 		);
+		context.complete ();
 	}
 	
 	
@@ -186,13 +217,14 @@ class CeylonJavaMapMicrobenchmark()
 	 The test is repeated [[repeats]] times and reported values are averaged by the number of repeats.  
 	 After each repeat initial map is cleared and reused.
 	 "
-	Float[3] | Throwable chartMapTest (
+	void chartMapTest (
 		"Context the test is run on." AsyncTestContext context,
 		"Total items in the map." Integer totalItems,
 		"Total number of test repeats." Integer repeats,
 		"Percent from total items -> items used in get / remove tests." Float removePercent,
-		"Map test is performed on." MapWrapper<String, Integer> map,
-		Plotter putPlotter, Plotter getPlotter, Plotter removePlotter
+		"Map the test is performed on." MapWrapper<String, Integer> map,
+		Plotter putPlotter, Plotter getPlotter, Plotter removePlotter,
+		StatisticRule putRule, StatisticRule getRule, StatisticRule removeRule
 	) {
 		
 		"total number of items to be > 0"
@@ -202,10 +234,7 @@ class CeylonJavaMapMicrobenchmark()
 		
 		// test map
 			
-		variable Integer count = -1;
-		variable Float sumPut = 0.0;
-		variable Float sumGet = 0.0;
-		variable Float sumRemove = 0.0;
+		variable Integer count = 0;
 		variable Integer start = 0;
 		String prefix = "value";
 			
@@ -216,7 +245,7 @@ class CeylonJavaMapMicrobenchmark()
 			
 		while ( count < repeats ) {
 			map.clear();
-				
+			
 			// test put
 			start = system.nanoseconds;
 			variable Integer putCount = 0; 
@@ -224,82 +253,43 @@ class CeylonJavaMapMicrobenchmark()
 				map.put( prefix + putCount.string, putCount );
 				putCount ++;
 			}
-			if ( count > -1 ) { sumPut += ( system.nanoseconds - start ) / 1000000.0; }
-				
+			putRule.sample( ( system.nanoseconds - start ) / 1000000.0 );
+			
 			// test get
 			value indexies = keyList( prefix, totalItems, removePercent );
 			start = system.nanoseconds;
 			for ( item in indexies ) {
 				map.get( item );
 			}
-			if ( count > -1 ) { sumGet += ( system.nanoseconds - start ) / 1000000.0; }
-				
+			getRule.sample( ( system.nanoseconds - start ) / 1000000.0 );
+			
 			// test remove
 			start = system.nanoseconds;
 			for ( item in indexies ) {
 				map.remove( item );
 			}
-			if ( count > -1 ) { sumRemove += ( system.nanoseconds - start ) / 1000000.0; }
+			removeRule.sample( ( system.nanoseconds - start ) / 1000000.0 );
 			
 			count ++;
 		}
 		
-		// mean times
-		sumPut = sumPut / repeats;
-		sumGet = sumGet / repeats;
-		sumRemove = sumRemove / repeats;
-		
 		// store tested data
-		putPlotter.addPoint( totalItems.float, sumPut );
-		getPlotter.addPoint( totalItems.float, sumGet );
-		removePlotter.addPoint( totalItems.float, sumRemove );
-		
-		return [sumPut, sumGet, sumRemove];
+		putPlotter.addPoint( totalItems.float, putRule.statisticSummary.mean );
+		getPlotter.addPoint( totalItems.float, getRule.statisticSummary.mean );
+		removePlotter.addPoint( totalItems.float, removeRule.statisticSummary.mean );
 	}
 	
 	
-	"Fills results of testing to context.  
-	 Returns `String` to complete test with."
-	String fillTestResult (
-		"Context results to be filled in." AsyncTestContext context,
-		"Results of Ceylon test." Float[3] | Throwable ceylonResult,
-		"Results of Java test." Float[3] | Throwable javaResult,
-		"Tolerance to compare Ceylon to Java." Float tolerance,
+	"Fills results of testing to plotters. Results are within StatisticRule's."
+	void plotTestResult (
 		"Total number of items in the map." Integer totalItems,
 		Plotter putPlotter, Plotter getPlotter, Plotter removePlotter
 	) {
 		
-		if ( is Throwable ceylonResult ) {
-			context.fail( ceylonResult );
-			return "";
-		}
-		else if ( is Throwable javaResult ) {
-			context.fail( javaResult );
-			return "";
-		}
-		else {
-			// Ceylon / Java ratios
-			Float putRatio = ceylonResult[0] / javaResult[0];
-			Float getRatio = ceylonResult[1] / javaResult[1];
-			Float removeRatio = ceylonResult[2] / javaResult[2];
-			
-			// Formated string representation of ratios
-			String putRatioStr = formatFloat( putRatio, 2, 2 );
-			String getRatioStr = formatFloat( getRatio, 2, 2 );
-			String removeRatioStr = formatFloat( removeRatio, 2, 2 );
-
-			context.assertThat( putRatio, LessOrEqual( 1.0 + tolerance ), "'put' Ceylon / Java ratio", true );
-			context.assertThat( getRatio, LessOrEqual( 1.0 + tolerance ), "'get' Ceylon / Java ratio", true );
-			context.assertThat( removeRatio, LessOrEqual( 1.0 + tolerance ), "'remove' Ceylon / Java ratio", true );
-			
-			putPlotter.addPoint( totalItems.float, putRatio );
-			getPlotter.addPoint( totalItems.float, getRatio );
-			removePlotter.addPoint( totalItems.float, removeRatio );
-			
-			// completing the test, argument will be used only if test is succeeded
-			return "all 'put' of ``putRatioStr``, 'get' of ``getRatioStr`` and 'remove' of ``removeRatioStr`` "
-					+ "Ceylon / Java ratios are less then target ``1 + tolerance``";
-		}
+		Float items = totalItems.float;
+		putPlotter.addPoint( items, putCeylon.statisticSummary.mean / putJava.statisticSummary.mean );
+		getPlotter.addPoint( items, getCeylon.statisticSummary.mean / getJava.statisticSummary.mean );
+		removePlotter.addPoint( items, removeCeylon.statisticSummary.mean / removeJava.statisticSummary.mean );
 	}
 	
 }
