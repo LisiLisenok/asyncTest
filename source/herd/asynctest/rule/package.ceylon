@@ -91,7 +91,8 @@
  * [[ResourceRule]] represents a file packaged within a module and loaded before all tests started.  
  * [[StatisticRule]] provides statistics data for some variate values.  
  * [[TemporaryDirectoryRule]] represents a temporary directory which is created before _each_ test and destroyed after.  
- * [[TemporaryFileRule]] represents a temporary file which is created before _each_ test and destroyed after.  
+ * [[TemporaryFileRule]] represents a temporary file which is created before _each_ test and destroyed after.
+ * [[Verifier]] extracts value from source function after _each_ test and verifies it with given matcher.    
  * [[VerifyRule]] extends [[AtomicValueRule]] and additionally verifies the stored value against a given matcher
    after the test.  
    
