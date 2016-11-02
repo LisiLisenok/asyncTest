@@ -32,9 +32,9 @@ shared class CounterRule( "Initial value of the counter." Integer initial = 0 ) 
 	shared Integer getAndIncrement() => atomicCounter.andIncrement;
 	
 	
-	shared actual void after(AsyncPrePostContext context) => context.proceed();
+	shared actual void after( AsyncPrePostContext context ) => context.proceed();
 	
-	shared actual void before(AsyncPrePostContext context) {
+	shared actual void before( AsyncPrePostContext context ) {
 		atomicCounter = AtomicLong( initial );
 		context.proceed();
 	}

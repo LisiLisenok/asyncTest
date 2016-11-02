@@ -7,7 +7,7 @@ import herd.asynctest {
 
 
 "Verifies if the stored value matches a given [[matcher]] when the statement is applied."
-see( `function AsyncTestContext.assertThat` )
+see( `function AsyncTestContext.assertThat`, `package herd.asynctest.match`, `class Verifier` )
 since( "0.6.0" ) by( "Lis" )
 shared class VerifyRule<Element> (
 	"Initial value." Element initial,

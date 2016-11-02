@@ -80,7 +80,7 @@ shared class StatisticRule() satisfies TestRule
 	}
 	
 	
-	shared actual void after( AsyncPrePostContext context ) {}
+	shared actual void after( AsyncPrePostContext context ) => context.proceed();
 	
 	shared actual void before( AsyncPrePostContext context ) {
 		wLock.lock();
@@ -93,7 +93,8 @@ shared class StatisticRule() satisfies TestRule
 			size = 0;
 		}
 		finally {
-			wLock.unlock();	
+			wLock.unlock();
+			context.proceed();
 		}
 	}
 	
