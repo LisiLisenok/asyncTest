@@ -217,8 +217,7 @@ shared final annotation class ConcurrentAnnotation()
 		{}
 
 
-"Indicates that all test functions of the marked container (package for top-level functions and class for methods)
- ave to be run in conccurent mode."
+"Indicates that all test functions of the marked container have to be run in conccurent mode."
 since( "0.6.0" ) by( "Lis" )
 shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
 

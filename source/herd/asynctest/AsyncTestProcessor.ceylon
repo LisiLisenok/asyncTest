@@ -138,6 +138,7 @@ class AsyncTestProcessor(
 		for ( args in argsVariants ) {
 			// execute variant
 			value executionResults = executeVariant( context, args[0], args[1] );
+			// adds report if container or function is not marked with hideReport 
 			variants.add( executionResults );
 			if ( state < executionResults.totalState ) { state = executionResults.totalState; }
 			// initialization or disposing has been failed - stop testing
@@ -169,13 +170,17 @@ class AsyncTestProcessor(
 					// just a one variant without arguments
 					value variantResults = executeVariant( context, [], [] );
 					return ExecutionTestOutput (
-						context, [variantResults], variantResults.totalElapsedTime, variantResults.totalState );
+						context, [variantResults],
+						variantResults.totalElapsedTime, variantResults.totalState
+					);
 				}
 				else if ( size == 1, exists args = argLists.first ) {
 					// just a one variant with some arguments
 					value variantResults = executeVariant( context, args[0], args[1] );
 					return ExecutionTestOutput (
-						context, [variantResults], variantResults.totalElapsedTime, variantResults.totalState );
+						context, [variantResults],
+						variantResults.totalElapsedTime, variantResults.totalState
+					);
 				}
 				else {
 					// a number of variants

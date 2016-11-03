@@ -109,7 +109,7 @@ class Tester()
 		}
 		
 		shared actual void complete( String title ) {
-			if ( running.compareAndSet( true,false ) ) {
+			if ( running.compareAndSet( true, false ) ) {
 				outer.complete( title );
 			}
 		}

@@ -36,9 +36,9 @@ import herd.asynctest.match {
 }
 import herd.asynctest.rule {
 
-	StatisticRule,
 	testRule,
-	Verifier
+	Verifier,
+	BenchmarkRule
 }
 
 
@@ -115,24 +115,24 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 
 
 	// store statistic data for each test
-	shared testRule StatisticRule putCeylon = StatisticRule();
-	shared testRule StatisticRule putJava = StatisticRule();
-	shared testRule StatisticRule getCeylon = StatisticRule();
-	shared testRule StatisticRule getJava = StatisticRule();
-	shared testRule StatisticRule removeCeylon = StatisticRule();
-	shared testRule StatisticRule removeJava = StatisticRule();
+	shared testRule BenchmarkRule putCeylon = BenchmarkRule();
+	shared testRule BenchmarkRule putJava = BenchmarkRule();
+	shared testRule BenchmarkRule getCeylon = BenchmarkRule();
+	shared testRule BenchmarkRule getJava = BenchmarkRule();
+	shared testRule BenchmarkRule removeCeylon = BenchmarkRule();
+	shared testRule BenchmarkRule removeJava = BenchmarkRule();
 
 	// verify test success with given tolerance
 	shared testRule Verifier<Float> verifyPut = Verifier<Float>(
-		() => putCeylon.statisticSummary.mean / putJava.statisticSummary.mean,
+		() => putCeylon.timeStatistic.mean / putJava.timeStatistic.mean,
 		LessOrEqual( 1.0 + tolerance ), "'put' Ceylon / Java ratio", true
 	);
 	shared testRule Verifier<Float> verifyGet = Verifier<Float>(
-		() => getCeylon.statisticSummary.mean / getJava.statisticSummary.mean,
+		() => getCeylon.timeStatistic.mean / getJava.timeStatistic.mean,
 		LessOrEqual( 1.0 + tolerance ), "'get' Ceylon / Java ratio", true
 	);
 	shared testRule Verifier<Float> verifyRemove = Verifier<Float>(
-		() => removeCeylon.statisticSummary.mean / removeJava.statisticSummary.mean,
+		() => removeCeylon.timeStatistic.mean / removeJava.timeStatistic.mean,
 		LessOrEqual( 1.0 + tolerance ), "'remove' Ceylon / Java ratio", true
 	);
 	
@@ -224,7 +224,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 		"Percent from total items -> items used in get / remove tests." Float removePercent,
 		"Map the test is performed on." MapWrapper<String, Integer> map,
 		Plotter putPlotter, Plotter getPlotter, Plotter removePlotter,
-		StatisticRule putRule, StatisticRule getRule, StatisticRule removeRule
+		BenchmarkRule putRule, BenchmarkRule getRule, BenchmarkRule removeRule
 	) {
 		
 		"total number of items to be > 0"
@@ -235,7 +235,6 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 		// test map
 			
 		variable Integer count = 0;
-		variable Integer start = 0;
 		String prefix = "value";
 			
 		// warming up
@@ -247,36 +246,36 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 			map.clear();
 			
 			// test put
-			start = system.nanoseconds;
+			putRule.start();
 			variable Integer putCount = 0; 
 			while ( putCount < totalItems ) {
 				map.put( prefix + putCount.string, putCount );
 				putCount ++;
 			}
-			putRule.sample( ( system.nanoseconds - start ) / 1000000.0 );
+			putRule.tick();
 			
 			// test get
 			value indexies = keyList( prefix, totalItems, removePercent );
-			start = system.nanoseconds;
+			getRule.start();
 			for ( item in indexies ) {
 				map.get( item );
 			}
-			getRule.sample( ( system.nanoseconds - start ) / 1000000.0 );
+			getRule.tick();
 			
 			// test remove
-			start = system.nanoseconds;
+			removeRule.start();
 			for ( item in indexies ) {
 				map.remove( item );
 			}
-			removeRule.sample( ( system.nanoseconds - start ) / 1000000.0 );
+			removeRule.tick();
 			
 			count ++;
 		}
 		
 		// store tested data
-		putPlotter.addPoint( totalItems.float, putRule.statisticSummary.mean );
-		getPlotter.addPoint( totalItems.float, getRule.statisticSummary.mean );
-		removePlotter.addPoint( totalItems.float, removeRule.statisticSummary.mean );
+		putPlotter.addPoint( totalItems.float, putRule.timeStatistic.mean );
+		getPlotter.addPoint( totalItems.float, getRule.timeStatistic.mean );
+		removePlotter.addPoint( totalItems.float, removeRule.timeStatistic.mean );
 	}
 	
 	
@@ -287,9 +286,9 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 	) {
 		
 		Float items = totalItems.float;
-		putPlotter.addPoint( items, putCeylon.statisticSummary.mean / putJava.statisticSummary.mean );
-		getPlotter.addPoint( items, getCeylon.statisticSummary.mean / getJava.statisticSummary.mean );
-		removePlotter.addPoint( items, removeCeylon.statisticSummary.mean / removeJava.statisticSummary.mean );
+		putPlotter.addPoint( items, putCeylon.timeStatistic.mean / putJava.timeStatistic.mean );
+		getPlotter.addPoint( items, getCeylon.timeStatistic.mean / getJava.timeStatistic.mean );
+		removePlotter.addPoint( items, removeCeylon.timeStatistic.mean / removeJava.timeStatistic.mean );
 	}
 	
 }

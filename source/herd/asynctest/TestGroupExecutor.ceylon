@@ -552,7 +552,7 @@ class TestGroupExecutor (
 			else {
 				res.context.fire().testStarted( TestStartedEvent( res.context.description ) );
 				res.context.fire().testFinished( TestFinishedEvent (
-					TestResult( res.context.description, TestState.success, false )
+					TestResult( res.context.description, res.state, false )
 				) );
 			}
 			
@@ -571,15 +571,47 @@ class TestGroupExecutor (
 		"Overall test state." TestState overallState
 	) {
 		context.fire().testStarted( TestStartedEvent( context.description ) );
+		if ( variants.size == 1 && variants.first.variantName.empty ) {
+			value outs = variants.first.initOutput.append( variants.first.testOutput ).append( variants.first.disposeOutput );
+			if ( outs.empty ) {
+				context.fire().testFinished( TestFinishedEvent (
+					TestResult( context.description, overallState, false, null, runInterval )
+				) );
+			}
+			else if ( outs.size == 1, exists firstOut = outs.first, firstOut.title.empty ) {
+				context.fire().testFinished( TestFinishedEvent (
+					TestResult( context.description, overallState, false, firstOut.error, runInterval )
+				) );
+			}
+			else {
+				reportVariants( context, variants );
+				context.fire().testFinished( TestFinishedEvent (
+					TestResult( context.description, overallState, true, null, runInterval )
+				) );
+			}
+		}
+		else {
+			reportVariants( context, variants );
+			context.fire().testFinished( TestFinishedEvent (
+				TestResult( context.description, overallState, true, null, runInterval )
+			) );
+		}
+	}
+	
+	"Reports a list of variants."
+	void reportVariants (
+		"Context to be filled with results." TestExecutionContext context,
+		"List of variants." [VariantTestOutput+] variants
+	) {
 		variable Integer index = 0;
 		variable Integer varIndex = variants.size > 1 then 1 else 0;
 		for ( var in variants ) {
 			String variantName =
 					if ( varIndex > 0 ) then
-					if ( var.variantName.empty ) then "arg#``varIndex``: " else
-					if ( var.variantName.size > 40 ) then "arg#``varIndex``(...): "
-					else "arg#``varIndex````var.variantName``: "
-					else "";
+			if ( var.variantName.empty ) then "arg#``varIndex``: " else
+			if ( var.variantName.size > 40 ) then "arg#``varIndex``(...): "
+			else "arg#``varIndex````var.variantName``: "
+			else "";
 			varIndex ++;
 			for ( res in var.initOutput ) {
 				variantResultEvent( context, variantName, res, ++ index );
@@ -591,9 +623,6 @@ class TestGroupExecutor (
 				variantResultEvent( context, variantName, res, ++ index );
 			}
 		}
-		context.fire().testFinished( TestFinishedEvent (
-			TestResult( context.description, overallState, true, null, runInterval )
-		) );
 	}
 	
 	"Raises test variant results event."

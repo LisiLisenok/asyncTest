@@ -40,6 +40,7 @@ final class VariantTestOutput (
 	"The name of the variant." shared String variantName,
 	"Total state of the execution" shared TestState totalState
 ) {
+	
 	string => "``variantName``: ``initOutput.size``, ``testOutput.size``, ``disposeOutput.size``";
 }
 
