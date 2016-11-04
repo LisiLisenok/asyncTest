@@ -2,13 +2,13 @@ import herd.asynctest {
 
 	AsyncTestContext,
 	parameterized,
-	AsyncPrePostContext,
 	arguments
 }
 import ceylon.test {
 
 	test,
-	afterTestRun
+	afterTestRun,
+	beforeTestRun
 }
 import ceylon.collection {
 
@@ -38,7 +38,8 @@ import herd.asynctest.rule {
 
 	testRule,
 	Verifier,
-	BenchmarkRule
+	MeterRule,
+	AtomicValueRule
 }
 
 
@@ -49,11 +50,10 @@ import herd.asynctest.rule {
  "
 {[[], [Integer, Integer, Float]]*} mapTestParams
 		=> {
-				[[], [10000, 5, 0.3]],
-				[[], [50000, 5, 0.3]],
-				[[], [100000, 5, 0.3]],
-				[[], [150000, 5, 0.3]],
-				[[], [200000, 5, 0.3]]
+				[[], [1000, 20, 0.2]],
+				[[], [10000, 20, 0.2]],
+				[[], [25000, 20, 0.2]],
+				[[], [50000, 20, 0.2]]
 		};
 
 "Tolearance to compare Ceylon to Java
@@ -115,12 +115,16 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 
 
 	// store statistic data for each test
-	shared testRule BenchmarkRule putCeylon = BenchmarkRule();
-	shared testRule BenchmarkRule putJava = BenchmarkRule();
-	shared testRule BenchmarkRule getCeylon = BenchmarkRule();
-	shared testRule BenchmarkRule getJava = BenchmarkRule();
-	shared testRule BenchmarkRule removeCeylon = BenchmarkRule();
-	shared testRule BenchmarkRule removeJava = BenchmarkRule();
+	shared testRule MeterRule putCeylon = MeterRule();
+	shared testRule MeterRule putJava = MeterRule();
+	shared testRule MeterRule getCeylon = MeterRule();
+	shared testRule MeterRule getJava = MeterRule();
+	shared testRule MeterRule removeCeylon = MeterRule();
+	shared testRule MeterRule removeJava = MeterRule();
+	
+	//black hole inorder to eliminate dead-code of `get` method return
+	shared testRule AtomicValueRule<Integer> blackHole = AtomicValueRule<Integer>( 0 );
+	
 
 	// verify test success with given tolerance
 	shared testRule Verifier<Float> verifyPut = Verifier<Float>(
@@ -137,15 +141,43 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 	);
 	
 
-	afterTestRun
-	shared void dispose( AsyncPrePostContext context ) {
+	afterTestRun shared void dispose() {
 		plotReporter.report (
 			putChart.build(), getChart.build(), removeChart.build(),
 			hashMapRatioChart.build(), treeMapRatioChart.build()
 		);
-		context.proceed();
 	}
 	
+	beforeTestRun shared void warmUp() {
+		// Ceylon HashMap
+		chartMapTest (
+			1000, 10, 0.2,
+			CeylonMapWrapper( HashMap<String, Integer>() ),
+			ceylonHashPutPlotter, ceylonHashGetPlotter, ceylonHashRemovePlotter,
+			putCeylon, getCeylon, removeCeylon
+		);
+		// Java HashMap
+		chartMapTest (
+			1000, 10, 0.2,
+			JavaMapWrapper( JHashMap<String, Integer>() ),
+			javaHashPutPlotter, javaHashGetPlotter, javaHashRemovePlotter,
+			putJava, getJava, removeJava
+		);
+		// Ceylon TreeMap
+		chartMapTest (
+			1000, 10, 0.2,
+			CeylonMapWrapper( TreeMap<String, Integer>( increasing<String> ) ),
+			ceylonTreePutPlotter, ceylonTreeGetPlotter, ceylonTreeRemovePlotter,
+			putCeylon, getCeylon, removeCeylon
+		);
+		// Java TreeMap
+		chartMapTest (
+			1000, 10, 0.2,
+			JavaMapWrapper( JTreeMap<String, Integer>( stringComparator ) ),
+			javaTreePutPlotter, javaTreeGetPlotter, javaTreeRemovePlotter,
+			putJava, getJava, removeJava
+		);
+	}
 
 	"Runs `HashMap` test. Compares performance Ceylon `HashMap` to Java one.  
 	 Test is performed using `chartMapTest`.  
@@ -157,9 +189,10 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 		"Number of test repeats." Integer repeats,
 		"Percent of total items to calculate number of items in get / remove tests." Float removePercent
 	) {
+		
 		// Ceylon HashMap
 		chartMapTest (
-			context, totalItems, repeats, removePercent,
+			totalItems, repeats, removePercent,
 			CeylonMapWrapper( HashMap<String, Integer>() ),
 			ceylonHashPutPlotter, ceylonHashGetPlotter, ceylonHashRemovePlotter,
 			putCeylon, getCeylon, removeCeylon
@@ -167,7 +200,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 	
 		// Java HashMap
 		chartMapTest (
-			context, totalItems, repeats, removePercent,
+			totalItems, repeats, removePercent,
 			JavaMapWrapper( JHashMap<String, Integer>() ),
 			javaHashPutPlotter, javaHashGetPlotter, javaHashRemovePlotter,
 			putJava, getJava, removeJava
@@ -176,7 +209,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 		plotTestResult (
 			totalItems, putHashRatioPlotter, getHashRatioPlooter, removeHashRatioPlooter
 		);
-		context.complete ();
+		context.complete();
 	}
 
 
@@ -192,7 +225,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 	) {
 		// Ceylon TreeMap
 		chartMapTest (
-			context, totalItems, repeats, removePercent,
+			totalItems, repeats, removePercent,
 			CeylonMapWrapper( TreeMap<String, Integer>( increasing<String> ) ),
 			ceylonTreePutPlotter, ceylonTreeGetPlotter, ceylonTreeRemovePlotter,
 			putCeylon, getCeylon, removeCeylon
@@ -200,7 +233,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 
 		// Java TreeMap
 		chartMapTest (
-			context, totalItems, repeats, removePercent,
+			totalItems, repeats, removePercent,
 			JavaMapWrapper( JTreeMap<String, Integer>( stringComparator ) ),
 			javaTreePutPlotter, javaTreeGetPlotter, javaTreeRemovePlotter,
 			putJava, getJava, removeJava
@@ -218,13 +251,12 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 	 After each repeat initial map is cleared and reused.
 	 "
 	void chartMapTest (
-		"Context the test is run on." AsyncTestContext context,
 		"Total items in the map." Integer totalItems,
 		"Total number of test repeats." Integer repeats,
 		"Percent from total items -> items used in get / remove tests." Float removePercent,
 		"Map the test is performed on." MapWrapper<String, Integer> map,
 		Plotter putPlotter, Plotter getPlotter, Plotter removePlotter,
-		BenchmarkRule putRule, BenchmarkRule getRule, BenchmarkRule removeRule
+		MeterRule putRule, MeterRule getRule, MeterRule removeRule
 	) {
 		
 		"total number of items to be > 0"
@@ -236,12 +268,8 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 			
 		variable Integer count = 0;
 		String prefix = "value";
-			
-		// warming up
-		for ( upper in 0 : 100 ) {
-			for ( lower in 0 : 10000 ) {}
-		}
-			
+		
+		variable Integer sum = 0;		
 		while ( count < repeats ) {
 			map.clear();
 			
@@ -258,7 +286,9 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 			value indexies = keyList( prefix, totalItems, removePercent );
 			getRule.start();
 			for ( item in indexies ) {
-				map.get( item );
+				if ( exists i = map.get( item ) ) {
+					sum += i;
+				}
 			}
 			getRule.tick();
 			
@@ -272,6 +302,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 			count ++;
 		}
 		
+		blackHole.compareAndSet( sum, sum );
 		// store tested data
 		putPlotter.addPoint( totalItems.float, putRule.timeStatistic.mean );
 		getPlotter.addPoint( totalItems.float, getRule.timeStatistic.mean );
