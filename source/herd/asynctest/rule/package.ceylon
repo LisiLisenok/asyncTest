@@ -85,10 +85,10 @@
  ### Build-in test rules:  
  * [[AtomicValueRule]] provides atomic operations with some value.
    The value is re-initialized before _each_ test.  
- * [[BenchmarkRule]] collects benchmark statistic: execution time and operations per second.  
  * [[ContextualRule]] stores values local to the current thread.
    This means each thread get its own copy of the value. The value is re-initialized before _each_ test.
  * [[CounterRule]] provides an atomic counter reseted to initial value before _each_ test.  
+ * [[MeterRule]] collects statistic data on an execution time and on a rate (per second) at which a set of events occur.  
  * [[ResourceRule]] represents a file packaged within a module and loaded before _all_ tests started.  
  * [[StatisticRule]] provides statistics data for some variate values.  
  * [[TemporaryDirectoryRule]] represents a temporary directory which is created before _each_ test and destroyed after.  
