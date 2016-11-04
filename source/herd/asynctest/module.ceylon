@@ -266,12 +266,14 @@
  In order to perform parameterized testing the test function has to be marked with [[parameterized]] annotation.
  The annotation is similar `ceylon.test::parameters` one but also provides generic type parameters.  
  
- Argument of [[parameterized]] annotation has to return a stream of tupples:
- 		{[Type<Anything>[], Anything[]]*}
- Each tupple has two fields. First one is a list of generic type parameters and second one is a list of function arguments.
+ [[parameterized]] annotation takes two arguments:
+ 1. Declaration of function or value which returns a stream of tupples `{[Type<Anything>[], Anything[]]*}`
+ 	Each tupple has two fields. First one is a list of generic type parameters and second one is a list of function arguments.
+ 2. Number of failed variants to stop testing. Default is -1 which means no limit.
  
  The test will be performed using all parameters listed at the annotation
- a number of times equals to length of the given stream.
+ a number of times equals to length of the given stream
+ or while total number of failed variants not exceeds specified limit.
  Results of the each test call will be reported as separated test variant.  
  
  Example:
@@ -305,7 +307,7 @@
  		arguments(`value who`)
  		class HobbitTester(Hobbit hobbit) {
  			shared test async
- 			parameterized(`value dwarves`)
+ 			parameterized(`value dwarves`, 2)
  			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
  				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
  				context.complete();
@@ -313,7 +315,9 @@
  		}
  		
  In this example class `HobbitTester` is instantiated once with argument provided by value `who` and
- method `thereAndBackAgain` is called multiply times according to size of dwarves stream.  
+ method `thereAndBackAgain` is called multiply times according to size of dwarves stream.
+ According to second argument of `parameterized` annotation the test will be stopped
+ if two different invoking of `thereAndBackAgain` with two different arguments report failure.  
 
   
  > [[parameterized]] annotation may occur multiple times at a given test function.  

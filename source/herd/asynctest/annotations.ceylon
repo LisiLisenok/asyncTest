@@ -87,7 +87,9 @@ since( "0.6.0" ) by( "Lis" )
 shared final annotation class ParameterizedAnnotation (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
 	 contained a list of type parameters and a list of function arguments: `{[Type<Anything>[], Anything[]]*}`."
-	shared FunctionOrValueDeclaration source
+	shared FunctionOrValueDeclaration source,
+	"Maximum number of failed variants before stop. Unlimited if <= 0."
+	shared Integer maxFailedVariants
 )
 		satisfies SequencedAnnotation<ParameterizedAnnotation, FunctionDeclaration>
 {
@@ -161,9 +163,11 @@ since( "0.6.0" ) by( "Lis" )
 shared annotation ParameterizedAnnotation parameterized (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
 	 contained a list of type parameters and a list of arguments: `{[Type<Anything>[], Anything[]]*}`."
-	FunctionOrValueDeclaration source
+	FunctionOrValueDeclaration source,
+	"Maximum number of failed variants before stop. Unlimited if <= 0."
+	Integer maxFailedVariants = -1
 )
-		=> ParameterizedAnnotation( source );
+		=> ParameterizedAnnotation( source, maxFailedVariants );
 
 
 "Annotation class for [[factory]]."

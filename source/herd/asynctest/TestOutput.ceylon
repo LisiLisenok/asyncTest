@@ -41,6 +41,9 @@ final class VariantTestOutput (
 	"Total state of the execution" shared TestState totalState
 ) {
 	
+	"`true` if `initOutput`, `testOutput` and `disposeOutput` all together are empty and `false` otherwise."
+	shared Boolean emptyOutput => initOutput.empty && testOutput.empty && disposeOutput.empty;
+	
 	string => "``variantName``: ``initOutput.size``, ``testOutput.size``, ``disposeOutput.size``";
 }
 

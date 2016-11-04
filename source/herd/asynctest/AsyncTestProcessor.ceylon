@@ -75,7 +75,7 @@ class AsyncTestProcessor(
 	"Executes one variant and performs initialization and dispose.
 	 Returns output from this variant."
 	VariantTestOutput executeVariant (
-		TestExecutionContext context, Type<Anything>[] typeParameters, Anything[] args
+		Type<Anything>[] typeParameters, Anything[] args
 	) {
 		// run initializers firstly
 		if ( nonempty initErrs = prePostContext.run( intializers ) ) {
@@ -129,20 +129,32 @@ class AsyncTestProcessor(
 	}
 	
 	"Executes all variants for the given list of argument variants `argsVariants`"
-	ExecutionTestOutput executeVariants( TestExecutionContext context, {[Type<Anything>[], Anything[]]*} argsVariants ) {
+	ExecutionTestOutput executeVariants( TestExecutionContext context, ParametersList[] parameters ) {
 		variable Integer startTime = system.milliseconds;
 		variable TestState state = TestState.skipped;
 		ArrayList<VariantTestOutput> variants = ArrayList<VariantTestOutput>();
 		 
 		// for each argument in collection results are stored as separated test variant
-		for ( args in argsVariants ) {
-			// execute variant
-			value executionResults = executeVariant( context, args[0], args[1] );
-			// adds report if container or function is not marked with hideReport 
-			variants.add( executionResults );
-			if ( state < executionResults.totalState ) { state = executionResults.totalState; }
-			// initialization or disposing has been failed - stop testing
-			if ( !executionResults.disposeOutput.empty || !executionResults.initOutput.empty ) { break; }
+		for ( parameter in parameters ) {
+			variable Integer totalFailed = 0;
+			Integer maxFailedVariants = parameter.maxFailedVariants;
+			for ( args in parameter.variants ) {
+				// execute variant
+				value executionResults = executeVariant( args[0], args[1] );
+				variants.add( executionResults );
+				if ( state < executionResults.totalState ) {
+					state = executionResults.totalState;
+				}
+				if ( executionResults.totalState > TestState.success ) {
+					totalFailed ++;
+				}
+				// initialization or disposing has been failed or max failed variants exceeded - stop testing
+				if ( ( maxFailedVariants > 0 && totalFailed >= maxFailedVariants ) ||
+					!executionResults.disposeOutput.empty || !executionResults.initOutput.empty
+				) {
+					return ExecutionTestOutput( context, variants.sequence(), system.milliseconds - startTime, state );
+				}
+			}
 		}
 		
 		return ExecutionTestOutput( context, variants.sequence(), system.milliseconds - startTime, state );
@@ -164,19 +176,10 @@ class AsyncTestProcessor(
 			else {
 				// test parameters - series of arguments
 				value argLists = resolveParameterizedList( functionDeclaration );
-				Integer size = argLists.size;
 				// execute test
-				if ( size == 0 ) {
+				if ( isParametersListEmpty( argLists ) ) {
 					// just a one variant without arguments
-					value variantResults = executeVariant( context, [], [] );
-					return ExecutionTestOutput (
-						context, [variantResults],
-						variantResults.totalElapsedTime, variantResults.totalState
-					);
-				}
-				else if ( size == 1, exists args = argLists.first ) {
-					// just a one variant with some arguments
-					value variantResults = executeVariant( context, args[0], args[1] );
+					value variantResults = executeVariant( [], [] );
 					return ExecutionTestOutput (
 						context, [variantResults],
 						variantResults.totalElapsedTime, variantResults.totalState
@@ -205,7 +208,22 @@ class AsyncTestProcessor(
 		}
 	}
 	
+	"`true` if no parameters specified."
+	shared Boolean isParametersListEmpty( ParametersList[] parameters ) {
+		if ( parameters.empty ) {
+			return true;
+		}
+		else {
+			for ( item in parameters ) {
+				if ( !item.variants.empty ) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
 	
+		
 	"Constructs variant name from type parameters and function arguments."
 	String variantName( Type<Anything>[] typeParameters, Anything[] args ) {
 		StringBuilder builder = StringBuilder();

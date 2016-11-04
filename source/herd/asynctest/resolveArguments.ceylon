@@ -13,11 +13,12 @@ import ceylon.language.meta {
 }
 
 
-"Resolves a list of type parameters and function arguments provided by [[parameterized]] annotation."
+"Resolves a list of type parameters and function arguments provided by [[parameterized]] annotation.  
+ Returns a list of parameters list."
 since( "0.3.0" ) by( "Lis" )
-{[Type<Anything>[], Anything[]]*} resolveParameterizedList( FunctionDeclaration declaration ) {
+ParametersList[] resolveParameterizedList( FunctionDeclaration declaration ) {
 	return [for ( provider in declaration.annotations<ParameterizedAnnotation>() )
-			for ( arg in provider.arguments() ) arg ];
+	ParametersList( provider.arguments(), provider.maxFailedVariants ) ];
 }
 
 "Resolves argument list from `ArgumentsAnnotation`."
@@ -30,3 +31,11 @@ since( "0.5.0" ) by( "Lis" )
 		return [];
 	}
 }
+
+
+"Represents a one `parameterized` annotation."
+since( "0.3.0" ) by( "Lis" )
+class ParametersList (
+	"Variants parameters." shared {[Type<Anything>[], Anything[]]*} variants,
+	"Stop testing when a number of variants failed." shared Integer maxFailedVariants
+) {}

@@ -584,45 +584,51 @@ class TestGroupExecutor (
 				) );
 			}
 			else {
-				reportVariants( context, variants );
+				Boolean combined = reportVariants( context, variants );
 				context.fire().testFinished( TestFinishedEvent (
-					TestResult( context.description, overallState, true, null, runInterval )
+					TestResult( context.description, overallState, combined, null, runInterval )
 				) );
 			}
 		}
 		else {
-			reportVariants( context, variants );
+			Boolean combined = reportVariants( context, variants );
 			context.fire().testFinished( TestFinishedEvent (
-				TestResult( context.description, overallState, true, null, runInterval )
+				TestResult( context.description, overallState, combined, null, runInterval )
 			) );
 		}
 	}
 	
-	"Reports a list of variants."
-	void reportVariants (
+	"Reports a list of variants.  
+	 Returns `true` if test results are combined and `false` otherwise."
+	Boolean reportVariants (
 		"Context to be filled with results." TestExecutionContext context,
 		"List of variants." [VariantTestOutput+] variants
 	) {
 		variable Integer index = 0;
 		variable Integer varIndex = variants.size > 1 then 1 else 0;
+		variable Boolean combined = false;
 		for ( var in variants ) {
-			String variantName =
+			if ( !var.emptyOutput ) {
+				String variantName =
 					if ( varIndex > 0 ) then
-			if ( var.variantName.empty ) then "arg#``varIndex``: " else
-			if ( var.variantName.size > 40 ) then "arg#``varIndex``(...): "
-			else "arg#``varIndex````var.variantName``: "
-			else "";
-			varIndex ++;
-			for ( res in var.initOutput ) {
-				variantResultEvent( context, variantName, res, ++ index );
-			}
-			for ( res in var.testOutput ) {
-				variantResultEvent( context, variantName, res, ++ index );
-			}
-			for ( res in var.disposeOutput ) {
-				variantResultEvent( context, variantName, res, ++ index );
+					if ( var.variantName.empty ) then "arg#``varIndex``: " else
+					if ( var.variantName.size > 40 ) then "arg#``varIndex``(...): "
+					else "arg#``varIndex````var.variantName``: "
+					else "";
+				varIndex ++;
+				for ( res in var.initOutput ) {
+					variantResultEvent( context, variantName, res, ++ index );
+				}
+				for ( res in var.testOutput ) {
+					variantResultEvent( context, variantName, res, ++ index );
+				}
+				for ( res in var.disposeOutput ) {
+					variantResultEvent( context, variantName, res, ++ index );
+				}
+				combined = true;
 			}
 		}
+		return combined;
 	}
 	
 	"Raises test variant results event."
