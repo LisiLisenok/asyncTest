@@ -1,12 +1,10 @@
-import ceylon.language.meta.model {
-	Type
-}
 import ceylon.test {
 	test
 }
 import herd.asynctest {
 	parameterized,
-	AsyncTestContext
+	AsyncTestContext,
+	FunctionParameters
 }
 import herd.asynctest.match {
 	EqualObjects,
@@ -15,10 +13,10 @@ import herd.asynctest.match {
 
 
 "Parameters of [[testIdentity]]."
-{[Type<Anything>[], Anything[]]*} identityArgs => {
-	[[`String`], ["stringIdentity"]],
-	[[`Integer`], [1]],
-	[[`Float`], [1.0]]
+{FunctionParameters*} identityArgs => {
+	FunctionParameters([`String`], ["stringIdentity"]),
+	FunctionParameters([`Integer`], [1]),
+	FunctionParameters([`Float`], [1.0])
 };
 
 "Type parameterized test of `ceylon.language::identity<Value>`.
@@ -34,11 +32,11 @@ void testIdentity<Value>(AsyncTestContext context, Value arg)
 
 
 "Parameters of [[testLargest]]."
-{[Type<Anything>[], Anything[]]*} largestArgs => {
-	[[`Integer`], [1, 2, 2]],
-	[[`Integer`], [3, 2, 3]],
-	[[`Float`], [1.0, 2.0, 2.0]],
-	[[`Float`], [2.5, 2.0, 2.5]]
+{FunctionParameters*} largestArgs => {
+	FunctionParameters([`Integer`], [1, 2, 2]),
+	FunctionParameters([`Integer`], [3, 2, 3]),
+	FunctionParameters([`Float`], [1.0, 2.0, 2.0]),
+	FunctionParameters([`Float`], [2.5, 2.0, 2.5])
 };
 
 "Type parameterized test of `ceylon.language::largest<Element>`.
@@ -54,17 +52,17 @@ void testLargest<Element>(AsyncTestContext context, Element x, Element y, Elemen
 
 
 "Parameters of [[testSort]]."
-{[Type<Anything>[], Anything[]]*} sortArgs => {
-	[[`Integer`], [[3, 2, 1], [1, 2, 3]]],
-	[[`Integer`], [[3, 2, 4, 1], [1, 2, 3, 4]]],
-	[[`Float`], [[2.5, 3.5, 1.5], [1.5, 2.5, 3.5]]],
-	[[`Float`], [[2.5, 3.5, 1.5, 4.5], [1.5, 2.5, 3.5, 4.5]]]
+{FunctionParameters*} sortArgs => {
+	FunctionParameters([`Integer`], [[3, 2, 1], [1, 2, 3]]),
+	FunctionParameters([`Integer`], [[3, 2, 4, 1], [1, 2, 3, 4]]),
+	FunctionParameters([`Float`], [[2.5, 3.5, 1.5], [1.5, 2.5, 3.5]]),
+	FunctionParameters([`Float`], [[2.5, 3.5, 1.5, 4.5], [1.5, 2.5, 3.5, 4.5]])
 };
 
 "Parameters of [[testSort]]."
-{[Type<Anything>[], Anything[]]*} sortArgsString => {
-	[[`String`], [["3", "2", "1"], ["1", "2", "3"]]],
-	[[`String`], [["abc", "ghi", "def"], ["abc", "def", "ghi"]]]
+{FunctionParameters*} sortArgsString => {
+	FunctionParameters([`String`], [["3", "2", "1"], ["1", "2", "3"]]),
+		FunctionParameters([`String`], [["abc", "ghi", "def"], ["abc", "def", "ghi"]])
 };
 
 "Type parameterized test of `ceylon.language::sort<Element>`.
@@ -79,6 +77,3 @@ void testSort<Element>(AsyncTestContext context, Element[] stream, Element[] mer
 	context.assertThat(sort<Element>(stream), EqualObjects<Element[]>(merit), "", true );
 	context.complete();
 }
-
-
-

@@ -55,15 +55,15 @@ object asyncTestRunner {
 	
 	
 	"total number of tests"
-	variable Integer totalTestNumber = -1;
+	variable small Integer totalTestNumber = -1;
 	
 	"number of added tests"
-	variable Integer addedTestNumber = 0;
+	variable small Integer addedTestNumber = 0;
 	
 	
 	"Returns total number of test run using `AsyncTestContext` from the given descriptions."
-	Integer numberOfAsyncTest( TestDescription* descriptions ) {
-		variable Integer ret = 0;
+	small Integer numberOfAsyncTest( TestDescription* descriptions ) {
+		variable small Integer ret = 0;
 		for ( descr in descriptions ) {
 			if ( exists fDeclaration = descr.functionDeclaration, isAsyncExecutedTest( fDeclaration ) ) {
 				ret ++;

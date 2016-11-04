@@ -2,7 +2,8 @@ import herd.asynctest {
 
 	AsyncTestContext,
 	parameterized,
-	arguments
+	arguments,
+	FunctionParameters
 }
 import ceylon.test {
 
@@ -48,13 +49,12 @@ import herd.asynctest.rule {
  * number of test repeats (test is repeated several times and reported values are mean values)
  * percent of total items to calculate number of items in get / remove tests
  "
-{[[], [Integer, Integer, Float]]*} mapTestParams
-		=> {
-				[[], [1000, 20, 0.2]],
-				[[], [10000, 20, 0.2]],
-				[[], [25000, 20, 0.2]],
-				[[], [50000, 20, 0.2]]
-		};
+{FunctionParameters*} mapTestParams => {
+		FunctionParameters([], [1000, 20, 0.2]),
+		FunctionParameters([], [10000, 20, 0.2]),
+		FunctionParameters([], [25000, 20, 0.2]),
+		FunctionParameters([], [50000, 20, 0.2])
+	};
 
 "Tolearance to compare Ceylon to Java
  (if actual ratio exceeded `1 + tolerance` test is considered as failured otherwise it is successfull)."

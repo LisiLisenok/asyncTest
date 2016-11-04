@@ -6,7 +6,8 @@ import herd.asynctest {
 
 	AsyncTestContext,
 	parameterized,
-	async
+	async,
+	FunctionParameters
 }
 import herd.asynctest.match {
 
@@ -18,10 +19,16 @@ import herd.asynctest.match {
 
 "Fibonacci test parameters."
 see( `function runFibonacciTest` )
-{[[],[Integer, Integer]]*} fibonacciNumbers =>
-		{
-			[[],[3, 2]], [[],[4, 3]], [[],[5, 5]], [[],[6, 8]], [[],[7, 13]], [[],[8, 21]], [[],[9, 34]], [[],[10, 55]]
-		};
+{FunctionParameters*} fibonacciNumbers => {
+		FunctionParameters([],[3, 2]),
+		FunctionParameters([],[4, 3]),
+		FunctionParameters([],[5, 5]),
+		FunctionParameters([],[6, 8]),
+		FunctionParameters([],[7, 13]),
+		FunctionParameters([],[8, 21]),
+		FunctionParameters([],[9, 34]),
+		FunctionParameters([],[10, 55])
+	};
 
 
 "Runs test of Fibonacci numbers calculations.  

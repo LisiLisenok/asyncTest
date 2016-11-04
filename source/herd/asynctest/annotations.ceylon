@@ -7,10 +7,6 @@ import ceylon.language.meta.declaration {
 	FunctionDeclaration,
 	ValueDeclaration
 }
-import ceylon.language.meta.model {
-
-	Type
-}
 import ceylon.test.annotation {
 
 	TestExecutorAnnotation
@@ -41,6 +37,7 @@ Anything[] extractArgumentList( FunctionOrValueDeclaration source ) {
 
 
 "Annotation class for [[arguments]]."
+see( `function arguments` )
 since( "0.5.0" ) by( "Lis" )
 shared final annotation class ArgumentsAnnotation (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of values."
@@ -84,6 +81,7 @@ shared annotation ArgumentsAnnotation arguments (
 
 "Annotation class for [[parameterized]]."
 since( "0.6.0" ) by( "Lis" )
+see( `function parameterized`, `class FunctionParameters` )
 shared final annotation class ParameterizedAnnotation (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
 	 contained a list of type parameters and a list of function arguments: `{[Type<Anything>[], Anything[]]*}`."
@@ -91,28 +89,39 @@ shared final annotation class ParameterizedAnnotation (
 	"Maximum number of failed variants before stop. Unlimited if <= 0."
 	shared Integer maxFailedVariants
 )
-		satisfies SequencedAnnotation<ParameterizedAnnotation, FunctionDeclaration>
+		satisfies SequencedAnnotation<ParameterizedAnnotation, FunctionDeclaration> & TestVariantProvider
 {
 	
 	"Calls [[source]] to get type parameters and a function arguments stream."
-	shared {[Type<Anything>[], Anything[]]*} arguments() {
+	Iterator<FunctionParameters> arguments() {
+		{FunctionParameters*}|Iterator<FunctionParameters> ret;
 		switch ( source )
 		case ( is FunctionDeclaration ) {
-			return source.apply<{[Type<Anything>[], Anything[]]*},[]>()();
+			ret = source.apply<{FunctionParameters*}|Iterator<FunctionParameters>,[]>()();
 		}
 		case ( is ValueDeclaration ) {
-			return source.apply<{[Type<Anything>[], Anything[]]*}>().get();
+			ret = source.apply<{FunctionParameters*}|Iterator<FunctionParameters>>().get();
+		}
+		if ( is {FunctionParameters*} ret ) {
+			return ret.iterator();
+		}
+		else {
+			return ret;
 		}
 	}
+	
+	shared actual Iterator<TestVariant> variantsIterator() => TestVariantIterator( arguments(), maxFailedVariants );
 	
 }
 
 
 "Indicates that generic test function has to be called with given type parameters and arguments.  
  
- Argument of [[parameterized]] annotation has to return a stream of tupples:
- 		{[Type<Anything>[], Anything[]]*}
- Each tupple has two fields. First one is a list of generic type parameters and second one is a list of function arguments.
+ [[parameterized]] annotation takes two arguments:
+ 1. Declaration of function or value which returns a stream of function parameters `{FunctionParameters*}`
+    or such stream iterator - `Iterator<FunctionParameters>`.
+    [[FunctionParameters]] contains a list of generic type parameters and a list of function arguments.
+ 2. Number of failed variants to stop testing. Default is -1 which means no limit.
  
  The test function will be called a number of times equals to length of returned stream.
  Results of the each test call will be reported as separated test variant.   
@@ -121,10 +130,10 @@ shared final annotation class ParameterizedAnnotation (
  
  		Value identity<Value>(Value argument) => argument;
  		
- 		{[Type<Anything>[], Anything[]]*} identityArgs => {
- 			[[\`String\`], [\"stringIdentity\"]],
- 			[[\`Integer\`], [1]],
- 			[[\`Float\`], [1.0]]
+ 		{FunctionParameters*} identityArgs => {
+ 			FunctionParameters([\`String\`], [\"stringIdentity\"]),
+ 			FunctionParameters([\`Integer\`], [1]),
+ 			FunctionParameters([\`Float\`], [1.0])
  		};
  		
  		shared test async
@@ -143,7 +152,13 @@ shared final annotation class ParameterizedAnnotation (
  
  In order to run test with conventional (non-generic function) type parameters list has to be empty:
   		[Hobbit] who => [bilbo];
- 		{[[], [Dwarf]]*} dwarves => {[[], [fili]], [[], [kili]], [[], [balin]], [[], [dwalin]]...};
+ 		{FunctionParameters*} dwarves => {
+ 			FunctionParameters([], [fili]),
+ 			FunctionParameters([], [kili]),
+ 			FunctionParameters([], [balin],
+ 			FunctionParameters([], [dwalin]),
+ 			...
+ 		};
  		
  		arguments(`value who`)
  		class HobbitTester(Hobbit hobbit) {
@@ -159,6 +174,7 @@ shared final annotation class ParameterizedAnnotation (
  method `thereAndBackAgain` is called multiply times according to size of dwarves stream.  
  
  "
+see( `class FunctionParameters` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation ParameterizedAnnotation parameterized (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
@@ -171,7 +187,7 @@ shared annotation ParameterizedAnnotation parameterized (
 
 
 "Annotation class for [[factory]]."
-see( `interface AsyncFactoryContext` )
+see( `function factory`, `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class FactoryAnnotation (
 	"Function used to instantiate anotated class.  
@@ -215,10 +231,11 @@ shared annotation FactoryAnnotation factory (
 
 
 "Annotation class for [[concurrent]]."
+see( `function concurrent` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class ConcurrentAnnotation()
-		satisfies OptionalAnnotation<ConcurrentAnnotation, ClassDeclaration | Package | Module>
-		{}
+	satisfies OptionalAnnotation<ConcurrentAnnotation, ClassDeclaration | Package | Module>
+{}
 
 
 "Indicates that all test functions of the marked container have to be run in conccurent mode."
@@ -227,11 +244,12 @@ shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
 
 
 "Annotation class for [[timeout]]."
+see( `function timeout` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class TimeoutAnnotation( "Timeout in milliseconds." shared Integer timeoutMilliseconds )
-		satisfies OptionalAnnotation<TimeoutAnnotation, FunctionDeclaration | ValueDeclaration
-		 	| ClassDeclaration | Package | Module>
-		{}
+	satisfies OptionalAnnotation<TimeoutAnnotation, FunctionDeclaration | ValueDeclaration
+		 | ClassDeclaration | Package | Module>
+{}
 
 
 "Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted."

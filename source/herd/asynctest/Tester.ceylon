@@ -369,7 +369,7 @@ class Tester()
 	}
 
 	"Returns output from the test."
-	shared TestFunctionOutput run( TestFunction testFunction ) {
+	shared TestVariantResult run( TestFunction testFunction ) {
 		if ( running.compareAndSet( false, true ) ) {
 			// execute the test
 			if ( testFunction.timeOutMilliseconds > 0 ) {
@@ -389,12 +389,12 @@ class Tester()
 			try {
 				value ret = outputs.sequence();
 				outputs.clear();
-				return TestFunctionOutput( ret, completeTime - startTime, totalState );
+				return TestVariantResult( ret, completeTime - startTime, totalState );
 			}
 			finally { outputLocker.unlock(); }
 		}
 		else {
-			return TestFunctionOutput( [], 0, totalState );
+			return TestVariantResult( [], 0, totalState );
 		}
 	}
 	

@@ -4,7 +4,8 @@ import herd.asynctest {
 	parameterized,
 	async,
 	arguments,
-	AsyncPrePostContext
+	AsyncPrePostContext,
+	FunctionParameters
 }
 import ceylon.test {
 
@@ -24,28 +25,16 @@ import java.lang {
 
 
 
-shared {[[], [{{Integer*}*}, Integer]]*} oneConstantTimer
-		=> {[[], [{{250}.repeat( 7 )}, 50]]};
-shared {[[], [{{Integer*}*}, Integer]]*} oneDoubleTimer
-		=> {[[], [{{250, 350}.repeat( 5 )}, 50]]};
-shared {[[], [{{Integer*}*}, Integer]]*} oneTripleTimer
-		=> {[[], [{{250, 450, 200}.repeat( 4 )}, 50]]};
-shared {[[], [{{Integer*}*}, Integer]]*} oneIncreasingTimer
-		=> {[[], [{{250, 400, 450, 600, 820, 900}}, 50]]};
-shared {[[], [{{Integer*}*}, Integer]]*} twoConstantTimers
-		=> {[[], [{{250}.repeat( 7 ), {350}.repeat( 6 )}, 50]]};
-shared {[[], [{{Integer*}*}, Integer]]*} twoDoubleTimers
-		=> {[[], [{{250, 350}.repeat( 7 ), {350, 280}.repeat( 6 )}, 50]]};
-shared {[[], [{{Integer*}*}, Integer]]*} threeConstantTimers
-		=> {[[], [{{250}.repeat( 7 ), {350}.repeat( 6 ), {300}.repeat( 5 )}, 50]]};
-shared {[[], [{{Integer*}*}, Integer]]*} threeDoubleTimers
-		=> {[[], [{{250, 350}.repeat( 7 ), {400, 350}.repeat( 4 ), {350, 280}.repeat( 6 )}, 50]]};
-
-"Scheduler test parameters."
-shared {[[], [{{Integer*}*}, Integer]]*} combinedTimers
-		=> oneConstantTimer.chain( oneDoubleTimer ).chain( oneTripleTimer ).chain( oneIncreasingTimer )
-			.chain( twoConstantTimers ).chain( twoDoubleTimers ).chain( threeConstantTimers ).chain( threeDoubleTimers );
-
+shared {FunctionParameters*} testTimers => {
+		FunctionParameters([], [{{250}.repeat( 7 )}, 50]),
+		FunctionParameters([], [{{250, 350}.repeat( 5 )}, 50]),
+		FunctionParameters([], [{{250, 450, 200}.repeat( 4 )}, 50]),
+		FunctionParameters([], [{{250, 400, 450, 600, 820, 900}}, 50]),
+		FunctionParameters([], [{{250}.repeat( 7 ), {350}.repeat( 6 )}, 50]),
+		FunctionParameters([], [{{250, 350}.repeat( 7 ), {350, 280}.repeat( 6 )}, 50]),
+		FunctionParameters([], [{{250}.repeat( 7 ), {350}.repeat( 6 ), {300}.repeat( 5 )}, 50]),
+		FunctionParameters([], [{{250, 350}.repeat( 7 ), {400, 350}.repeat( 4 ), {350, 280}.repeat( 6 )}, 50])
+	};
 
 
 "Returns number of available cores."
@@ -81,7 +70,7 @@ class SchedulerTester( Integer corePoolSize ) {
 	Scheduler scheduler = Scheduler( corePoolSize );
 	
 	test async
-	parameterized( `value combinedTimers` )
+	parameterized( `value testTimers` )
 	shared void scheduleFires (
 		"Context the test is performed on." AsyncTestContext context,
 		"List of delays submited to [[Scheduler.schedule]]." {{Integer*}*} delayList,

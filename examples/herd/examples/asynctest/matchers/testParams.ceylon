@@ -1,24 +1,28 @@
+import herd.asynctest {
+
+	FunctionParameters
+}
 
 
-{[[], [String, String]]*} comparisonStrings => {
-	[[], ["Frodo", "Frodo"]],
-	[[], ["Frodo", "Bilbo"]],
-	[[], ["Bilbo", "Frodo"]],
-	[[], ["Bilbo", "Bilbo"]]
+{FunctionParameters*} comparisonStrings => {
+	FunctionParameters([], ["Frodo", "Frodo"]),
+	FunctionParameters([], ["Frodo", "Bilbo"]),
+	FunctionParameters([], ["Bilbo", "Frodo"]),
+	FunctionParameters([], ["Bilbo", "Bilbo"])
 };
 
 
-{[[], [String, String, String]]*} combinedComparisonStrings => {
-	[[], ["Frodo", "Bilbo", "Hobbit"]],
-	[[], ["Bilbo", "Frodo", "Hobbit"]],
-	[[], ["Hobbit", "Bilbo", "Frodo"]]
+{FunctionParameters*} combinedComparisonStrings => {
+	FunctionParameters([], ["Frodo", "Bilbo", "Hobbit"]),
+	FunctionParameters([], ["Bilbo", "Frodo", "Hobbit"]),
+	FunctionParameters([], ["Hobbit", "Bilbo", "Frodo"])
 };
 
 
-{[[], [String, String]]*} subListStrings => {
-	[[], ["Frodo", "Frodo Hobbit"]],
-	[[], ["Frodo", "Hobbit Frodo"]],
-	[[], ["Frodo Hobbit", "Frodo"]],
-	[[], ["Frodo", "Bilbo Hobbit"]],
-	[[], ["Frodo Hobbit", "Hobbit"]]
+{FunctionParameters*} subListStrings => {
+	FunctionParameters([], ["Frodo", "Frodo Hobbit"]),
+	FunctionParameters([], ["Frodo", "Hobbit Frodo"]),
+	FunctionParameters([], ["Frodo Hobbit", "Frodo"]),
+	FunctionParameters([], ["Frodo", "Bilbo Hobbit"]),
+	FunctionParameters([], ["Frodo Hobbit", "Hobbit"])
 };

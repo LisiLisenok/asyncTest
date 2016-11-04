@@ -3,10 +3,6 @@ import ceylon.language.meta.declaration {
 	FunctionDeclaration,
 	ClassDeclaration
 }
-import ceylon.language.meta.model {
-
-	Type
-}
 import ceylon.language.meta {
 
 	optionalAnnotation
@@ -16,9 +12,23 @@ import ceylon.language.meta {
 "Resolves a list of type parameters and function arguments provided by [[parameterized]] annotation.  
  Returns a list of parameters list."
 since( "0.3.0" ) by( "Lis" )
-ParametersList[] resolveParameterizedList( FunctionDeclaration declaration ) {
-	return [for ( provider in declaration.annotations<ParameterizedAnnotation>() )
-	ParametersList( provider.arguments(), provider.maxFailedVariants ) ];
+Iterator<TestVariant> resolveParameterizedList( FunctionDeclaration declaration ) {
+	value providers = declaration.annotations<Annotation>().narrow<TestVariantProvider>();
+	if ( providers.empty ) {
+		return [emptyTestVariant].iterator();
+	}
+	else if ( providers.size == 1 ) {
+		if ( exists f = providers.first ) {
+			return f.variantsIterator();
+		}
+		else {
+			return [emptyTestVariant].iterator();
+		}
+	}
+	else {
+		return CombinedVariantProvider( providers.map( ( TestVariantProvider provider ) => provider.variantsIterator() ).iterator() );
+	}
+
 }
 
 "Resolves argument list from `ArgumentsAnnotation`."
@@ -31,11 +41,3 @@ since( "0.5.0" ) by( "Lis" )
 		return [];
 	}
 }
-
-
-"Represents a one `parameterized` annotation."
-since( "0.3.0" ) by( "Lis" )
-class ParametersList (
-	"Variants parameters." shared {[Type<Anything>[], Anything[]]*} variants,
-	"Stop testing when a number of variants failed." shared Integer maxFailedVariants
-) {}

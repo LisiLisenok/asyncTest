@@ -263,12 +263,18 @@
  -------------------------------------------
  ### <a name=\"parameterized\"></a> Value- and type- parameterized testing
  
- In order to perform parameterized testing the test function has to be marked with [[parameterized]] annotation.
+ In order to perform parameterized testing the test function has to be marked with annotation which supports
+ [[TestVariantProvider]] interface. The interface has just a one function
+ which provides an iterator of the test function parameters (generic type parameters and function arguments).  
+ 
+ [[parameterized]] annotation satisfies [[TestVariantProvider]] interface and is intended to provide simple
+ parameterized testing based on stream of function parameters.  
  The annotation is similar `ceylon.test::parameters` one but also provides generic type parameters.  
  
  [[parameterized]] annotation takes two arguments:
- 1. Declaration of function or value which returns a stream of tupples `{[Type<Anything>[], Anything[]]*}`
- 	Each tupple has two fields. First one is a list of generic type parameters and second one is a list of function arguments.
+ 1. Declaration of function or value which returns a stream of function parameters `{FunctionParameters*}`
+    or such stream iterator - `Iterator<FunctionParameters>`.
+ 	[[FunctionParameters]] contains a list of generic type parameters and a list of function arguments.
  2. Number of failed variants to stop testing. Default is -1 which means no limit.
  
  The test will be performed using all parameters listed at the annotation
@@ -280,10 +286,10 @@
  
  		Value identity<Value>(Value argument) => argument;
  		
- 		{[Type<Anything>[], Anything[]]*} identityArgs => {
- 			[[\`String\`], [\"stringIdentity\"]],
- 			[[\`Integer\`], [1]],
- 			[[\`Float\`], [1.0]]
+ 		{FunctionParameters*} identityArgs => {
+ 			FunctionParameters([\`String\`], [\"stringIdentity\"]),
+ 			FunctionParameters([\`Integer\`], [1]),
+ 			FunctionParameters([\`Float\`], [1.0])
  		};
  		
  		shared test async
@@ -296,18 +302,24 @@
  		}
  
  In the above example the function `testIdentity` will be called 3 times:
- * `testIdentity<String>(context, \"stringIdentity\");`
- * `testIdentity<Integer>(context, 1);`
- * `testIdentity<Float>(context, 1.0);`  
+ *		testIdentity<String>(context, \"stringIdentity\");
+ *		testIdentity<Integer>(context, 1);
+ *		testIdentity<Float>(context, 1.0);
  
- In order to run test with conventional (non-generic) function type parameter list has to be empty:
+ In order to run test with conventional (non-generic function) type parameters list has to be empty:
   		[Hobbit] who => [bilbo];
- 		{[[], [Dwarf]]*} dwarves => {[[], [fili]], [[], [kili]], [[], [balin]], [[], [dwalin]]...};
+ 		{FunctionParameters*} dwarves => {
+ 			FunctionParameters([], [fili]),
+ 			FunctionParameters([], [kili]),
+ 			FunctionParameters([], [balin],
+ 			FunctionParameters([], [dwalin]),
+ 			...
+ 		};
  		
  		arguments(`value who`)
  		class HobbitTester(Hobbit hobbit) {
  			shared test async
- 			parameterized(`value dwarves`, 2)
+ 			parameterized(`value dwarves`)
  			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
  				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
  				context.complete();
