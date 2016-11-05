@@ -81,10 +81,10 @@ shared annotation ArgumentsAnnotation arguments (
 
 "Annotation class for [[parameterized]]."
 since( "0.6.0" ) by( "Lis" )
-see( `function parameterized`, `class FunctionParameters` )
+see( `function parameterized`, `class TestVariant` )
 shared final annotation class ParameterizedAnnotation (
-	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
-	 contained a list of type parameters and a list of function arguments: `{[Type<Anything>[], Anything[]]*}`."
+	"The source function or value declaration. Which has to take no arguments and has to return a stream
+	 of test variants: `{TestVariant*}`."
 	shared FunctionOrValueDeclaration source,
 	"Maximum number of failed variants before stop. Unlimited if <= 0."
 	shared Integer maxFailedVariants
@@ -93,24 +93,19 @@ shared final annotation class ParameterizedAnnotation (
 {
 	
 	"Calls [[source]] to get type parameters and a function arguments stream."
-	Iterator<FunctionParameters> arguments() {
-		{FunctionParameters*}|Iterator<FunctionParameters> ret;
+	Iterator<TestVariant> arguments() {
 		switch ( source )
 		case ( is FunctionDeclaration ) {
-			ret = source.apply<{FunctionParameters*}|Iterator<FunctionParameters>,[]>()();
+			return source.apply<{TestVariant*},[]>()().iterator();
 		}
 		case ( is ValueDeclaration ) {
-			ret = source.apply<{FunctionParameters*}|Iterator<FunctionParameters>>().get();
-		}
-		if ( is {FunctionParameters*} ret ) {
-			return ret.iterator();
-		}
-		else {
-			return ret;
+			return source.apply<{TestVariant*}>().get().iterator();
 		}
 	}
 	
-	shared actual Iterator<TestVariant> variantsIterator() => TestVariantIterator( arguments(), maxFailedVariants );
+	"Returns test variant enumerator based on test variants extracted from `source`."
+	shared actual TestVariantEnumerator variants()
+			=> TestVariantIterator( arguments().next, maxFailedVariants );
 	
 }
 
@@ -118,22 +113,21 @@ shared final annotation class ParameterizedAnnotation (
 "Indicates that generic test function has to be called with given type parameters and arguments.  
  
  [[parameterized]] annotation takes two arguments:
- 1. Declaration of function or value which returns a stream of function parameters `{FunctionParameters*}`
-    or such stream iterator - `Iterator<FunctionParameters>`.
-    [[FunctionParameters]] contains a list of generic type parameters and a list of function arguments.
+ 1. Declaration of function or value which returns a stream of test variants `{TestVariant*}`.
+    Each [[TestVariant]] contains a list of generic type parameters and a list of function arguments.
  2. Number of failed variants to stop testing. Default is -1 which means no limit.
  
  The test function will be called a number of times equals to length of returned stream.
- Results of the each test call will be reported as separated test variant.   
+ Results of the each test call will be reported as separate test variant.   
  
  Example:
  
  		Value identity<Value>(Value argument) => argument;
  		
- 		{FunctionParameters*} identityArgs => {
- 			FunctionParameters([\`String\`], [\"stringIdentity\"]),
- 			FunctionParameters([\`Integer\`], [1]),
- 			FunctionParameters([\`Float\`], [1.0])
+ 		{TestVariant*} identityArgs => {
+ 			TestVariant([\`String\`], [\"stringIdentity\"]),
+ 			TestVariant([\`Integer\`], [1]),
+ 			TestVariant([\`Float\`], [1.0])
  		};
  		
  		shared test async
@@ -152,11 +146,11 @@ shared final annotation class ParameterizedAnnotation (
  
  In order to run test with conventional (non-generic function) type parameters list has to be empty:
   		[Hobbit] who => [bilbo];
- 		{FunctionParameters*} dwarves => {
- 			FunctionParameters([], [fili]),
- 			FunctionParameters([], [kili]),
- 			FunctionParameters([], [balin],
- 			FunctionParameters([], [dwalin]),
+ 		{TestVariant*} dwarves => {
+ 			TestVariant([], [fili]),
+ 			TestVariant([], [kili]),
+ 			TestVariant([], [balin],
+ 			TestVariant([], [dwalin]),
  			...
  		};
  		
@@ -172,13 +166,12 @@ shared final annotation class ParameterizedAnnotation (
  		
  In this example class `HobbitTester` is instantiated once with argument provided by value `who` and
  method `thereAndBackAgain` is called multiply times according to size of dwarves stream.  
- 
  "
-see( `class FunctionParameters` )
+see( `class TestVariant` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation ParameterizedAnnotation parameterized (
-	"The source function or value declaration. Which has to take no arguments and has to return a stream of tuples
-	 contained a list of type parameters and a list of arguments: `{[Type<Anything>[], Anything[]]*}`."
+	"The source function or value declaration. Which has to take no arguments and has to return
+	 a stream of test variants: `{TestVariant*}`."
 	FunctionOrValueDeclaration source,
 	"Maximum number of failed variants before stop. Unlimited if <= 0."
 	Integer maxFailedVariants = -1

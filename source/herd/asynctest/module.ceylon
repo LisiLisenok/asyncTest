@@ -264,32 +264,36 @@
  ### <a name=\"parameterized\"></a> Value- and type- parameterized testing
  
  In order to perform parameterized testing the test function has to be marked with annotation which supports
- [[TestVariantProvider]] interface. The interface has just a one function
- which provides an iterator of the test function parameters (generic type parameters and function arguments).  
+ [[TestVariantProvider]] interface. The interface has just a one method - `variants()`
+ which has to provide [[TestVariantEnumerator]] - enumerator of the test variants. The enumerator produces a stream
+ of the [[TestVariant]]'s and iterated just a once. The test will be performed using all variants the enumerator produces.  
  
- [[parameterized]] annotation satisfies [[TestVariantProvider]] interface and is intended to provide simple
- parameterized testing based on stream of function parameters.  
- The annotation is similar `ceylon.test::parameters` one but also provides generic type parameters.  
+ > Enumerator may be applied to generate next variant depending on results of already executed variants.  
+ > Each [[TestVariant]] contains a list of generic type parameters and a list of function arguments.  
  
- [[parameterized]] annotation takes two arguments:
- 1. Declaration of function or value which returns a stream of function parameters `{FunctionParameters*}`
-    or such stream iterator - `Iterator<FunctionParameters>`.
- 	[[FunctionParameters]] contains a list of generic type parameters and a list of function arguments.
- 2. Number of failed variants to stop testing. Default is -1 which means no limit.
+ 
+ #### [[parameterized]] annotation
+ satisfies [[TestVariantProvider]] interface and is intended to provide simple
+ parameterized testing based on collection of test variants. The annotation takes two arguments:  
+ 1. Declaration of function or value which returns a stream of test variants `{TestVariant*}`.
+ 2. Number of failed variants to stop testing. Default is -1 which means no limit.  
  
  The test will be performed using all parameters listed at the annotation
  a number of times equals to length of the given stream
  or while total number of failed variants not exceeds specified limit.
  Results of the each test call will be reported as separated test variant.  
+  
+ > [[parameterized]] annotation may occur multiple times at a given test function.  
  
- Example:
+ 
+ #### Example:
  
  		Value identity<Value>(Value argument) => argument;
  		
- 		{FunctionParameters*} identityArgs => {
- 			FunctionParameters([\`String\`], [\"stringIdentity\"]),
- 			FunctionParameters([\`Integer\`], [1]),
- 			FunctionParameters([\`Float\`], [1.0])
+ 		{TestVariant*} identityArgs => {
+ 			TestVariant([\`String\`], [\"stringIdentity\"]),
+ 			TestVariant([\`Integer\`], [1]),
+ 			TestVariant([\`Float\`], [1.0])
  		};
  		
  		shared test async
@@ -308,11 +312,11 @@
  
  In order to run test with conventional (non-generic function) type parameters list has to be empty:
   		[Hobbit] who => [bilbo];
- 		{FunctionParameters*} dwarves => {
- 			FunctionParameters([], [fili]),
- 			FunctionParameters([], [kili]),
- 			FunctionParameters([], [balin],
- 			FunctionParameters([], [dwalin]),
+ 		{TestVariant*} dwarves => {
+ 			TestVariant([], [fili]),
+ 			TestVariant([], [kili]),
+ 			TestVariant([], [balin],
+ 			TestVariant([], [dwalin]),
  			...
  		};
  		
@@ -330,11 +334,6 @@
  method `thereAndBackAgain` is called multiply times according to size of dwarves stream.
  According to second argument of `parameterized` annotation the test will be stopped
  if two different invoking of `thereAndBackAgain` with two different arguments report failure.  
-
-  
- > [[parameterized]] annotation may occur multiple times at a given test function.  
- 
- > Note: `ceylon.test::parameters` and `ceylon.test.engine.spi::ArgumentListProvider` are not supported!  
  
  
  -------------------------------------------

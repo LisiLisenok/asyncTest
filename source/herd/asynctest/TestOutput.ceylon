@@ -9,6 +9,7 @@ import ceylon.test.engine.spi {
 
 
 "Represents a one report."
+see( `class TestVariantResult` )
 since( "0.0.1" ) by( "Lis" )
 shared final class TestOutput (
 	"Test state of this report." shared TestState state,
@@ -24,8 +25,8 @@ shared final class TestOutput (
 since( "0.6.0" ) by( "Lis" )
 shared final class TestVariantResult (
 	"Outputs from test." shared TestOutput[] testOutput,
-	"Overall time in milliseconds elapsed on this test." shared Integer overallElapsedTime,
-	"Overall state of the execution." shared TestState overallState
+	"Overall time in milliseconds elapsed on the test run." shared Integer overallElapsedTime,
+	"Overall state of the test run." shared TestState overallState
 ) {
 	string => "``overallState`` at ``overallElapsedTime``ms.";
 }
@@ -37,7 +38,7 @@ final class VariantTestOutput (
 	"Outputs from test initialization." shared TestOutput[] initOutput,	
 	"Outputs from test." shared TestOutput[] testOutput,
 	"Outputs from test dispose." shared TestOutput[] disposeOutput,
-	"Total time elapsed on this test." shared Integer totalElapsedTime,
+	"Total time in ms elapsed on this test." shared Integer totalElapsedTime,
 	"The name of the variant." shared String variantName,
 	"Total state of the execution" shared TestState totalState
 ) {
@@ -54,6 +55,6 @@ since( "0.6.0" ) by( "Lis" )
 final class ExecutionTestOutput (
 	"Context the test is executed on." shared TestExecutionContext context, 
 	"Variants." shared VariantTestOutput[] variants,
-	"Time elapsed on test run" shared Integer elapsedTime,
+	"Time in ms elapsed on theexecution" shared Integer elapsedTime,
 	"Total state of the execution" shared TestState state
 ) {}

@@ -4,7 +4,7 @@ import ceylon.test {
 import herd.asynctest {
 	parameterized,
 	AsyncTestContext,
-	FunctionParameters
+	TestVariant
 }
 import herd.asynctest.match {
 	EqualObjects,
@@ -13,10 +13,10 @@ import herd.asynctest.match {
 
 
 "Parameters of [[testIdentity]]."
-{FunctionParameters*} identityArgs => {
-	FunctionParameters([`String`], ["stringIdentity"]),
-	FunctionParameters([`Integer`], [1]),
-	FunctionParameters([`Float`], [1.0])
+{TestVariant*} identityArgs => {
+	TestVariant([`String`], ["stringIdentity"]),
+	TestVariant([`Integer`], [1]),
+	TestVariant([`Float`], [1.0])
 };
 
 "Type parameterized test of `ceylon.language::identity<Value>`.
@@ -32,11 +32,11 @@ void testIdentity<Value>(AsyncTestContext context, Value arg)
 
 
 "Parameters of [[testLargest]]."
-{FunctionParameters*} largestArgs => {
-	FunctionParameters([`Integer`], [1, 2, 2]),
-	FunctionParameters([`Integer`], [3, 2, 3]),
-	FunctionParameters([`Float`], [1.0, 2.0, 2.0]),
-	FunctionParameters([`Float`], [2.5, 2.0, 2.5])
+{TestVariant*} largestArgs => {
+	TestVariant([`Integer`], [1, 2, 2]),
+	TestVariant([`Integer`], [3, 2, 3]),
+	TestVariant([`Float`], [1.0, 2.0, 2.0]),
+	TestVariant([`Float`], [2.5, 2.0, 2.5])
 };
 
 "Type parameterized test of `ceylon.language::largest<Element>`.
@@ -52,17 +52,17 @@ void testLargest<Element>(AsyncTestContext context, Element x, Element y, Elemen
 
 
 "Parameters of [[testSort]]."
-{FunctionParameters*} sortArgs => {
-	FunctionParameters([`Integer`], [[3, 2, 1], [1, 2, 3]]),
-	FunctionParameters([`Integer`], [[3, 2, 4, 1], [1, 2, 3, 4]]),
-	FunctionParameters([`Float`], [[2.5, 3.5, 1.5], [1.5, 2.5, 3.5]]),
-	FunctionParameters([`Float`], [[2.5, 3.5, 1.5, 4.5], [1.5, 2.5, 3.5, 4.5]])
+{TestVariant*} sortArgs => {
+	TestVariant([`Integer`], [[3, 2, 1], [1, 2, 3]]),
+	TestVariant([`Integer`], [[3, 2, 4, 1], [1, 2, 3, 4]]),
+	TestVariant([`Float`], [[2.5, 3.5, 1.5], [1.5, 2.5, 3.5]]),
+	TestVariant([`Float`], [[2.5, 3.5, 1.5, 4.5], [1.5, 2.5, 3.5, 4.5]])
 };
 
 "Parameters of [[testSort]]."
-{FunctionParameters*} sortArgsString => {
-	FunctionParameters([`String`], [["3", "2", "1"], ["1", "2", "3"]]),
-		FunctionParameters([`String`], [["abc", "ghi", "def"], ["abc", "def", "ghi"]])
+{TestVariant*} sortArgsString => {
+	TestVariant([`String`], [["3", "2", "1"], ["1", "2", "3"]]),
+	TestVariant([`String`], [["abc", "ghi", "def"], ["abc", "def", "ghi"]])
 };
 
 "Type parameterized test of `ceylon.language::sort<Element>`.

@@ -14,9 +14,7 @@ import ceylon.collection {
 "Extracts all annotations from which satisfies given `Return` type from the given declaration only."
 since( "0.0.1" ) by( "Lis" )
 Return[] findTypedAnnotations<Return>( AnnotatedDeclaration declaration ) {
-	ArrayList<Annotation> builder = ArrayList<Annotation>();
-	builder.addAll( declaration.annotations<Annotation>() );
-	return builder.narrow<Return>().sequence();
+	return declaration.annotations<Annotation>().narrow<Return>().sequence();
 }
 
 

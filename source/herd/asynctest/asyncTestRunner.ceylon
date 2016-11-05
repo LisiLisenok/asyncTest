@@ -143,10 +143,10 @@ object asyncTestRunner {
 	}
 	
 	
-	"Returns `true` if function runs async test == takes `AsyncTestContext` as first argument."
-	shared Boolean isAsyncDeclaration( FunctionDeclaration functionDeclaration ) {
+	"Returns `true` if function takes `firstArg` as first argument."
+	Boolean isFirstArgSatisfies( FunctionDeclaration functionDeclaration, InterfaceDeclaration firstArg ) {
 		if ( is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
-			argType.declaration == asyncContextDeclaration
+			argType.declaration == firstArg
 		) {
 			return true;
 		}
@@ -154,29 +154,17 @@ object asyncTestRunner {
 			return false;
 		}
 	}
+	
+	"Returns `true` if function runs async test == takes `AsyncTestContext` as first argument."
+	shared Boolean isAsyncDeclaration( FunctionDeclaration functionDeclaration )
+		=> isFirstArgSatisfies( functionDeclaration, asyncContextDeclaration );
 	
 	"Returns `true` if function runs async test initialization == takes `AsyncPrePostContext` as first argument."
-	shared Boolean isAsyncPrepostDeclaration( FunctionDeclaration functionDeclaration ) {
-		if ( is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
-			argType.declaration == prepostContextDeclaration
-		) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+	shared Boolean isAsyncPrepostDeclaration( FunctionDeclaration functionDeclaration )
+		=> isFirstArgSatisfies( functionDeclaration, prepostContextDeclaration );
 	
 	"Returns `true` if function runs async test initialization == takes `AsyncFactoryContext` as first argument."
-	shared Boolean isAsyncFactoryDeclaration( FunctionDeclaration functionDeclaration ) {
-		if ( is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
-			argType.declaration == factoryContextDeclaration
-		) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+	shared Boolean isAsyncFactoryDeclaration( FunctionDeclaration functionDeclaration )
+			=> isFirstArgSatisfies( functionDeclaration, factoryContextDeclaration );
 	
 }

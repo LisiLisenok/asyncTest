@@ -5,7 +5,7 @@ import herd.asynctest {
 	async,
 	arguments,
 	AsyncPrePostContext,
-	FunctionParameters
+	TestVariant
 }
 import ceylon.test {
 
@@ -25,16 +25,16 @@ import java.lang {
 
 
 
-shared {FunctionParameters*} testTimers => {
-		FunctionParameters([], [{{250}.repeat( 7 )}, 50]),
-		FunctionParameters([], [{{250, 350}.repeat( 5 )}, 50]),
-		FunctionParameters([], [{{250, 450, 200}.repeat( 4 )}, 50]),
-		FunctionParameters([], [{{250, 400, 450, 600, 820, 900}}, 50]),
-		FunctionParameters([], [{{250}.repeat( 7 ), {350}.repeat( 6 )}, 50]),
-		FunctionParameters([], [{{250, 350}.repeat( 7 ), {350, 280}.repeat( 6 )}, 50]),
-		FunctionParameters([], [{{250}.repeat( 7 ), {350}.repeat( 6 ), {300}.repeat( 5 )}, 50]),
-		FunctionParameters([], [{{250, 350}.repeat( 7 ), {400, 350}.repeat( 4 ), {350, 280}.repeat( 6 )}, 50])
-	};
+shared {TestVariant*} testTimers => {
+	TestVariant([], [{{250}.repeat( 7 )}, 50]),
+	TestVariant([], [{{250, 350}.repeat( 5 )}, 50]),
+	TestVariant([], [{{250, 450, 200}.repeat( 4 )}, 50]),
+	TestVariant([], [{{250, 400, 450, 600, 820, 900}}, 50]),
+	TestVariant([], [{{250}.repeat( 7 ), {350}.repeat( 6 )}, 50]),
+	TestVariant([], [{{250, 350}.repeat( 7 ), {350, 280}.repeat( 6 )}, 50]),
+	TestVariant([], [{{250}.repeat( 7 ), {350}.repeat( 6 ), {300}.repeat( 5 )}, 50]),
+	TestVariant([], [{{250, 350}.repeat( 7 ), {400, 350}.repeat( 4 ), {350, 280}.repeat( 6 )}, 50])
+};
 
 
 "Returns number of available cores."

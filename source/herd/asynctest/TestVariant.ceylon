@@ -2,32 +2,31 @@ import herd.asynctest.internal {
 	typeName,
 	stringify
 }
+import ceylon.language.meta.model {
+	Type
+}
 
 
-"Represents test variant:  
- * Provides test function generic type parameters and arguments.  
- * Takes results of the test variant run.  
- "
+"Represents test variant, i.e. test function generic type parameters and arguments.  "
 since( "0.6.0" ) by( "Lis" )
-shared interface TestVariant {
+shared class TestVariant (	
+	"Generic type parameters."
+	shared Type<Anything>[] parameters,
+	"Function arguments."
+	shared Anything[] arguments
+) {
 
-	"Test function parameters - generic type parameters and function arguments."
-	shared formal FunctionParameters parameters;
-	
-	"Notified when test is completed."
-	shared formal void completed( "Results of the test variant run." TestVariantResult result );
+	variable String? memoizedName = null;
 
-	"Returns a name of the variant.  
-	 By default name is <'type argument list'>('function argument list')"
-	shared default String variantName() {
+	String buildName() {
 		StringBuilder builder = StringBuilder();
 		
 		// add type parameters
-		variable Integer size = parameters.generic.size;
+		variable Integer size = parameters.size;
 		if ( size > 0 ) {
 			size --;
 			builder.append( "<" );
-			for( arg in parameters.generic.indexed ) {
+			for( arg in parameters.indexed ) {
 				builder.append( typeName( arg.item ) );
 				if( arg.key < size ) {
 					builder.append(", ");
@@ -37,10 +36,10 @@ shared interface TestVariant {
 		}
 		
 		// add function arguments
-		size = parameters.arguments.size - 1;
+		size = arguments.size - 1;
 		if ( size > -1 ) {
 			builder.append( "(" );
-			for( arg in parameters.arguments.indexed ) {
+			for( arg in arguments.indexed ) {
 				builder.append( stringify( arg.item ) );
 				if( arg.key < size ) {
 					builder.append(", ");
@@ -50,12 +49,24 @@ shared interface TestVariant {
 		}
 		return builder.string;
 	}
+	
+	"Returns a name of the variant.  
+	 By default name is <'type argument list'>('function argument list')"
+	shared default String variantName {
+		if ( exists m = memoizedName ) {
+			return m;
+		}
+		else {
+			String ret = buildName();
+			memoizedName = ret;
+			return ret;
+		}
+	}
 }
 
 
 "Test variant without any arguments."
 since( "0.6.0" ) by( "Lis" )
-object emptyTestVariant satisfies TestVariant {
-	shared actual FunctionParameters parameters = FunctionParameters( [],[] );
-	shared actual void completed(TestVariantResult result) {}
+object emptyTestVariant extends TestVariant( [], [] ) {
+	shared actual String variantName = "";
 }

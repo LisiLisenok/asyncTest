@@ -1,28 +1,28 @@
 import herd.asynctest {
 
-	FunctionParameters
+	TestVariant
 }
 
 
-{FunctionParameters*} comparisonStrings => {
-	FunctionParameters([], ["Frodo", "Frodo"]),
-	FunctionParameters([], ["Frodo", "Bilbo"]),
-	FunctionParameters([], ["Bilbo", "Frodo"]),
-	FunctionParameters([], ["Bilbo", "Bilbo"])
+{TestVariant*} comparisonStrings => {
+	TestVariant([], ["Frodo", "Frodo"]),
+	TestVariant([], ["Frodo", "Bilbo"]),
+	TestVariant([], ["Bilbo", "Frodo"]),
+	TestVariant([], ["Bilbo", "Bilbo"])
 };
 
 
-{FunctionParameters*} combinedComparisonStrings => {
-	FunctionParameters([], ["Frodo", "Bilbo", "Hobbit"]),
-	FunctionParameters([], ["Bilbo", "Frodo", "Hobbit"]),
-	FunctionParameters([], ["Hobbit", "Bilbo", "Frodo"])
+{TestVariant*} combinedComparisonStrings => {
+	TestVariant([], ["Frodo", "Bilbo", "Hobbit"]),
+	TestVariant([], ["Bilbo", "Frodo", "Hobbit"]),
+	TestVariant([], ["Hobbit", "Bilbo", "Frodo"])
 };
 
 
-{FunctionParameters*} subListStrings => {
-	FunctionParameters([], ["Frodo", "Frodo Hobbit"]),
-	FunctionParameters([], ["Frodo", "Hobbit Frodo"]),
-	FunctionParameters([], ["Frodo Hobbit", "Frodo"]),
-	FunctionParameters([], ["Frodo", "Bilbo Hobbit"]),
-	FunctionParameters([], ["Frodo Hobbit", "Hobbit"])
+{TestVariant*} subListStrings => {
+	TestVariant([], ["Frodo", "Frodo Hobbit"]),
+	TestVariant([], ["Frodo", "Hobbit Frodo"]),
+	TestVariant([], ["Frodo Hobbit", "Frodo"]),
+	TestVariant([], ["Frodo", "Bilbo Hobbit"]),
+	TestVariant([], ["Frodo Hobbit", "Hobbit"])
 };

@@ -69,15 +69,15 @@ class AsyncTestProcessor(
 	
 	"Returns test function to be run for the given test variant."
 	TestFunction getTestFunction( TestVariant variant ) {
-		value testFunction = applyFunction( *variant.parameters.generic );
+		value testFunction = applyFunction( *variant.parameters );
 		return TestFunction (
 			( AsyncTestContext context ) {
 				if ( runOnAsyncContext ) {
-					testFunction.apply( context, *variant.parameters.arguments );
+					testFunction.apply( context, *variant.arguments );
 				}
 				else {
 					// test function doesn't take async context - call it as sync and complete the execution
-					testFunction.apply( *variant.parameters.arguments );
+					testFunction.apply( *variant.arguments );
 					context.complete();
 				}
 			},
@@ -93,23 +93,16 @@ class AsyncTestProcessor(
 			// initialization has been failed
 			// run disposing, complete test variant and return results
 			value disposeErrs = prePostContext.run( cleaners );
-			variant.completed (
-				TestVariantResult( [], 0, TestState.aborted )
-			);
-			return VariantTestOutput( initErrs, [], disposeErrs, 0, variant.variantName(), TestState.aborted );
+			return VariantTestOutput( initErrs, [], disposeErrs, 0, variant.variantName, TestState.aborted );
 		}
 		else {
 			// run test
 			TestVariantResult output = tester.run( getTestFunction( variant ) );
-			// complete test variant
-			variant.completed( output );
 			
-			// run test statements which may add something to the test
+			// run test statements which may add something to the test report
 			value statementOuts = [ for ( statement in statements ) tester.run( statement ) ];
-			variable Integer totalElapsedTime = output.overallElapsedTime;
 			variable TestState totalState = output.overallState;
 			for ( item in statementOuts ) {
-				totalElapsedTime += item.overallElapsedTime;
 				if ( totalState < item.overallState ) { totalState = item.overallState; }
 			}
 			value variantOuts = output.testOutput.append( concatenate( *statementOuts*.testOutput ) );
@@ -118,33 +111,42 @@ class AsyncTestProcessor(
 			value disposeErrs = prePostContext.run( cleaners );
 			if ( !disposeErrs.empty && variantOuts.empty ) {
 				return VariantTestOutput (
-					[], [TestOutput( totalState, null, totalElapsedTime, "" )],
-					disposeErrs, totalElapsedTime, variant.variantName(), totalState
+					[], [TestOutput( totalState, null, output.overallElapsedTime, "" )],
+					disposeErrs, output.overallElapsedTime, variant.variantName, totalState
 				);
 			}
 			else {
 				return VariantTestOutput (
-					[], variantOuts, disposeErrs, totalElapsedTime, variant.variantName(), totalState
+					[], variantOuts, disposeErrs, output.overallElapsedTime, variant.variantName, totalState
 				);
 			}
 		}
 	}
 	
 	"Executes all variants for the given list of test variants (`parameters`)."
-	ExecutionTestOutput executeVariants( TestExecutionContext context, Iterator<TestVariant> parameters ) {
+	ExecutionTestOutput executeVariants( TestExecutionContext context, TestVariantEnumerator testParameters ) {
 		variable Integer startTime = system.milliseconds;
 		variable TestState state = TestState.skipped;
 		ArrayList<VariantTestOutput> variants = ArrayList<VariantTestOutput>();
-		 
+		
 		// for each argument in collection results are stored as separated test variant
-		while ( is TestVariant variant = parameters.next() ) {
+		while ( is TestVariant variant = testParameters.current ) {
+		 	// execute current variant
 		 	value executionResults = executeVariant( variant );
+		 	// store results
 			variants.add( executionResults );
+			// check total state
 			if ( state < executionResults.totalState ) {
 				state = executionResults.totalState;
 			}
-			// initialization or disposing has been failed - stop testing
-			if ( !executionResults.disposeOutput.empty || !executionResults.initOutput.empty ) {
+			if ( executionResults.disposeOutput.empty && executionResults.initOutput.empty ) {
+				// move to next test variant
+				testParameters.moveNext ( TestVariantResult (
+					executionResults.testOutput, executionResults.totalElapsedTime, executionResults.totalState
+				) );
+			}
+			else {
+				// initialization or disposing has been failed - stop testing
 				break;
 			}
 		}
