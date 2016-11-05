@@ -369,7 +369,7 @@
  All conditions at every level are evaluated before test execution started
  and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.  
  
- For a example, see `ceylon.test::ignore` annotation.
+ For an example, see `ceylon.test::ignore` annotation.
  
  
  -------------------------------------------
