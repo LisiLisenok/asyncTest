@@ -6,11 +6,14 @@ import herd.asynctest {
 }
 
 
-"Verifies if the stored value matches a given [[matcher]] when the statement is applied."
+"Verifies if the stored value matches a given [[matcher]] when the statement is applied
+ The initial value is evaluated _before_ each test. This is main difference with [[Verifier]]
+ which evaluates value _after_ each test. 
+ ."
 see( `function AsyncTestContext.assertThat`, `package herd.asynctest.match`, `class Verifier` )
 since( "0.6.0" ) by( "Lis" )
 shared class VerifyRule<Element> (
-	"Initial value." Element initial,
+	"Initial value source." Element | Element() initial,
 	"Matcher to verify stored value." Matcher<Element> matcher,
 	"Optional title to be shown within test name." String title = "",
 	"`True` if success to be reported otherwise only failure is reported." Boolean reportSuccess = false

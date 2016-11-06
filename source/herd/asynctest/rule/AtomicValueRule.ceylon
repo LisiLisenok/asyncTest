@@ -10,11 +10,12 @@ import herd.asynctest.internal {
 
 "Atomic reference on some value which is re-initialized to [[initial]] value each time the test is started."
 since( "0.6.0" ) by( "Lis" )
-shared class AtomicValueRule<Element>( "Initial value." Element initial )
+shared class AtomicValueRule<Element>( "Initial value source." Element|Element() initial )
 		satisfies TestRule
 {
 	
-	variable Atomic<Element> storage = instantiateAtomic( initial );
+	variable Atomic<Element> storage = if ( is Element() initial )
+			then instantiateAtomic( initial() ) else instantiateAtomic( initial );
 
 	
 	"An `Element` stored in the rule."
@@ -35,7 +36,9 @@ shared class AtomicValueRule<Element>( "Initial value." Element initial )
 	shared actual void after( AsyncPrePostContext context ) => context.proceed();
 	
 	shared actual void before( AsyncPrePostContext context ) {
-		storage = instantiateAtomic( initial );
+		storage = if ( is Element() initial )
+			then instantiateAtomic( initial() )
+			else instantiateAtomic( initial );
 		context.proceed();
 	}
 	

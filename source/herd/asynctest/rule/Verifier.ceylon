@@ -7,7 +7,8 @@ import herd.asynctest.match {
 
 
 "Verifies if element given by `source` matches to `matcher.  
- Actually `source` is called when the verifier is evaluated i.e. _after each_ test.  "
+ Actually `source` is called when the verifier is evaluated i.e. _after each_ test.
+ This is main difference to [[VerifyRule]] which evaluates `source` _before_ each test."
 see( `function AsyncTestContext.assertThat`, `package herd.asynctest.match`, `class VerifyRule` )
 since ( "0.6.0" ) by( "Lis" )
 shared class Verifier<Element> (
