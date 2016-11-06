@@ -8,18 +8,13 @@ import ceylon.language.meta.declaration {
 }
 import ceylon.test {
 
-	TestState,
-	TestDescription
+	TestState
 }
 
 import ceylon.language.meta.model {
 
 	Type,
 	Function
-}
-import ceylon.language.meta {
-
-	type
 }
 import ceylon.collection {
 
@@ -29,6 +24,10 @@ import ceylon.test.engine {
 
 	TestSkippedException
 }
+import ceylon.language.meta {
+	
+	type
+}
 
 
 "Processes test execution with the branch test generic parameters and function arguments."
@@ -36,16 +35,18 @@ since( "0.2.0" )
 by( "Lis" )
 class AsyncTestProcessor(
 	"Test function." FunctionDeclaration functionDeclaration,
-	"Object contained function or `null` if function is top level" Object? instance,
-	"Parent execution context." TestExecutionContext parent,
-	"Description the test performed on." TestDescription description,
+	"Object contained function or `null` if function is top level." Object? instance,
+	"Test execution context of this function." TestExecutionContext functionContext,
 	"Functions called before each test." PrePostFunction[] intializers,
 	"Functions called after each test and may add reportings." TestFunction[] statements,
-	"Functions called after each test." PrePostFunction[] cleaners,
-	"Time out for a one function run" Integer timeOutMilliseconds
+	"Functions called after each test." PrePostFunction[] cleaners
 ) {
 
+	"Type of the container instance."
 	Type<Object>? instanceType = if ( exists i = instance ) then type( i ) else null;
+	
+	"Time out for a one function run."
+	Integer timeOutMilliseconds = extractTimeout( functionDeclaration );
 
 	"`true` if test function is run on async test context."
 	Boolean runOnAsyncContext = asyncTestRunner.isAsyncDeclaration( functionDeclaration );
@@ -157,12 +158,11 @@ class AsyncTestProcessor(
 	
 	"Runs the test of a one function inlucding parameterization."
 	shared ExecutionTestOutput runTest() {
-		TestExecutionContext context = parent.childContext( description );
 		try {
-			if ( nonempty conditions = evaluateAnnotatedConditions( functionDeclaration, context ) ) {
+			if ( nonempty conditions = evaluateAnnotatedConditions( functionDeclaration, functionContext ) ) {
 				// test has been skipped due to unsatisfying some conditions
 				return ExecutionTestOutput (
-					context,
+					functionContext,
 					[VariantTestOutput( conditions, [], [], 0, "", TestState.skipped )],
 					0, TestState.skipped
 				);
@@ -171,12 +171,12 @@ class AsyncTestProcessor(
 				// test parameters - series of arguments
 				value argList = resolveParameterizedList( functionDeclaration );
 				// execute test
-				return executeVariants( context, argList );
+				return executeVariants( functionContext, argList );
 			}
 		}
 		catch ( TestSkippedException e ) {
 			return ExecutionTestOutput (
-				context, [ VariantTestOutput( [ TestOutput( TestState.skipped, e, 0, "" ) ],
+				functionContext, [ VariantTestOutput( [ TestOutput( TestState.skipped, e, 0, "" ) ],
 						[], [], 0, "", TestState.skipped ) ],
 				0, TestState.skipped
 			);
@@ -184,7 +184,7 @@ class AsyncTestProcessor(
 		}
 		catch ( Throwable e ) {
 			return ExecutionTestOutput (
-				context, [ VariantTestOutput( [ TestOutput( TestState.error, e, 0, "" ) ],
+				functionContext, [ VariantTestOutput( [ TestOutput( TestState.error, e, 0, "" ) ],
 					[], [], 0, "", TestState.error ) ],
 				0, TestState.error
 			);

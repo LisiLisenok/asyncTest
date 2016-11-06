@@ -20,8 +20,7 @@ import ceylon.language.meta.declaration {
 	FunctionDeclaration,
 	ClassDeclaration,
 	Package,
-	ValueDeclaration,
-	NestableDeclaration
+	ValueDeclaration
 }
 import ceylon.collection {
 
@@ -149,7 +148,10 @@ class TestGroupExecutor (
 	}
 	
 	"Runs all tests concurrently using fixed size thread pool with number of threads equal to number of available cores."
-	ExecutionTestOutput[] runConcurrently( "Instance of the test class." Object? instance ) {
+	ExecutionTestOutput[] runConcurrently (
+		"Instance of the test class." Object? instance,
+		"Type of the container." ClassOrInterface<Object>? instanceType
+	) {
 		Integer totalTests = executions.size;
 		if ( totalTests > 1 ) {
 			// array to store test results and lockerto synchronize results storing 
@@ -163,9 +165,8 @@ class TestGroupExecutor (
 				executor.execute (
 					ConcurrentTestRunner (
 						AsyncTestProcessor (
-							test.functionDeclaration, instance, groupContext, test.description,
-							[], [], [], // doesn't apply test rules - not working in concurent mode
-							extractTimeout( test.functionDeclaration )
+							test.functionDeclaration, instance, groupContext.childContext( test.description ),
+							[], [], [] // doesn't apply test rules - not working in concurent mode
 						),
 						latch, retLock, ret
 					)
@@ -178,8 +179,8 @@ class TestGroupExecutor (
 		else if ( exists first = executions.first ) {
 			// just a one function - run it in sequential mode
 			return [ AsyncTestProcessor (
-					first.functionDeclaration, instance, groupContext, first.description,
-					[], [], [], extractTimeout( first.functionDeclaration )
+					first.functionDeclaration, instance, groupContext.childContext( first.description ),
+					[], [], []
 				).runTest()
 			];
 		}
@@ -189,43 +190,20 @@ class TestGroupExecutor (
 	"Runs all tests sequentially."
 	ExecutionTestOutput[] runSequentially (
 		"Instance of the test class." Object? instance,
+		"Type of the container." ClassOrInterface<Object>? instanceType,
 		"Functions called before each test." PrePostFunction[] intializers,
 		"Statements called after each test - may modify test results." TestFunction[] statements,
 		"Functions called after each test." PrePostFunction[] cleaners
 	) {
 		return [ for ( test in executions )
 			AsyncTestProcessor (
-				test.functionDeclaration,
-				instance,
-				groupContext,
-				test.description,
-				intializers,
-				statements,
-				cleaners,
-				extractTimeout( test.functionDeclaration )
+				test.functionDeclaration, instance,
+				groupContext.childContext( test.description ),
+				intializers, statements, cleaners
 			).runTest()
 		];
 	}
 
-
-	"Returns `true` if test conditions are meet and `false` if test has to be skipped."
-	Boolean evaluateConditions() {
-		if ( nonempty conditions = evaluateContainerAnnotatedConditions( container, groupContext ) ) {
-			// skip all tests
-			skipGroupTest( conditions );
-			return false;
-		}
-		else {
-			return true;
-		}
-	}
-	
-	
-	"Extracts timeout for the declaration."
-	Integer extractTimeout( NestableDeclaration declaration ) {
-		return if ( exists ann = findFirstAnnotation<TimeoutAnnotation>( declaration ) )
-			then ann.timeoutMilliseconds else -1;
-	}
 	
 	"Extracts timeout from value and function name."
 	Integer extractTimeoutFromObject( ValueDeclaration val, String functionName ) {
@@ -403,6 +381,84 @@ class TestGroupExecutor (
 	}
 	
 	
+	"Runs test initializers. Returns `true` if successfull and `false` if errored.
+	 if errored fils test report with skipping."
+	Boolean runInitializers( Object? instance, ClassOrInterface<>? instanceType ) {
+		// overall test initializaers
+		value testRunInits =
+				if ( exists inst = instance )
+				then getAnnotatedPrepost<BeforeTestRunAnnotation>( instance, instanceType )
+					.append( getSuiteInitializers( instance, instanceType ) )
+				else getSuiteInitializers( null, null );
+		
+		// context used for initialization / disposing
+		PrePostContext prePostContext = PrePostContext();
+		
+		if ( nonempty initsRet = prePostContext.run ( testRunInits ) ) {
+			// test has been skipped by some initializer
+			// perform disposing and skip the test
+			value cleaners =
+					if ( exists inst = instance )
+					then getAnnotatedPrepost<AfterTestRunAnnotation>( instance, instanceType )
+						.append( getSuiteCleaners( instance, instanceType ) )
+					else getSuiteCleaners( null, null );
+			value clrRet = prePostContext.run( cleaners );
+			skipGroupTest( initsRet.append( clrRet ) );
+			return false;
+		}
+		else {
+			return true;
+		}		
+	}
+	
+	
+	"Runs test cleaners. Returns sequence of cleaners output."
+	TestOutput[] runCleaners( Object? instance, ClassOrInterface<>? instanceType ) {
+		// overall test cleaners
+		value cleaners =
+				if ( exists inst = instance )
+				then getAnnotatedPrepost<AfterTestRunAnnotation>( instance, instanceType )
+					.append( getSuiteCleaners( instance, instanceType ) )
+				else getSuiteCleaners( null, null );
+		// context used for initialization / disposing
+		PrePostContext prePostContext = PrePostContext();
+		// perform all test disposing
+		return prePostContext.run( cleaners );
+	}
+	
+	"Combines test execution reports with overall cleaners report."
+	ExecutionTestOutput[] combineTestReports (
+		"Report of tests." ExecutionTestOutput[] testReport,
+		"Report of overall cleaners." TestOutput[] disposeOut
+	) {
+		if ( disposeOut.empty ) {
+			// no errors during dispose phase - just report on results
+			return testReport;
+		}
+		else {
+			// Disposing failure - report on this
+			if ( is Package container ) {
+				// add dispose failures to each test function
+				return [ for ( o in testReport ) ExecutionTestOutput (
+						o.context,
+						o.variants.withTrailing( VariantTestOutput( [], [], disposeOut, 0, "", TestState.aborted ) ),
+						o.elapsedTime, o.state
+					) ];
+			}
+			else {
+				// test class - report dispose failures as variants for class
+				return testReport.withTrailing (
+					ExecutionTestOutput (
+						groupContext,
+						[VariantTestOutput( [], [], disposeOut, 0, "", TestState.aborted )],
+						0, TestState.aborted
+					)
+				);
+			}
+		}
+	}
+	
+	
 	"Adds new test to the group."
 	shared void addTest (
 		FunctionDeclaration functionDeclaration,
@@ -412,34 +468,17 @@ class TestGroupExecutor (
 	
 	"Runs tests in this group."
 	shared void run() {
-		if ( evaluateConditions() ) {
+		if ( nonempty conditions = evaluateContainerAnnotatedConditions( container, groupContext ) ) {
+			// skip all tests since some conditions haven't met requirements
+			skipGroupTest( conditions );
+		}
+		else {
 			try {
 				Integer startTime = system.milliseconds;
 				Object? instance = instantiate();
-				ClassOrInterface<>? instanceType = if ( exists i = instance ) then type( i ) else null;
-				// overall test initializaers
-				value testRunInits =
-						if ( exists inst = instance )
-						then getAnnotatedPrepost<BeforeTestRunAnnotation>( instance, instanceType )
-							.append( getSuiteInitializers( instance, instanceType ) )
-						else getSuiteInitializers( null, null );
-				// overall test cleaners
-				value cleaners =
-						if ( exists inst = instance )
-						then getAnnotatedPrepost<AfterTestRunAnnotation>( instance, instanceType )
-							.append( getSuiteCleaners( instance, instanceType ) )
-						else getSuiteCleaners( null, null );
+				ClassOrInterface<Object>? instanceType = if ( exists i = instance ) then type( i ) else null;
 				
-				// context used for initialization / disposing
-				PrePostContext prePostContext = PrePostContext();
-				
-				if ( nonempty initsRet = prePostContext.run ( testRunInits ) ) {
-					// test has been skipped by some initializer
-					// perform disposing and skip the test
-					value clrRet = prePostContext.run( cleaners );
-					skipGroupTest( initsRet.append( clrRet ) );
-				}
-				else {
+				if ( runInitializers( instance, instanceType ) ) {
 					// each test run initializers
 					value testInitializers = getAnnotatedPrepost<BeforeTestAnnotation>( instance, instanceType )
 							.append( getTestInitializers( instance, instanceType ) );
@@ -449,56 +488,24 @@ class TestGroupExecutor (
 					// test statements
 					value testStatements = getTestStatements( instance, instanceType );
 					
-					ExecutionTestOutput[] outs;
+					ExecutionTestOutput[] testReport;
 					// perform testing
 					if ( testInitializers.empty && testCleaners.empty && testStatements.empty && isConcurrent() ) {
-						outs = runConcurrently( instance );
+						testReport = runConcurrently( instance, instanceType );
 					}
 					else {
 						// if there are initializers, statements or cleaners the test can be performed only in sequential mode
 						// since cleaner may clear some resources which are required for parallel execution
 						// or must way completion which leads to the same sequential mode
-						outs = runSequentially (
-							instance, testInitializers, testStatements, testCleaners
+						testReport = runSequentially (
+							instance, instanceType, testInitializers, testStatements, testCleaners
 						);
 					}
 					
 					// perform all test disposing
-					value disposeOut = prePostContext.run( cleaners );
-					
-					if ( disposeOut.empty ) {
-						// no errors during dispose phase - just report on results
-						fillTestResults( outs, system.milliseconds - startTime );
-					}
-					else {
-						// Disposing failure - report on this
-						if ( is Package container ) {
-							// add dispose failures to each test function
-							fillTestResults (
-								[ for ( o in outs ) ExecutionTestOutput (
-									o.context,
-									o.variants.withTrailing ( VariantTestOutput (
-										[], [], disposeOut, 0, "", TestState.aborted
-									) ),
-									o.elapsedTime,
-									o.state
-								) ],
-								system.milliseconds - startTime
-							);
-						}
-						else {
-							// test class - report dispose failures as variants for class
-							fillTestResults ( outs.withTrailing (
-								ExecutionTestOutput (
-									groupContext,
-									[VariantTestOutput( [], [], disposeOut, 0, "", TestState.aborted )],
-									0,
-									TestState.aborted
-								) ),
-								system.milliseconds - startTime
-							);
-						}
-					}
+					value disposeOut = runCleaners( instance, instanceType );
+					// report on test results - use combined report of test execution and overall cleaners
+					fillTestResults( combineTestReports( testReport, disposeOut), system.milliseconds - startTime );
 				}
 			}
 			catch ( Throwable err ) {
