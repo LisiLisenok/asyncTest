@@ -32,8 +32,8 @@ import ceylon.test.engine.spi {
  #### Running
  
  To run the test using this executor apply [[async]] annotation at function, class, package or module level
- (alternatively, `ceylon.test::testExecutor` annotation with \`class AsyncTestExecutor\`
- argument may be applied).  
+ (alternatively, `ceylon.test::testExecutor` annotation with \\`\`class AsyncTestExecutor`\\`
+ argument is to be applied).  
  Following procedure is as usual for SDK `ceylon.test` module - mark tested functions with `ceylon.test::test` annotation
  and run test in IDE or command line.  
  

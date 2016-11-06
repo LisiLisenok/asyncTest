@@ -32,15 +32,14 @@
  ### Content  
  
  1. [Test procedure.](#procedure)   
- 2. [Test initialization and disposing.](#initialization)  
- 3. [Test rules.](#rules)  
- 4. [Instantiation the test container class.](#instantiation)  
- 5. [Test groups and concurrent execution.](#groups) 
- 6. [Value- and type- parameterized testing.](#parameterized)  
- 7. [Matchers.](#matchers)  
- 8. [Time out.](#timeout)  
- 9. [Conditional execution.](#conditions)  
- 10. [Reporting test results using charts.](#charts)  
+ 2. [Test initialization and disposing.](#initialization)   
+ 3. [Instantiation the test container class.](#instantiation)  
+ 4. [Test groups and concurrent execution.](#groups) 
+ 5. [Value- and type- parameterized testing.](#parameterized)  
+ 6. [Matchers.](#matchers)  
+ 7. [Time out.](#timeout)  
+ 8. [Conditional execution.](#conditions)  
+ 9. [Reporting test results using charts.](#charts)  
 
  
  -------------------------------------------
@@ -180,8 +179,7 @@
    to perform parameterized testing, see section [Value- and type- parameterized testing](#parameterized) below.  
  
  
- -------------------------------------------
- ### <a name=\"rules\"></a> Test rules
+ #### Test rules
  
  Test rules provide more flexible way for test initialization / disposing and for modification the test behaviour.
  See details in [[package herd.asynctest.rule]]. 
@@ -191,47 +189,10 @@
  ### <a name=\"instantiation\"></a> Instantiation the test container class
  
  Sometimes instantiation and initialization of the test container class requires
- some complex logic or some asynchronous operations. If the class declaration is marked with [[factory]] annotation
+ some complex logic or some asynchronous operations.
+ If the class declaration is marked with [[factory]] annotation
  a given factory function is used to instantiate the class.  
- 
- [[factory]] annotation takes two arguments: declaration of top-level factory function and declaration of top-level
- value or function returned stream of factory arguments. Additionally, the factory function may take [[AsyncFactoryContext]]
- as first argument or may not.  
- 
- If factory function takes [[AsyncFactoryContext]] as first argument it is executed asynchronously and may
- fill the context with instantiated object using [[AsyncFactoryContext.fill]]
- or may report on error using [[AsyncFactoryContext.abort]]. Test executor blocks the current thread until
- one of [[AsyncFactoryContext.fill]] or [[AsyncFactoryContext.abort]] is called.  
- Otherwise factory function doesn't take [[AsyncFactoryContext]] as first argument. It is executed synchronously
- and has to return instantiated existed object or throw an error.  
- 
- #### Example of synchronous instantiation:
- 
- 		[Integer] testUniverseSize = [1K];
- 		StarshipTest createStarshipTest(Integer universeSize) => StarshipTest(universeSize);
- 
- 		factory(`function createStarshipTest`, `value testUniverseSize`)
- 		class StarshipTest(Integer universeSize) {
- 			...
- 		} 		
- 
- #### Example of asynchronous instantiation:
- 
- 		[Integer] testUniverseSize = [1K];
- 		StarshipTest createStarshipTest(AsyncFactoryContext context, Integer universeSize) {
- 			context.fill(StarshipTest(universeSize));
- 		}
- 
- 		factory(`function createStarshipTest`, `value testUniverseSize`)
- 		class StarshipTest(Integer universeSize) {
- 			...
- 		} 		
- 
- 
- > Pay attention:  
- > Asynchronous version has to call [[AsyncFactoryContext.fill]] or [[AsyncFactoryContext.abort]].  
- > Synchronous version has to return non-optional object or throw.  
- 
+  
  If no factory function is provided instantiation is done using metamodel staff calling class initializer with arguments
  provided with [[arguments]] annotation or without arguments if the annotation is missed.  
  
@@ -253,9 +214,9 @@
  is used to execute functions in concurrent mode.  
  
  > If the container (package for top-level functions or class for methods) contains initializers or cleaners marked
-   with `ceylon.test::beforeTest` or `ceylon.test::afterTest` or have values marked with [[herd.asynctest.rule::testRule]]
+   with `ceylon.test::beforeTest` or `ceylon.test::afterTest` or contains values marked with [[herd.asynctest.rule::testRule]]
    sequential order is applied nevetherless exists [[concurrent]] annotation or not.  
- >  
+ 
  > Functions annotated with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` are executed _once_ before / after
    all test executions and have no influence on the test functions execution order.  
  
@@ -265,75 +226,44 @@
  
  In order to perform parameterized testing the test function has to be marked with annotation which supports
  [[TestVariantProvider]] interface. The interface has just a one method - `variants()`
- which has to provide [[TestVariantEnumerator]] - enumerator of the test variants. The enumerator produces a stream
- of the [[TestVariant]]'s and iterated just a once. The test will be performed using all variants the enumerator produces.  
+ which has to provide [[TestVariantEnumerator]]. The enumerator produces a stream
+ of the [[TestVariant]]'s and is iterated just a once.
+ The test will be performed using all variants the enumerator produces.  
  
  > Enumerator may be applied to generate next variant depending on results of already executed variants.  
  > Each [[TestVariant]] contains a list of generic type parameters and a list of function arguments.  
- 
- 
- #### [[parameterized]] annotation
- satisfies [[TestVariantProvider]] interface and is intended to provide simple
- parameterized testing based on collection of test variants. The annotation takes two arguments:  
- 1. Declaration of function or value which returns a stream of test variants `{TestVariant*}`.
- 2. Number of failed variants to stop testing. Default is -1 which means no limit.  
- 
- The test will be performed using all parameters listed at the annotation
- a number of times equals to length of the given stream
- or while total number of failed variants not exceeds specified limit.
- Results of the each test call will be reported as separated test variant.  
+
   
- > [[parameterized]] annotation may occur multiple times at a given test function.  
+ [[parameterized]] annotation satisfies [[TestVariantProvider]] interface and
+ provides parameterized testing based on collection of test variants.  
  
+ **Custom parameterization:**  
  
- #### Example:
+ 1. Implement [[TestVariantEnumerator]] interface:
+ 		class MyTestVariantEnumerator(...) satisfies TestVariantEnumerator {
+ 			shared actual TestVariant|Finished current => ...;
  
- 		Value identity<Value>(Value argument) => argument;
- 		
- 		{TestVariant*} identityArgs => {
- 			TestVariant([\`String\`], [\"stringIdentity\"]),
- 			TestVariant([\`Integer\`], [1]),
- 			TestVariant([\`Float\`], [1.0])
- 		};
- 		
- 		shared test async
- 		parameterized(\`value identityArgs\`)
- 		void testIdentity<Value>(AsyncTestContext context, Value arg)
- 			given Value satisfies Object
- 		{
- 			context.assertThat(identity<Value>(arg), EqualObjects<Value>(arg), \"\", true );
- 			context.complete();
- 		}
- 
- In the above example the function `testIdentity` will be called 3 times:
- *		testIdentity<String>(context, \"stringIdentity\");
- *		testIdentity<Integer>(context, 1);
- *		testIdentity<Float>(context, 1.0);
- 
- In order to run test with conventional (non-generic function) type parameters list has to be empty:
-  		[Hobbit] who => [bilbo];
- 		{TestVariant*} dwarves => {
- 			TestVariant([], [fili]),
- 			TestVariant([], [kili]),
- 			TestVariant([], [balin],
- 			TestVariant([], [dwalin]),
- 			...
- 		};
- 		
- 		arguments(`value who`)
- 		class HobbitTester(Hobbit hobbit) {
- 			shared test async
- 			parameterized(`value dwarves`)
- 			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
- 				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
- 				context.complete();
+ 			shared actual void moveNext(TestVariantResult result) {
+ 				if (testToBeCompleted) {
+ 					// set `current` to `finished`
+ 				} else {
+ 					// set `current` to test variant to be tested next
+ 				}
  			}
  		}
  		
- In this example class `HobbitTester` is instantiated once with argument provided by value `who` and
- method `thereAndBackAgain` is called multiply times according to size of dwarves stream.
- According to second argument of `parameterized` annotation the test will be stopped
- if two different invoking of `thereAndBackAgain` with two different arguments report failure.  
+ 2. Make an annotation which satisfies [[TestVariantProvider]] interface:
+ 		shared final annotation class MyParameterizedAnnotation(...)
+ 			satisfies SequencedAnnotation<MyParameterizedAnnotation, FunctionDeclaration>&TestVariantProvider
+ 		{
+ 			shared actual TestVariantEnumerator variants() => MyTestVariantEnumerator(...);
+ 		}
+ 		
+ 		shared annotation MyParameterizedAnnotation myParameterized(...) => MyParameterizedAnnotation(...);
+ 		
+ 
+ 3. Mark test function with created annotation:
+ 		myParameterized(...) void myTest(...) {...}
  
  
  -------------------------------------------

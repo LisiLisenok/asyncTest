@@ -7,7 +7,8 @@ import ceylon.language.meta.model {
 }
 
 
-"Represents test variant, i.e. test function generic type parameters and arguments.  "
+"Represents test variant, i.e. test function generic type parameters and arguments."
+see( `interface TestVariantEnumerator`, `interface TestVariantProvider` )
 since( "0.6.0" ) by( "Lis" )
 shared class TestVariant (	
 	"Generic type parameters."

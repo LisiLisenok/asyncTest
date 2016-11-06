@@ -5,6 +5,7 @@
  and performs testing according to provided variants.
  As example, see [[parameterized]].
  "
+see( `class TestVariant` )
 since( "0.6.0" ) by( "Lis" )
 shared interface TestVariantProvider {
 	"Returns enumerator on the test variants."

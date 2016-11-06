@@ -110,28 +110,31 @@ shared final annotation class ParameterizedAnnotation (
 }
 
 
-"Indicates that generic test function has to be called with given type parameters and arguments.  
+"Indicates that generic test function has to be executed with given test variants.  
  
- [[parameterized]] annotation takes two arguments:
- 1. Declaration of function or value which returns a stream of test variants `{TestVariant*}`.
-    Each [[TestVariant]] contains a list of generic type parameters and a list of function arguments.
- 2. Number of failed variants to stop testing. Default is -1 which means no limit.
+ The annotation provides parameterized testing based on collection of test variants.
+ It takes two arguments:  
+ 1. Declaration of function or value which returns a collection of test variants `{TestVariant*}`.
+ 2. Number of failed variants to stop testing. Default is -1 which means no limit.  
  
- The test function will be called a number of times equals to length of returned stream.
- Results of the each test call will be reported as separate test variant.   
+ The test will be performed using all test variants returned by the given stream
+ or while total number of failed variants not exceeds specified limit. 
  
- Example:
+ > [[parameterized]] annotation may occur multiple times at a given test function.  
+ 
+ 
+ #### Example:
  
  		Value identity<Value>(Value argument) => argument;
  		
  		{TestVariant*} identityArgs => {
- 			TestVariant([\`String\`], [\"stringIdentity\"]),
- 			TestVariant([\`Integer\`], [1]),
- 			TestVariant([\`Float\`], [1.0])
+ 			TestVariant([`String`], [\"stringIdentity\"]),
+ 			TestVariant([`Integer`], [1]),
+ 			TestVariant([`Float`], [1.0])
  		};
  		
  		shared test async
- 		parameterized(\`value identityArgs\`)
+ 		parameterized(`value identityArgs`)
  		void testIdentity<Value>(AsyncTestContext context, Value arg)
  			given Value satisfies Object
  		{
@@ -157,7 +160,7 @@ shared final annotation class ParameterizedAnnotation (
  		arguments(`value who`)
  		class HobbitTester(Hobbit hobbit) {
  			shared test async
- 			parameterized(`value dwarves`)
+ 			parameterized(`value dwarves`, 2)
  			void thereAndBackAgain(AsyncTestContext context, Dwarf dwarf) {
  				context.assertTrue(hobbit.thereAndBackAgain(dwarf)...);
  				context.complete();
@@ -165,7 +168,9 @@ shared final annotation class ParameterizedAnnotation (
  		}
  		
  In this example class `HobbitTester` is instantiated once with argument provided by value `who` and
- method `thereAndBackAgain` is called multiply times according to size of dwarves stream.  
+ method `thereAndBackAgain` is called multiply times according to size of `dwarves` stream.
+ According to second argument of `parameterized` annotation the test will be stopped
+ if two different invoking of `thereAndBackAgain` with two different arguments report failure.  
  "
 see( `class TestVariant` )
 since( "0.6.0" ) by( "Lis" )
@@ -201,12 +206,44 @@ shared final annotation class FactoryAnnotation (
 }
 
 
-"Indicates that class has to be instantiated using a given factory function.
- [[factoryFunction]] has to take arguments according to [[arguments]] or first argument of
- [[AsyncFactoryContext]] type followed with arguments returned by [[arguments]].
- If [[factoryFunction]] takes [[AsyncFactoryContext]] as first argument itis executed
- asynchronously and has to pass instantiated object according to [[AsyncFactoryContext]] contract.
- Otherwise it is execute synchronously and has to return instantiated object or throw if some error has been occurred.
+"Indicates that class has to be instantiated using a given factory function.  
+ [[factory]] annotation takes two arguments: declaration of top-level factory function and declaration of top-level
+ value or function returned stream of factory arguments. Additionally, the factory function may take [[AsyncFactoryContext]]
+ as first argument or may not.  
+ 
+ If factory function takes [[AsyncFactoryContext]] as first argument it is executed asynchronously and may
+ fill the context with instantiated object using [[AsyncFactoryContext.fill]]
+ or may report on error using [[AsyncFactoryContext.abort]]. Test executor blocks the current thread until
+ one of [[AsyncFactoryContext.fill]] or [[AsyncFactoryContext.abort]] is called.  
+ Otherwise factory function doesn't take [[AsyncFactoryContext]] as first argument. It is executed synchronously
+ and has to return instantiated non-optional object or throw an error.  
+ 
+ #### Example of synchronous instantiation:
+ 
+ 		[Integer] testUniverseSize = [1K];
+ 		StarshipTest createStarshipTest(Integer universeSize) => StarshipTest(universeSize);
+ 
+ 		factory(`function createStarshipTest`, `value testUniverseSize`)
+ 		class StarshipTest(Integer universeSize) {
+ 			...
+ 		} 		
+ 
+ #### Example of asynchronous instantiation:
+ 
+ 		[Integer] testUniverseSize = [1K];
+ 		StarshipTest createStarshipTest(AsyncFactoryContext context, Integer universeSize) {
+ 			context.fill(StarshipTest(universeSize));
+ 		}
+ 
+ 		factory(`function createStarshipTest`, `value testUniverseSize`)
+ 		class StarshipTest(Integer universeSize) {
+ 			...
+ 		} 		
+ 
+ 
+ > Pay attention:  
+ > Asynchronous version has to call [[AsyncFactoryContext.fill]] or [[AsyncFactoryContext.abort]].  
+ > Synchronous version has to return non-optional object or throw.  
  "
 see( `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
@@ -231,7 +268,10 @@ shared final annotation class ConcurrentAnnotation()
 {}
 
 
-"Indicates that all test functions of the marked container have to be run in conccurent mode."
+"Indicates that all test functions of the marked container have to be run in concurrent mode.  
+ The concurrentmode is not applied if test container (package or class) contains functions annotated with
+ `ceylon.test::beforeTest` or `ceylon.test::afterTest`
+ or contains values marked with [[herd.asynctest.rule::testRule]]."
 since( "0.6.0" ) by( "Lis" )
 shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
 
@@ -245,7 +285,10 @@ shared final annotation class TimeoutAnnotation( "Timeout in milliseconds." shar
 {}
 
 
-"Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted."
+"Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted.  
+ The annotation is applied to any function called using [[AsyncTestExecutor]]: initializers, cleaners, test rules,
+ factory and test functions.
+ "
 since( "0.6.0" ) by( "Lis" )
 shared annotation TimeoutAnnotation timeout( "Timeout in milliseconds." Integer timeoutMilliseconds )
 		=> TimeoutAnnotation( timeoutMilliseconds );

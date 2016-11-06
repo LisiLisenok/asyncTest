@@ -73,8 +73,8 @@ shared interface AsyncTestContext
 	
 	"Fails the test if [[source]] doesn't match [[matcher]] or succeeds the test otherwise.  
 	 Returns `promise` resolved with results of the matching.  
-	 If value source function throws or promise rejects corresponding failure is reported and returned promise is rejected
-	 with the failure."
+	 If value source function throws or promise rejects corresponding failure is reported
+	 and returned promise is rejected with the failure."
 	see( `package herd.asynctest.match`, `function assertThatListener` )
 	since( "0.4.0" )
 	shared formal Promise<MatchResult> assertThat<Value> (
