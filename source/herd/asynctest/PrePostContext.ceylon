@@ -31,12 +31,16 @@ import ceylon.language.meta.model {
 	IncompatibleTypeException,
 	InvocationException
 }
+import ceylon.language.meta.declaration {
+
+	FunctionDeclaration
+}
 
 
 "Performs initialization or disposing."
 since( "0.6.0" )
 by( "Lis" )
-class PrePostContext()
+class PrePostContext( "Currently tested function or `null` if prepost is global." FunctionDeclaration? testFunction )
 {
 	"Group to run functions if timeout specified."
 	ThreadGroup group = ThreadGroup( "asyncpreposttester" );
@@ -78,6 +82,8 @@ class PrePostContext()
 				outer.proceed();
 			}
 		}
+		
+		shared actual FunctionDeclaration? testFunction => outer.testFunction;
 	}
 	
 	

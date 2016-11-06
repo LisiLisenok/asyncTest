@@ -54,7 +54,7 @@ class AsyncTestProcessor(
 	"Tester to run a one function execution."
 	Tester tester = Tester();
 	"Init context to perform test initialization."
-	PrePostContext prePostContext = PrePostContext();
+	PrePostContext prePostContext = PrePostContext( functionDeclaration );
 	
 	
 	"Applies function from declaration, container and a given type parameters."

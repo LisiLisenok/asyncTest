@@ -1,4 +1,5 @@
 
+
 "Function which run before or after test."
 since( "0.6.0" ) by( "Lis" )
 class PrePostFunction (

@@ -233,9 +233,9 @@ class TestGroupExecutor (
 	}
 	
 	"Applies prepost function, may take arguments according to `ArgumentsAnnotation`."
-	PrePostFunction applyPrepostFunction( Object? instance, Function<Anything, Nothing> initFunction ) {
+	PrePostFunction applyPrepostFunction( Object? instance, Function<Anything, Nothing> prepostFunction ) {
 		// function declaration
-		value decl = initFunction.declaration;
+		value decl = prepostFunction.declaration;
 		// function arguments
 		value args = resolveArgumentList( decl );
 		// timeout
@@ -244,18 +244,18 @@ class TestGroupExecutor (
 		if ( asyncTestRunner.isAsyncPrepostDeclaration( decl ) ) {
 			return PrePostFunction (
 				( AsyncPrePostContext context ) {
-					initFunction.apply( context, *args );
+					prepostFunction.apply( context, *args );
 				},
-				timeOut, initFunction.declaration.name
+				timeOut, prepostFunction.declaration.name
 			);
 		}
 		else {
 			return PrePostFunction (
 				( AsyncPrePostContext context ) {
-					initFunction.apply( *args );
+					prepostFunction.apply( *args );
 					context.proceed();
 				},
-				timeOut, initFunction.declaration.name
+				timeOut, prepostFunction.declaration.name
 			);
 		}
 	}
@@ -392,8 +392,7 @@ class TestGroupExecutor (
 				else getSuiteInitializers( null, null );
 		
 		// context used for initialization / disposing
-		PrePostContext prePostContext = PrePostContext();
-		
+		PrePostContext prePostContext = PrePostContext( null );
 		if ( nonempty initsRet = prePostContext.run ( testRunInits ) ) {
 			// test has been skipped by some initializer
 			// perform disposing and skip the test
@@ -402,8 +401,7 @@ class TestGroupExecutor (
 					then getAnnotatedPrepost<AfterTestRunAnnotation>( instance, instanceType )
 						.append( getSuiteCleaners( instance, instanceType ) )
 					else getSuiteCleaners( null, null );
-			value clrRet = prePostContext.run( cleaners );
-			skipGroupTest( initsRet.append( clrRet ) );
+			skipGroupTest( initsRet.append( prePostContext.run( cleaners ) ) );
 			return false;
 		}
 		else {
@@ -421,7 +419,7 @@ class TestGroupExecutor (
 					.append( getSuiteCleaners( instance, instanceType ) )
 				else getSuiteCleaners( null, null );
 		// context used for initialization / disposing
-		PrePostContext prePostContext = PrePostContext();
+		PrePostContext prePostContext = PrePostContext( null );
 		// perform all test disposing
 		return prePostContext.run( cleaners );
 	}
