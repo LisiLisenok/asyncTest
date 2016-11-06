@@ -7,7 +7,7 @@ import java.util.concurrent.locks {
 
 "Tool for controlling access to a shared resource of `Element` type by multiple threads.  
  
- The resource value is set to `initial` _before_ each test.  
+ The resource value is re-initialized to `initial` _before_ each test.  
  
  To acquire lock and get access to resource use nested class `Lock` which satisfies
  `ceylon.language::Obtainable` interface and is intented to be used within `try` block:
@@ -31,25 +31,27 @@ since( "0.6.0" ) by( "Lis" )
 shared class LockAccessRule<Element>( Element | Element() initial ) satisfies TestRule
 {
 	
-	class Box( shared variable Element elem ) {}
+	class Box( shared variable Element elem ) {
+		ReentrantLock locker = ReentrantLock();
+		shared void lock() => locker.lock();
+		shared void unlock() => locker.unlock();
+	}
 	
 	variable Box stored = Box( if ( is Element() initial ) then initial() else initial );
-	
-	variable ReentrantLock lock = ReentrantLock();
 	
 	
 	"Locks the resource and provides access to."
 	shared class Lock() satisfies Obtainable {
 		Box box = stored;
 		variable Boolean locked = true;
-		lock.lock();
+		box.lock();
 		"Access to the shared resource."
 		shared variable Element element = box.elem;
-		lock.unlock();
+		box.unlock();
 		
 		shared actual void obtain() {
 			locked = true;
-			lock.lock();
+			box.lock();
 		}
 		
 		shared actual void release( Throwable? error ) {
@@ -57,7 +59,7 @@ shared class LockAccessRule<Element>( Element | Element() initial ) satisfies Te
 			assert ( locked );
 			box.elem = element;
 			locked = false;
-			lock.unlock();
+			box.unlock();
 		}
 		
 	}
@@ -66,7 +68,6 @@ shared class LockAccessRule<Element>( Element | Element() initial ) satisfies Te
 	
 	shared actual void before( AsyncPrePostContext context ) {
 		stored = Box( if ( is Element() initial ) then initial() else initial );
-		lock = ReentrantLock();
 		context.proceed();
 	}
 	

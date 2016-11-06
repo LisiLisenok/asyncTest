@@ -89,6 +89,7 @@ shared class ContextualRule<Element>( "Initial value source." Element | Element(
 	shared actual void after( AsyncPrePostContext context ) => context.proceed();
 	
 	shared actual void before( AsyncPrePostContext context ) {
+		localStack.set( null );
 		threadLocal = instantiateLocal();
 		context.proceed();
 	}
