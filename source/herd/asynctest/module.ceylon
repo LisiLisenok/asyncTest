@@ -101,7 +101,7 @@
  
 
  Test initializers and cleaners may take arguments (excepting a top-level function marked with `ceylon.test::beforeTestRun`
- and `ceylon.test::afterTestRun`which may take only no arguments):  
+ and `ceylon.test::afterTestRun` which may take only no arguments):  
  * According to [[arguments]] annotation. In this case the functions are executed as synchronous and
    may asserting or throw exceptions.  
  * First argument of [[AsyncPrePostContext]] type and other arguments according to [[arguments]] annotation.
@@ -182,7 +182,10 @@
  #### Test rules
  
  Test rules provide more flexible way for test initialization / disposing and for modification the test behaviour.
- See details in [[package herd.asynctest.rule]]. 
+ See details in [[package herd.asynctest.rule]].  
+ 
+ > Test rules are executed after functions marked with `ceylon.test::beforeTestRun`, `ceylon.test::afterTestRun`,
+   `ceylon.test::beforeTest` or `ceylon.test::afterTest` annotations.  
  
  
  -------------------------------------------

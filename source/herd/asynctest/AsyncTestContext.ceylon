@@ -18,7 +18,7 @@ import ceylon.promise {
  2. Notify test executor on test procedure completion (call [[AsyncTestContext.complete]]).
     This step is nesseccary to continue testing with next execution
     since test executor blocks execution thread until [[AsyncTestContext.complete]] is called.
- 	
+ 
  	
  Example of tested function:
  	test async
@@ -31,10 +31,10 @@ import ceylon.promise {
  		// complete testing
  		context.complete(\"title which is added to test variant name only if test is succeeded\");
  	}
- 	
  
- >It is _not_ required to notify with success,
-  if test function doesn't notify on failure the test is considered as successfull.
+ 
+ > It is _not_ required to notify with success,
+   if test function doesn't notify on failure the test is considered as successfull.
 
  
  ### Promises
@@ -49,8 +49,8 @@ import ceylon.promise {
  		).onComplete((MatchResult|Throwable result) => context.complete());
  
  
- >If `value` is passed to [[assertThat]] or [[assertThatException]] methods the matching operation is performed immediately
-  and methods return already fulfilled promise.
+ > If `value` is passed to [[assertThat]] or [[assertThatException]] methods the matching operation is performed immediately
+   and methods return already fulfilled promise.
  
  --------------------------------------------
  "
