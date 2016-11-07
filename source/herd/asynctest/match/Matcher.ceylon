@@ -19,7 +19,7 @@ shared interface Matcher<in Value> {
 	
 	
 	"Combines this matcher with another one using logical <i>and</i>,
-	 i.e. returns matcher which accepts if both `this` and `other` accept."
+	 i.e. returns matcher which accepts if all from `this` and `other` accept."
 	shared default Matcher<Value&Other> and<Other>( Matcher<Other>* other ) {
 		if ( nonempty other ) {
 			return AndMatcher<Value&Other>( [this, *other] );	
@@ -30,7 +30,7 @@ shared interface Matcher<in Value> {
 	}
 	
 	"Combines this matcher with another one using logical <i>or</i>,
-	 i.e. returns matcher which accepts if any `this` or `other` accepts."
+	 i.e. returns matcher which accepts if any from `this` and `other` accepts."
 	shared default Matcher<Value&Other> or<Other>( Matcher<Other>* other ) {
 		if ( nonempty other ) {
 			return OrMatcher<Value&Other>( [this, *other] );	
