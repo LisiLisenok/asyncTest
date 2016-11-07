@@ -40,6 +40,42 @@ shared class Identical<Value> (
 }
 
 
+"Checks value equality rules i.e.:
+ * reflexivity, x==x  
+ * symmetry, if x==y then y==x  
+ * trasitivity, if x==y and y==z then x==z  
+ 
+ In order to have value to compare to `clone` function is used which has to return new object
+ which has to be equal to the given.
+ "
+tagged( "Checkers" ) since( "0.6.0" ) by( "Lis" )
+shared class ValueEquality<Value> (
+	"Clones value to perform all required comparisons." Value clone( Value v )
+)
+	satisfies Matcher<Value>
+	given Value satisfies Object
+{
+	
+	shared actual MatchResult match( Value x ) {
+		Value y = clone( x );
+		Value z = clone( x );
+		"`ValueEquality` matcher: unappropriated clone method."
+		assert ( x == y && x == z );
+		return MatchResult( "reflexivity", x == x ).and (
+			MatchResult( "symmetry", x == y && y == x ),
+			MatchResult( "trasitivity", x == y && y == z && x == z )
+		);
+	}
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "value equality <``typeName( tVal )``>";
+	}
+	
+}
+
+
+
 "Verifies if matching value is equal to `merit` using given comparator."
 tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class EqualWith<Value> (

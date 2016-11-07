@@ -26,3 +26,17 @@ import herd.asynctest {
 	TestVariant([], ["Frodo", "Bilbo Hobbit"]),
 	TestVariant([], ["Frodo Hobbit", "Hobbit"])
 };
+
+
+{TestVariant*} valueEqualityString => {
+	TestVariant([], ["Frodo"]),
+	TestVariant([], ["Bilbo"]),
+	TestVariant([], ["Hobbit"])
+};
+
+
+{TestVariant*} valueEqualityInteger => {
+	TestVariant([], [1]),
+	TestVariant([], [2]),
+	TestVariant([], [3])
+};
