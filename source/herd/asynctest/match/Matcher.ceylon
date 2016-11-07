@@ -6,7 +6,7 @@
  Verification is performed using [[Matcher.match]] method. Result of verification
  is represented using [[MatchResult]].
  
- Matchers may be combined with each other using `and`, `or` and `xor` methods of [[Matcher]] interface.
+ Matchers may be combined with each other using `and` or `or` methods of [[Matcher]] interface.
  
  --------------------------------------------
  "
@@ -20,18 +20,26 @@ shared interface Matcher<in Value> {
 	
 	"Combines this matcher with another one using logical <i>and</i>,
 	 i.e. returns matcher which accepts if both `this` and `other` accept."
-	shared default Matcher<Value&Other> and<Other>( Matcher<Other> other )
-			=> AndMatcher<Value&Other>( this, other );
+	shared default Matcher<Value&Other> and<Other>( Matcher<Other>* other ) {
+		if ( nonempty other ) {
+			return AndMatcher<Value&Other>( [this, *other] );	
+		}
+		else {
+			return this;
+		}
+	}
 	
 	"Combines this matcher with another one using logical <i>or</i>,
 	 i.e. returns matcher which accepts if any `this` or `other` accepts."
-	shared default Matcher<Value&Other> or<Other>( Matcher<Other> other )
-			=> OrMatcher<Value&Other>( this, other );
-	
-	"Combines this matcher with another one using logical <i>xor</i>,
-	 i.e. returns matcher which accepts if only one from `this` and `other` accepts."
-	shared default Matcher<Value&Other> xor<Other>( Matcher<Other> other )
-			=> XorMatcher<Value&Other>( this, other );
+	shared default Matcher<Value&Other> or<Other>( Matcher<Other>* other ) {
+		if ( nonempty other ) {
+			return OrMatcher<Value&Other>( [this, *other] );	
+		}
+		else {
+			return this;
+		}
+	}
+
 	
 	"Reverted matcher using logical <i>not</i>,
 	 i.e. returns matcher which rejects if this accepts and visa versa."
@@ -43,45 +51,42 @@ shared interface Matcher<in Value> {
 
 "Combination of matchers with logical <i>and</i>."
 since( "0.4.0" ) by( "Lis" )
-class AndMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
+class AndMatcher<Value>( [Matcher<Value>+] matchers ) satisfies Matcher<Value> {
 	
 	shared actual MatchResult match( Value val ) {
-		value fMatch = first.match( val );
-		value sMatch = second.match( val );
-		return fMatch.and( sMatch );
+		value fMatch = matchers.first.match( val );
+		return fMatch.and( *matchers.rest*.match( val ) );
 	}
 	
-	shared actual String string => "(``first``) and (``second``)";
+	shared actual String string {
+		StringBuilder str = StringBuilder();
+		str.append( "(``matchers.first.string``)" );
+		for ( item in matchers.rest ) {
+			str.append( "&&(``item.string``)" );
+		}
+		return str.string;
+	}
 	
 }
 
 
 "Combination of matchers with logical <i>or</i>."
 since( "0.4.0" ) by( "Lis" )
-class OrMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
+class OrMatcher<Value>( [Matcher<Value>+] matchers ) satisfies Matcher<Value> {
 	
 	shared actual MatchResult match( Value val ) {
-		value fMatch = first.match( val );
-		value sMatch = second.match( val );
-		return fMatch.or( sMatch );
+		value fMatch = matchers.first.match( val );
+		return fMatch.or( *matchers.rest*.match( val ) );
 	}
 	
-	shared actual String string => "(``first``) or (``second``)";
-	
-}
-
-
-"Combination of matchers with logical <i>xor</i> - accepted if only one is accepted."
-since( "0.4.0" ) by( "Lis" )
-class XorMatcher<Value>( Matcher<Value> first, Matcher<Value> second ) satisfies Matcher<Value> {
-	
-	shared actual MatchResult match( Value val ) {
-		value fMatch = first.match( val );
-		value sMatch = second.match( val );
-		return fMatch.xor( sMatch );
+	shared actual String string {
+		StringBuilder str = StringBuilder();
+		str.append( "(``matchers.first.string``)" );
+		for ( item in matchers.rest ) {
+			str.append( "||(``item.string``)" );
+		}
+		return str.string;
 	}
-	
-	shared actual String string => "(``first``) xor (``second``)";
 	
 }
 
@@ -95,6 +100,6 @@ class NotMatcher<Value>( Matcher<Value> matcher ) satisfies Matcher<Value> {
 		return m.not();
 	}
 	
-	shared actual String string => "not(``matcher``)";
+	shared actual String string => "!``matcher``";
 	
 }

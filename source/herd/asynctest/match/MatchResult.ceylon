@@ -17,21 +17,27 @@ shared final class MatchResult (
 	shared actual String string
 		=> if ( accepted ) then "accepted->'``message``'" else "rejected->'``message``'";
 	
+	Boolean andBoolean( Boolean x, Boolean y ) => x && y;
+	Boolean orBoolean( Boolean x, Boolean y ) => x || y;
+	
+	"Combines the given matcher with others using `combine`."
+	MatchResult combineWith( String operationSymbol, Boolean(Boolean, Boolean) combine, MatchResult* other ) {
+		StringBuilder str = StringBuilder();
+		str.append( "(``string``)" );
+		variable Boolean ret = accepted;
+		for ( item in other ) {
+			str.append( "``operationSymbol``(``item.string``)" );
+			ret = combine( ret, item.accepted );
+		}
+		return MatchResult( "``str.string``", ret );
+	}
 	
 	"Combines this and other by `logical and`."
-	shared MatchResult and( MatchResult other )
-		=> MatchResult( "(``string``) and (``other.string``)", accepted && other.accepted );
+	shared MatchResult and( MatchResult* other ) => combineWith( "&&", andBoolean, *other );
 	
 	"Combines this and other by `logical or`."
-	shared MatchResult or( MatchResult other )
-		=> MatchResult( "(``string``) or (``other.string``)", accepted || other.accepted );
-	
-	"Combines this and other by `logical xor`."
-	shared MatchResult xor( MatchResult other )
-		=> MatchResult (
-			"(``string``) xor (``other.string``)",
-			( accepted || other.accepted ) && ( !accepted || !other.accepted )
-		);
+	shared MatchResult or( MatchResult* other ) => combineWith( "||", orBoolean, *other );
+
 	
 	"Reverts this matcher."
 	shared MatchResult not() => MatchResult( "not(``string``)", !accepted );
