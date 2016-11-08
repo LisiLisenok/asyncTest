@@ -100,10 +100,33 @@ shared class Within<Value> (
 }
 
 
+"Verifies if matching value is **not** within given range of `lower` to `upper` excluding bounds.
+ This is equal to lessOrEqual(lower).or(greaterOrEqual(upper))."
+tagged( "Comparators" ) since( "0.6.0" ) by( "Lis" )
+shared class NotWithin<Value> (
+	"Start range." Value lower,
+	"End range." Value upper
+)
+		satisfies Matcher<Value>
+		given Value satisfies Comparable<Value>
+{
+	shared actual MatchResult match( Value val )
+			=> MatchResult (
+		"``stringify( val )`` is not within ``stringify( lower )`` to ``stringify( upper )`` excluding bounds",
+		val <= lower || val >= upper
+	);
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "not within <``typeName( tVal )``>";
+	}
+}
+
+
 "Verifies if matching value is within given range of `lower` to `upper` including bounds.
  This is equal to greaterOrEqual(lower).and(lessOrEqual(upper))."
 tagged( "Comparators" ) since( "0.4.0" ) by( "Lis" )
-shared class Ranged<Value> (
+shared class InRange<Value> (
 	"Start range." Value lower,
 	"End range." Value upper
 )
@@ -116,6 +139,29 @@ shared class Ranged<Value> (
 			val >= lower && val <= upper
 		);
 
+	shared actual String string {
+		value tVal = `Value`;
+		return "range <``typeName( tVal )``>";
+	}
+}
+
+
+"Verifies if matching value is **not** within given range of `lower` to `upper` including bounds.
+ This is equal to less(lower).or(greater(upper))."
+tagged( "Comparators" ) since( "0.6.0" ) by( "Lis" )
+shared class NotInRange<Value> (
+	"Start range." Value lower,
+	"End range." Value upper
+)
+		satisfies Matcher<Value>
+		given Value satisfies Comparable<Value>
+{
+	shared actual MatchResult match( Value val )
+			=> MatchResult (
+		"``stringify( val )`` is noy within ``stringify( lower )`` to ``stringify( upper )`` including bounds",
+		val < lower && val > upper
+	);
+	
 	shared actual String string {
 		value tVal = `Value`;
 		return "range <``typeName( tVal )``>";

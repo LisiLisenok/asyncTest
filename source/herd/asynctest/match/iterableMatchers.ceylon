@@ -161,6 +161,33 @@ shared class Any<Value> (
 }
 
 
+"Verifies if matching stream of `Iterable` has at least a one element that satisfies the given matcher."
+tagged( "Streams" ) since( "0.6.0" ) by( "Lis" )
+shared class AnyOf<Value> (
+	"The matcher that at least one element of the matching stream must satisfy."
+	Matcher<Value> matcher
+)
+		satisfies Matcher<{Value*}>
+{
+	shared actual MatchResult match( {Value*} val ) {
+		if ( val.empty ) {
+			return MatchResult( "any from stream ``stringify( val )``", true );
+		}
+		for ( item in val ) {
+			if ( matcher.match( item ).accepted ) {
+				return MatchResult( "any from stream ``stringify( val )``", true );
+			}
+		}
+		return MatchResult( "any from stream ``stringify( val )``", false );
+	}
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "any from stream <``typeName( tVal )``>";
+	}
+}
+
+
 "Verifies if matching stream of `Iterable` has all elements satisfy the given predicate function."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class Every<Value> (
@@ -171,6 +198,33 @@ shared class Every<Value> (
 {
 	shared actual MatchResult match( {Value*} val )
 		=> MatchResult( "every from stream ``stringify( val )``", val.every( selecting ) );
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "every from stream <``typeName( tVal )``>";
+	}
+}
+
+
+"Verifies if matching stream of `Iterable` has all elements that satisfies the given matcher."
+tagged( "Streams" ) since( "0.6.0" ) by( "Lis" )
+shared class EveryOf<Value> (
+	"The matcher that all elements of the matching stream must satisfy."
+	Matcher<Value> matcher
+)
+		satisfies Matcher<{Value*}>
+{
+	shared actual MatchResult match( {Value*} val ) {
+		if ( val.empty ) {
+			return MatchResult( "every from stream ``stringify( val )``", true );
+		}
+		for ( item in val ) {
+			if ( !matcher.match( item ).accepted ) {
+				return MatchResult( "every from stream ``stringify( val )``", false );
+			}
+		}
+		return MatchResult( "every from stream ``stringify( val )``", true );
+	}
 	
 	shared actual String string {
 		value tVal = `Value`;
