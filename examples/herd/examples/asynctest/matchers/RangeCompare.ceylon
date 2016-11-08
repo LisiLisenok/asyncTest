@@ -4,7 +4,7 @@ import herd.asynctest.match {
 	GreaterOrEqual,
 	Less,
 	Greater,
-	Ranged,
+	InRange,
 	Within
 }
 import ceylon.test {
@@ -40,7 +40,7 @@ class RangeCompare() {
 		"Lower range bound." String lower,
 		"Upper range bound.." String upper
 	) {
-		context.assertThat( toCompare, Ranged( lower, upper ), "range", true );
+		context.assertThat( toCompare, InRange( lower, upper ), "range", true );
 		context.assertThat( toCompare, GreaterOrEqual( lower ).and( LessOrEqual( upper ) ), "check range", true );
 		
 		context.complete();
