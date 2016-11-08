@@ -22,14 +22,19 @@ shared final class MatchResult (
 	
 	"Combines the given matcher with others using `combine`."
 	MatchResult combineWith( String operationSymbol, Boolean(Boolean, Boolean) combine, MatchResult* other ) {
-		StringBuilder str = StringBuilder();
-		str.append( "(``string``)" );
-		variable Boolean ret = accepted;
-		for ( item in other ) {
-			str.append( "``operationSymbol``(``item.string``)" );
-			ret = combine( ret, item.accepted );
+		if ( other.empty ) {
+			return this;
 		}
-		return MatchResult( "``str.string``", ret );
+		else {
+			StringBuilder str = StringBuilder();
+			str.append( "(``string``)" );
+			variable Boolean ret = accepted;
+			for ( item in other ) {
+				str.append( "``operationSymbol``(``item.string``)" );
+				ret = combine( ret, item.accepted );
+			}
+			return MatchResult( "``str.string``", ret );
+		}
 	}
 	
 	"Combines this and other by `logical and`."
@@ -43,7 +48,7 @@ shared final class MatchResult (
 	shared MatchResult not() => MatchResult( "not(``string``)", !accepted );
 	
 	
-	shared actual Boolean equals(Object that) {
+	shared actual Boolean equals( Object that ) {
 		if ( is MatchResult that ) {
 			return message == that.message && accepted == that.accepted;
 		}
