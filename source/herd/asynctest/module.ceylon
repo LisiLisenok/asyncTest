@@ -34,7 +34,7 @@
  1. [Test procedure.](#procedure)   
  2. [Test initialization and disposing.](#initialization)   
  3. [Instantiation the test container class.](#instantiation)  
- 4. [Test groups and concurrent execution.](#groups) 
+ 4. [Test suites and concurrent execution.](#suites) 
  5. [Value- and type- parameterized testing.](#parameterized)  
  6. [Matchers.](#matchers)  
  7. [Time out.](#timeout)  
@@ -199,19 +199,21 @@
  If no factory function is provided instantiation is done using metamodel staff calling class initializer with arguments
  provided with [[arguments]] annotation or without arguments if the annotation is missed.  
  
- > Just a one instance of the test class is used for the overall test runcycle. This opens way to have some test relations.
-   Please, remember best-practices say the tests have to be independent.  
+ > Just a one instance of the test class is used for the overall test runcycle it may cause several misalignments:
+   1. Test relations. Please, remember best-practices say the tests have to be independent.  
+   2. Test isolation. If test class has some mutable properties next test may get results of previous one but not
+      purely initialized property! Always use test rules or initializers for such properties.  
  
  
  -------------------------------------------
- ### <a name=\"groups\"></a> Test groups and concurrent execution
+ ### <a name=\"suites\"></a> Test suites and concurrent execution
  
- Test functions are collected into groups, which are defined by:
+ Test functions are collected into suites, which are defined by:
  * `ClassDeclaration` for methods.
  * `Package` for top-level functions.
  
- The groups are always executed in sequential mode. By default test functions in each group are executed in
- sequential mode also. In order to execute functions within some group in concurrent mode
+ The suites are always executed in sequential mode. By default test functions in each suite are executed in
+ sequential mode also. In order to execute functions within some suite in concurrent mode
  mark a container (`ClassDeclaration`, `Package` or `Module`) with [[concurrent]] annotation.
  Thread pool with fixed number of threads eqauls to number of available processors (cores)
  is used to execute functions in concurrent mode.  

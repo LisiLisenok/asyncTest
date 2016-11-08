@@ -189,21 +189,12 @@ see( `function factory`, `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class FactoryAnnotation (
 	"Function used to instantiate anotated class.  
-	 Has to take arguments according to [[arguments]] or first argument of
-	 [[AsyncFactoryContext]] type followed with arguments returned by [[arguments]].
+	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.
 	 "
-	shared FunctionDeclaration factoryFunction,
-	"The source of factory function arguments function or value declaration.
-	 Which has to take no arguments and has to return a stream of values."
-	shared FunctionOrValueDeclaration arguments
+	shared FunctionDeclaration factoryFunction
 )
 		satisfies OptionalAnnotation<FactoryAnnotation, ClassDeclaration>
-{
-	
-	"Calls [[arguments]] to get argument stream."
-	shared Anything[] argumentList() => extractArgumentList( arguments );
-	
-}
+{	}
 
 
 "Indicates that class has to be instantiated using a given factory function.  
@@ -249,15 +240,11 @@ see( `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation FactoryAnnotation factory (
 	"Function used to instantiate anotated class.  
-	 Has to take arguments according to [[arguments]] or first argument of
-	 [[AsyncFactoryContext]] type followed with arguments returned by [[arguments]].
+	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.
 	 "
-	FunctionDeclaration factoryFunction,
-	"The source of factory function arguments function or value declaration.
-	 Which has to take no arguments and has to return a stream of values."
-	FunctionOrValueDeclaration arguments
+	FunctionDeclaration factoryFunction
 	
-) => FactoryAnnotation( factoryFunction, arguments );
+) => FactoryAnnotation( factoryFunction );
 
 
 "Annotation class for [[concurrent]]."

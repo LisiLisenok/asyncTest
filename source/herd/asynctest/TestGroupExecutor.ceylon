@@ -99,18 +99,23 @@ class TestGroupExecutor (
 					if ( asyncTestRunner.isAsyncFactoryDeclaration( factory.factoryFunction ) ) {
 						return FactoryContext( "``factory.factoryFunction.name``" ).run (
 							( AsyncFactoryContext context ) {
-								factory.factoryFunction.apply<>().apply( context, *factory.argumentList() );
+								factory.factoryFunction.apply<>().apply( context );
 							},
 							extractTimeout( factory.factoryFunction )
 						);
 					}
 					else {
-						if ( exists ret = factory.factoryFunction.apply<>().apply( *factory.argumentList() ) ) {
-							return ret;
-						}
-						else {
-							throw AssertionError( "factory ``factory.factoryFunction`` returns `null`" );
-						}
+						return FactoryContext( "``factory.factoryFunction.name``" ).run (
+							( AsyncFactoryContext context ) {
+								if ( exists ret = factory.factoryFunction.apply<>().apply() ) {
+									context.fill( ret );
+								}
+								else {
+									context.abort( FactoryReturnsNothing( "``factory.factoryFunction.name``" ) );
+								}
+							},
+							extractTimeout( factory.factoryFunction )
+						);
 					}
 				}
 				else {
