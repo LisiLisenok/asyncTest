@@ -40,13 +40,14 @@ shared class Identical<Value> (
 }
 
 
-"Checks value equality rules i.e.:
+"The matcher is useful to test classes which implements `eqauls` method. It verifies value equality rules i.e.:
  * reflexivity, x==x  
  * symmetry, if x==y then y==x  
  * trasitivity, if x==y and y==z then x==z  
+ * \'hashivity\', if x==y then x.hash==y.hash
  
  In order to have value to compare to `clone` function is used which has to return new object
- which has to be equal to the given.
+ which has to be equal to the given one.
  "
 tagged( "Checkers" ) since( "0.6.0" ) by( "Lis" )
 shared class ValueEquality<Value> (
@@ -59,12 +60,16 @@ shared class ValueEquality<Value> (
 	shared actual MatchResult match( Value x ) {
 		Value y = clone( x );
 		Value z = clone( x );
-		"`ValueEquality` matcher: unappropriated clone method."
-		assert ( x == y && x == z );
-		return MatchResult( "reflexivity", x == x ).and (
-			MatchResult( "symmetry", x == y && y == x ),
-			MatchResult( "trasitivity", x == y && y == z && x == z )
-		);
+		if ( x == y && x == z ) {
+			return MatchResult( "reflexivity", x == x ).and (
+				MatchResult( "symmetry", y == x ),
+				MatchResult( "trasitivity", y == z ),
+				MatchResult( "\'hashivity\'", x.hash == y.hash )
+			);
+		}
+		else {
+			return MatchResult( "`ValueEquality` matcher: clone method has to return equal object.", false );
+		}
 	}
 	
 	shared actual String string {
@@ -73,7 +78,6 @@ shared class ValueEquality<Value> (
 	}
 	
 }
-
 
 
 "Verifies if matching value is equal to `merit` using given comparator."
