@@ -235,7 +235,7 @@
  of the [[TestVariant]]'s and is iterated just a once.
  The test will be performed using all variants the enumerator produces.  
  
- > Enumerator may be applied to generate next variant depending on results of already executed variants.  
+ > The enumerator may return test variants lazily, dynamicaly or even non-determenisticaly.  
  > Each [[TestVariant]] contains a list of generic type parameters and a list of function arguments.  
 
   

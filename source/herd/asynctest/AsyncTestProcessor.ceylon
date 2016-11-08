@@ -54,7 +54,7 @@ class AsyncTestProcessor(
 	"Tester to run a one function execution."
 	Tester tester = Tester();
 	"Init context to perform test initialization."
-	PrePostContext prePostContext = PrePostContext( functionDeclaration );
+	PrePostContext prePostContext = PrePostContext();
 	
 	
 	"Applies function from declaration, container and a given type parameters."
@@ -90,10 +90,13 @@ class AsyncTestProcessor(
 	 Returns output from this variant."
 	VariantTestOutput executeVariant( TestVariant variant ) {
 		// run initializers firstly
-		if ( nonempty initErrs = prePostContext.run( intializers ) ) {
+		TestInfo testInfo = TestInfo (
+			functionDeclaration, variant.parameters, variant.arguments, variant.variantName, timeOutMilliseconds
+		);
+		if ( nonempty initErrs = prePostContext.run( intializers, testInfo ) ) {
 			// initialization has been failed
 			// run disposing, complete test variant and return results
-			value disposeErrs = prePostContext.run( cleaners );
+			value disposeErrs = prePostContext.run( cleaners, testInfo );
 			return VariantTestOutput( initErrs, [], disposeErrs, 0, variant.variantName, TestState.aborted );
 		}
 		else {
@@ -109,7 +112,7 @@ class AsyncTestProcessor(
 			value variantOuts = output.testOutput.append( concatenate( *statementOuts*.testOutput ) );
 			
 			// run cleaners
-			value disposeErrs = prePostContext.run( cleaners );
+			value disposeErrs = prePostContext.run( cleaners, testInfo );
 			if ( !disposeErrs.empty && variantOuts.empty ) {
 				return VariantTestOutput (
 					[], [TestOutput( totalState, null, output.overallElapsedTime, "" )],

@@ -31,16 +31,12 @@ import ceylon.language.meta.model {
 	IncompatibleTypeException,
 	InvocationException
 }
-import ceylon.language.meta.declaration {
-
-	FunctionDeclaration
-}
 
 
 "Performs initialization or disposing."
 since( "0.6.0" )
 by( "Lis" )
-class PrePostContext( "Currently tested function or `null` if prepost is global." FunctionDeclaration? testFunction )
+class PrePostContext()
 {
 	"Group to run functions if timeout specified."
 	ThreadGroup group = ThreadGroup( "asyncpreposttester" );
@@ -60,7 +56,8 @@ class PrePostContext( "Currently tested function or `null` if prepost is global.
 	"Provides prepost context to clients.  
 	 Delegates reporting to `outer` until `stop` called."
 	class InternalContext (	
-			"Title for the currently run function." String currentFunction
+			"Title for the currently run function." String currentFunction,
+			shared actual TestInfo? testInfo
 	) satisfies AsyncPrePostContext {
 		AtomicBoolean running = AtomicBoolean( true );
 		
@@ -83,7 +80,6 @@ class PrePostContext( "Currently tested function or `null` if prepost is global.
 			}
 		}
 		
-		shared actual FunctionDeclaration? testFunction => outer.testFunction;
 	}
 	
 	
@@ -128,9 +124,9 @@ class PrePostContext( "Currently tested function or `null` if prepost is global.
 	}
 	
 	"Runs prepost function in separated thread and controls timeout."
-	void runWithTimeout( PrePostFunction init ) {
+	void runWithTimeout( PrePostFunction init, TestInfo? testInfo ) {
 		CountDownLatch latch = CountDownLatch( 1 );
-		InternalContext context = InternalContext( init.functionTitle );
+		InternalContext context = InternalContext( init.functionTitle, testInfo );
 		ExecutionThread thr = ExecutionThread (
 			group, "asyncpreposttester",
 			() {
@@ -154,14 +150,17 @@ class PrePostContext( "Currently tested function or `null` if prepost is global.
 	}
 	
 	"Runs prepost process. Returns errors if occured."
-	shared TestOutput[] run( PrePostFunction[] inits ) {
+	shared TestOutput[] run (
+		"Function to be preposted" PrePostFunction[] inits,
+		"Info about current test or `null` if prepost is global." TestInfo? testInfo 
+	) {
 		for ( init in inits ) {
 			running.set( true );
 			if ( init.timeOutMilliseconds > 0 ) {
-				runWithTimeout( init );
+				runWithTimeout( init, testInfo );
 			}
 			else {
-				InternalContext context = InternalContext( init.functionTitle );
+				InternalContext context = InternalContext( init.functionTitle, testInfo );
 				try { runFunction( init, context ); }
 				catch ( Throwable err ) { context.abort( err, err.message ); }
 				context.stop();

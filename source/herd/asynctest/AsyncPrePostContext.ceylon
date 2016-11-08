@@ -1,7 +1,3 @@
-import ceylon.language.meta.declaration {
-
-	FunctionDeclaration
-}
 import herd.asynctest.rule {
 
 	SuiteRule,
@@ -13,7 +9,7 @@ import herd.asynctest.rule {
  
  Prepost function has to call [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]]
  when initialization or disposing is completed or errored, correspondently.  
- The test xecutor blocks execution thread until [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]] is called.
+ The test executor blocks execution thread until [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]] is called.
  
  See details about test initialization / disposing in [[module herd.asynctest]].
  "
@@ -27,10 +23,10 @@ shared interface AsyncPrePostContext {
 	"Aborts the test initialization or disposing."
 	shared formal void abort( Throwable reason, String title = "" );
 	
-	"Currently tested function:  
-	 `null` if context is submitted to [[SuiteRule]] or function annotated with
-	 `ceylon.test.beforeTestRun` or `ceylon.test.afterTestRun`.  
-	 non-null if context is submitted to [[TestRule]] or function annotated with
-	 `ceylon.test.beforeTest` or `ceylon.test.afterTest`."
-	shared formal FunctionDeclaration? testFunction;
+	"Information about current test:  
+	 * `null` if context is submitted to [[SuiteRule]] or function annotated with
+	   `ceylon.test.beforeTestRun` or `ceylon.test.afterTestRun`.  
+	 *  non-null if context is submitted to [[TestRule]] or function annotated with
+	   `ceylon.test.beforeTest` or `ceylon.test.afterTest`."
+	shared formal TestInfo? testInfo;
 }

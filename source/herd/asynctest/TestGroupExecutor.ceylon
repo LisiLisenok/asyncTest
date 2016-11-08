@@ -397,8 +397,8 @@ class TestGroupExecutor (
 				else getSuiteInitializers( null, null );
 		
 		// context used for initialization / disposing
-		PrePostContext prePostContext = PrePostContext( null );
-		if ( nonempty initsRet = prePostContext.run ( testRunInits ) ) {
+		PrePostContext prePostContext = PrePostContext();
+		if ( nonempty initsRet = prePostContext.run ( testRunInits, null ) ) {
 			// test has been skipped by some initializer
 			// perform disposing and skip the test
 			value cleaners =
@@ -406,7 +406,7 @@ class TestGroupExecutor (
 					then getAnnotatedPrepost<AfterTestRunAnnotation>( instance, instanceType )
 						.append( getSuiteCleaners( instance, instanceType ) )
 					else getSuiteCleaners( null, null );
-			skipGroupTest( initsRet.append( prePostContext.run( cleaners ) ) );
+			skipGroupTest( initsRet.append( prePostContext.run( cleaners, null ) ) );
 			return false;
 		}
 		else {
@@ -424,9 +424,9 @@ class TestGroupExecutor (
 					.append( getSuiteCleaners( instance, instanceType ) )
 				else getSuiteCleaners( null, null );
 		// context used for initialization / disposing
-		PrePostContext prePostContext = PrePostContext( null );
+		PrePostContext prePostContext = PrePostContext();
 		// perform all test disposing
-		return prePostContext.run( cleaners );
+		return prePostContext.run( cleaners, null );
 	}
 	
 	"Combines test execution reports with overall cleaners report."
