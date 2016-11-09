@@ -171,7 +171,7 @@ class AsyncTestProcessor(
 			}
 			else {
 				// test parameters - series of arguments
-				value argList = resolveParameterizedList( functionDeclaration );
+				value argList = resolveParameterizedList( functionDeclaration, instance );
 				// execute test
 				return executeVariants( functionContext, argList );
 			}

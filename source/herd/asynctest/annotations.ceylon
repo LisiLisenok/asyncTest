@@ -15,6 +15,10 @@ import ceylon.test {
 
 	testExecutor
 }
+import ceylon.language.meta {
+
+	type
+}
 
 
 "The same as `testExecutor(`\`class AsyncTestExecutor\``)`"
@@ -24,30 +28,36 @@ shared annotation TestExecutorAnnotation async() => testExecutor(`class AsyncTes
 
 "Calls [[source]] to get argument stream."
 since( "0.6.0" ) by( "Lis" )
-Anything[] extractArgumentList( FunctionOrValueDeclaration source ) {
+Result extractArgumentList<Result>( FunctionOrValueDeclaration source, Object? instance ) {
 	switch ( source )
 	case ( is FunctionDeclaration ) {
-		return source.apply<Anything[], []>()();
+		return if ( !source.toplevel, exists instance ) 
+			then source.memberApply<Nothing, Result, []>( type( instance ) ).bind( instance )()
+			else source.apply<Result, []>()();
 	}
 	case ( is ValueDeclaration ) {
-		return source.apply<Anything[]>().get();
+		return if ( !source.toplevel, exists instance ) 
+		then source.memberApply<Nothing, Result>( type( instance ) ).bind( instance ).get()
+		else source.apply<Result>().get();
 	}
 }
-
 
 
 "Annotation class for [[arguments]]."
 see( `function arguments` )
 since( "0.5.0" ) by( "Lis" )
 shared final annotation class ArgumentsAnnotation (
-	"The source function or value declaration. Which has to take no arguments and has to return a stream of values."
+	"The source function or value declaration. Which has to take no arguments and has to return a stream of values.
+	 The source may be either top-level or tested class shared member."
 	shared FunctionOrValueDeclaration source
 )
 		satisfies OptionalAnnotation<ArgumentsAnnotation, ClassDeclaration|FunctionDeclaration>
 {
 	
 	"Calls [[source]] to get argument stream."
-	shared Anything[] argumentList() => extractArgumentList( source );
+	shared Anything[] argumentList (
+		"Instance of the test class or `null` if test is performed using top-level function." Object? instance
+	) => extractArgumentList<Anything[]>( source, instance );
 	
 }
 
@@ -72,7 +82,8 @@ shared final annotation class ArgumentsAnnotation (
  "
 since( "0.5.0" ) by( "Lis" )
 shared annotation ArgumentsAnnotation arguments (
-	"The source function or value declaration. Which has to take no arguments and has to return a stream of values."
+	"The source function or value declaration. Which has to take no arguments and has to return a stream of values.
+	 The source may be either top-level or tested class shared member."
 	FunctionOrValueDeclaration source
 )
 		=> ArgumentsAnnotation( source );
@@ -84,7 +95,8 @@ since( "0.6.0" ) by( "Lis" )
 see( `function parameterized`, `class TestVariant` )
 shared final annotation class ParameterizedAnnotation (
 	"The source function or value declaration. Which has to take no arguments and has to return a stream
-	 of test variants: `{TestVariant*}`."
+	 of test variants: `{TestVariant*}`.  
+	 The source may be either top-level or tested class shared member."
 	shared FunctionOrValueDeclaration source,
 	"Maximum number of failed variants before stop. Unlimited if <= 0."
 	shared Integer maxFailedVariants
@@ -92,20 +104,12 @@ shared final annotation class ParameterizedAnnotation (
 		satisfies SequencedAnnotation<ParameterizedAnnotation, FunctionDeclaration> & TestVariantProvider
 {
 	
-	"Calls [[source]] to get type parameters and a function arguments stream."
-	Iterator<TestVariant> arguments() {
-		switch ( source )
-		case ( is FunctionDeclaration ) {
-			return source.apply<{TestVariant*},[]>()().iterator();
-		}
-		case ( is ValueDeclaration ) {
-			return source.apply<{TestVariant*}>().get().iterator();
-		}
-	}
-	
 	"Returns test variant enumerator based on test variants extracted from `source`."
-	shared actual TestVariantEnumerator variants()
-			=> TestVariantIterator( arguments().next, maxFailedVariants );
+	shared actual TestVariantEnumerator variants( Object? instance )
+		=> TestVariantIterator (
+			extractArgumentList<{TestVariant*}>( source, instance ).iterator().next,
+			maxFailedVariants
+		);
 	
 }
 
@@ -176,7 +180,8 @@ see( `class TestVariant` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation ParameterizedAnnotation parameterized (
 	"The source function or value declaration. Which has to take no arguments and has to return
-	 a stream of test variants: `{TestVariant*}`."
+	 a stream of test variants: `{TestVariant*}`.  
+	 The source may be either top-level or tested class shared member."
 	FunctionOrValueDeclaration source,
 	"Maximum number of failed variants before stop. Unlimited if <= 0."
 	Integer maxFailedVariants = -1
@@ -194,7 +199,7 @@ shared final annotation class FactoryAnnotation (
 	shared FunctionDeclaration factoryFunction
 )
 		satisfies OptionalAnnotation<FactoryAnnotation, ClassDeclaration>
-{	}
+{}
 
 
 "Indicates that class has to be instantiated using a given factory function.  

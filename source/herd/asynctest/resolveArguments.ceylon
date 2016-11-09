@@ -12,22 +12,27 @@ import ceylon.language.meta {
 "Resolves a list of type parameters and function arguments provided by [[parameterized]] annotation.  
  Returns a list of parameters list."
 since( "0.3.0" ) by( "Lis" )
-TestVariantEnumerator resolveParameterizedList( FunctionDeclaration declaration ) {
+TestVariantEnumerator resolveParameterizedList (
+	"Function to resolcve arguments from." FunctionDeclaration declaration,
+	"Instance of the test class or `null` if test is performed using top-level function." Object? instance
+) {
 	value providers = declaration.annotations<Annotation>().narrow<TestVariantProvider>();
 	if ( providers.empty ) {
 		return EmptyTestVariantEnumerator();
 	}
 	else if ( providers.size == 1 ) {
-		return providers.first?.variants() else EmptyTestVariantEnumerator();
+		return providers.first?.variants( instance ) else EmptyTestVariantEnumerator();
 	}
 	else {
-		return CombinedVariantEnumerator( providers*.variants().iterator() );
+		return CombinedVariantEnumerator( providers*.variants( instance ).iterator() );
 	}
-
 }
 
 "Resolves argument list from `ArgumentsAnnotation`."
 since( "0.5.0" ) by( "Lis" )
-Anything[] resolveArgumentList( FunctionDeclaration|ClassDeclaration declaration ) {
-	return optionalAnnotation( `ArgumentsAnnotation`, declaration )?.argumentList() else [];
+Anything[] resolveArgumentList (
+	"Declaration to resolve list" FunctionDeclaration|ClassDeclaration declaration,
+	"Instance of the test class or `null` if not available." Object? instance
+) {
+	return optionalAnnotation( `ArgumentsAnnotation`, declaration )?.argumentList( instance ) else [];
 }

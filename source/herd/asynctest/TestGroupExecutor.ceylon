@@ -120,7 +120,7 @@ class TestGroupExecutor (
 				}
 				else {
 					// no factory specified - just instantiate
-					return declaration.instantiate( [], *resolveArgumentList( declaration ) );
+					return declaration.instantiate( [], *resolveArgumentList( declaration, null ) );
 				}
 			}
 		}
@@ -242,7 +242,7 @@ class TestGroupExecutor (
 		// function declaration
 		value decl = prepostFunction.declaration;
 		// function arguments
-		value args = resolveArgumentList( decl );
+		value args = resolveArgumentList( decl, instance );
 		// timeout
 		value timeOut = extractTimeout( decl );
 		
