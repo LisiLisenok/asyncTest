@@ -28,6 +28,6 @@ TestVariantEnumerator resolveParameterizedList( FunctionDeclaration declaration 
 
 "Resolves argument list from `ArgumentsAnnotation`."
 since( "0.5.0" ) by( "Lis" )
-{Anything*} resolveArgumentList( FunctionDeclaration|ClassDeclaration declaration ) {
+Anything[] resolveArgumentList( FunctionDeclaration|ClassDeclaration declaration ) {
 	return optionalAnnotation( `ArgumentsAnnotation`, declaration )?.argumentList() else [];
 }

@@ -57,7 +57,7 @@ class PrePostContext()
 	 Delegates reporting to `outer` until `stop` called."
 	class InternalContext (	
 			"Title for the currently run function." String currentFunction,
-			shared actual TestInfo? testInfo
+			shared actual TestInfo testInfo
 	) satisfies AsyncPrePostContext {
 		AtomicBoolean running = AtomicBoolean( true );
 		
@@ -124,7 +124,7 @@ class PrePostContext()
 	}
 	
 	"Runs prepost function in separated thread and controls timeout."
-	void runWithTimeout( PrePostFunction init, TestInfo? testInfo ) {
+	void runWithTimeout( PrePostFunction init, TestInfo testInfo ) {
 		CountDownLatch latch = CountDownLatch( 1 );
 		InternalContext context = InternalContext( init.functionTitle, testInfo );
 		ExecutionThread thr = ExecutionThread (
@@ -157,10 +157,14 @@ class PrePostContext()
 		for ( init in inits ) {
 			running.set( true );
 			if ( init.timeOutMilliseconds > 0 ) {
-				runWithTimeout( init, testInfo );
+				TestInfo t = testInfo else
+					TestInfo( init.prepostDeclaration, [], init.arguments, init.functionTitle, init.timeOutMilliseconds );
+				runWithTimeout( init, t );
 			}
 			else {
-				InternalContext context = InternalContext( init.functionTitle, testInfo );
+				TestInfo t = testInfo else
+					TestInfo( init.prepostDeclaration, [], init.arguments, init.functionTitle, init.timeOutMilliseconds );
+				InternalContext context = InternalContext( init.functionTitle, t );
 				try { runFunction( init, context ); }
 				catch ( Throwable err ) { context.abort( err, err.message ); }
 				context.stop();

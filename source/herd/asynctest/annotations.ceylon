@@ -198,10 +198,9 @@ shared final annotation class FactoryAnnotation (
 
 
 "Indicates that class has to be instantiated using a given factory function.  
- [[factory]] annotation takes two arguments: declaration of top-level factory function and declaration of top-level
- value or function returned stream of factory arguments. Additionally, the factory function may take [[AsyncFactoryContext]]
- as first argument or may not.  
+ [[factory]] annotation takes declaration of top-level factory function.  
  
+ Factory function has to take no arguments or take first argument of [[AsyncFactoryContext]] type.  
  If factory function takes [[AsyncFactoryContext]] as first argument it is executed asynchronously and may
  fill the context with instantiated object using [[AsyncFactoryContext.fill]]
  or may report on error using [[AsyncFactoryContext.abort]]. Test executor blocks the current thread until
@@ -209,24 +208,23 @@ shared final annotation class FactoryAnnotation (
  Otherwise factory function doesn't take [[AsyncFactoryContext]] as first argument. It is executed synchronously
  and has to return instantiated non-optional object or throw an error.  
  
+ 
  #### Example of synchronous instantiation:
  
- 		[Integer] testUniverseSize = [1K];
- 		StarshipTest createStarshipTest(Integer universeSize) => StarshipTest(universeSize);
+ 		StarshipTest createStarshipTest() => StarshipTest(universeSize);
  
- 		factory(`function createStarshipTest`, `value testUniverseSize`)
+ 		factory(`function createStarshipTest`)
  		class StarshipTest(Integer universeSize) {
  			...
  		} 		
  
  #### Example of asynchronous instantiation:
  
- 		[Integer] testUniverseSize = [1K];
- 		StarshipTest createStarshipTest(AsyncFactoryContext context, Integer universeSize) {
+ 		StarshipTest createStarshipTest(AsyncFactoryContext context) {
  			context.fill(StarshipTest(universeSize));
  		}
  
- 		factory(`function createStarshipTest`, `value testUniverseSize`)
+ 		factory(`function createStarshipTest`)
  		class StarshipTest(Integer universeSize) {
  			...
  		} 		

@@ -95,7 +95,7 @@ class TestGroupExecutor (
 			}
 			else {
 				if ( exists factory = optionalAnnotation( `FactoryAnnotation`, declaration ) ) {
-					// factory exists - use this to instantiate objecy
+					// factory exists - use this to instantiate object
 					if ( asyncTestRunner.isAsyncFactoryDeclaration( factory.factoryFunction ) ) {
 						return FactoryContext( "``factory.factoryFunction.name``" ).run (
 							( AsyncFactoryContext context ) {
@@ -251,7 +251,7 @@ class TestGroupExecutor (
 				( AsyncPrePostContext context ) {
 					prepostFunction.apply( context, *args );
 				},
-				timeOut, prepostFunction.declaration.name
+				timeOut, prepostFunction.declaration.name, prepostFunction.declaration, args
 			);
 		}
 		else {
@@ -260,7 +260,7 @@ class TestGroupExecutor (
 					prepostFunction.apply( *args );
 					context.proceed();
 				},
-				timeOut, prepostFunction.declaration.name
+				timeOut, prepostFunction.declaration.name, prepostFunction.declaration, args
 			);
 		}
 	}
@@ -281,13 +281,15 @@ class TestGroupExecutor (
 			value suiteAttrs = containerType.getAttributes<Nothing, SuiteRule, Nothing>( asyncTestRunner.ruleAnnotationClass );
 			return [ for ( attr in suiteAttrs ) PrePostFunction (
 				attr.bind( container ).get().initialize,
-				extractTimeoutFromObject( attr.declaration, "initialize" ), attr.declaration.name
+				extractTimeoutFromObject( attr.declaration, "initialize" ), attr.declaration.name,
+				`function SuiteRule.initialize`, []
 			) ];
 		}
 		else if ( is Package pack = container ) {
 			value attrs = pack.annotatedMembers<ValueDeclaration, TestRuleAnnotation>();
 			return [for ( attr in attrs ) if ( is SuiteRule rule = attr.get() ) PrePostFunction (
-				rule.initialize, extractTimeoutFromObject( attr, "initialize" ), attr.name
+				rule.initialize, extractTimeoutFromObject( attr, "initialize" ), attr.name,
+				`function SuiteRule.initialize`, []
 			) ];
 		}
 		else {
@@ -303,13 +305,13 @@ class TestGroupExecutor (
 			return [ for ( attr in attrs ) PrePostFunction (
 				attr.bind( container ).get().before,
 				extractTimeoutFromObject( attr.declaration, "before" ),
-				attr.declaration.name
+				attr.declaration.name, `function TestRule.before`, []
 			) ];
 		}
 		else if ( is Package pack = container ) {
 			value attrs = pack.annotatedMembers<ValueDeclaration, TestRuleAnnotation>();
 			return [for ( attr in attrs ) if ( is TestRule rule = attr.get() ) PrePostFunction (
-				rule.before, extractTimeoutFromObject( attr, "before" ), attr.name
+				rule.before, extractTimeoutFromObject( attr, "before" ), attr.name, `function TestRule.before`, []
 			) ]; 
 		}
 		else {
@@ -349,13 +351,13 @@ class TestGroupExecutor (
 			return [ for ( attr in suiteRules ) PrePostFunction (
 				attr.bind( container ).get().dispose,
 				extractTimeoutFromObject( attr.declaration, "dispose" ),
-				attr.declaration.name
+				attr.declaration.name, `function SuiteRule.dispose`, []
 			) ];
 		}
 		else if ( is Package pack = container ) {
 			value attrs = pack.annotatedMembers<ValueDeclaration, TestRuleAnnotation>();
 			return [ for ( attr in attrs ) if ( is SuiteRule rule = attr.get() ) PrePostFunction (
-				rule.dispose, extractTimeoutFromObject( attr, "dispose" ), attr.name
+				rule.dispose, extractTimeoutFromObject( attr, "dispose" ), attr.name, `function SuiteRule.dispose`, []
 			) ];
 		}
 		else {
@@ -371,13 +373,13 @@ class TestGroupExecutor (
 			return [ for ( attr in attrs ) PrePostFunction (
 				attr.bind( container ).get().after,
 				extractTimeoutFromObject( attr.declaration, "after" ),
-				attr.declaration.name 
+				attr.declaration.name, `function TestRule.after`, []
 			) ]; 
 		}
 		else if ( is Package pack = container ) {
 			value attrs = pack.annotatedMembers<ValueDeclaration, TestRuleAnnotation>();
 			return [for ( attr in attrs ) if ( is TestRule rule = attr.get() ) PrePostFunction (
-				rule.after, extractTimeoutFromObject( attr, "after" ), attr.name
+				rule.after, extractTimeoutFromObject( attr, "after" ), attr.name, `function TestRule.after`, []
 			) ];
 		}
 		else {

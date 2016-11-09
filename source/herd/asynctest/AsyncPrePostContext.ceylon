@@ -16,17 +16,15 @@ import herd.asynctest.rule {
 see( `interface TestRule`, `interface SuiteRule` )
 since( "0.6.0" ) by( "Lis" )
 shared interface AsyncPrePostContext {
-	
 	"Initialization or disposing has been completed - proceed with the test."
 	shared formal void proceed();
 	
 	"Aborts the test initialization or disposing."
 	shared formal void abort( Throwable reason, String title = "" );
 	
-	"Information about current test:  
-	 * `null` if context is submitted to [[SuiteRule]] or function annotated with
-	   `ceylon.test.beforeTestRun` or `ceylon.test.afterTestRun`.  
-	 *  non-null if context is submitted to [[TestRule]] or function annotated with
-	   `ceylon.test.beforeTest` or `ceylon.test.afterTest`."
-	shared formal TestInfo? testInfo;
+	"Information about the current test:
+	 * Suite initializers / cleaners are provided with info about themselves.  
+	 * Test initizializers / cleaners are provided with test function info.  
+	 "
+	shared formal TestInfo testInfo;
 }

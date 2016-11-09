@@ -18,6 +18,6 @@ shared class TestInfo (
 	shared Anything[] arguments,
 	"Test variant name as represented in the test report."
 	shared String variantName,
-	"Time out in milliseconds for a one test function run."
+	"Time out in milliseconds for a one test function run, <= 0 if no limit."
 	shared Integer timeOutMilliseconds
 ) {}
