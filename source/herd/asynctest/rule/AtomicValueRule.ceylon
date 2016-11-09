@@ -8,7 +8,9 @@ import herd.asynctest.internal {
 }
 
 
-"Atomic reference on some value which is re-initialized to [[initial]] value each time the test is started."
+"Atomic reference on some value which is re-initialized to [[initial]] value each time the test is started.  
+ If `Element` is mutable be careful with proper cleaning after the test - factory function is prefered in this case.  
+ "
 since( "0.6.0" ) by( "Lis" )
 shared class AtomicValueRule<Element>( "Initial value source." Element|Element() initial )
 		satisfies TestRule

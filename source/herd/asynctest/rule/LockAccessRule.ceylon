@@ -26,6 +26,8 @@ import java.util.concurrent.locks {
  > In order to acquire lock `obtain` has to be called.  
  > In order to release lock `release` has to be called.  
  > Actual value is stored in the resource only when `release` is called.  
+ 
+ If `Element` is mutable be careful with proper cleaning after the test - factory function is prefered in this case.  
  "
 since( "0.6.0" ) by( "Lis" )
 shared class LockAccessRule<Element>( Element | Element() initial ) satisfies TestRule

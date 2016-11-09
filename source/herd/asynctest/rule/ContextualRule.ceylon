@@ -26,6 +26,8 @@ import java.util.\ifunction {
  
  > [[get]] may return value before [[Using]] evaluation!
  
+ If `Element` is mutable be careful with proper cleaning after the test - factory function is prefered in this case.  
+ 
  "
 since( "0.6.0" ) by( "Lis" )
 shared class ContextualRule<Element>( "Initial value source." Element | Element() initial )
