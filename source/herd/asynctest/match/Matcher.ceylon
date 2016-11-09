@@ -67,6 +67,15 @@ class AndMatcher<Value>( [Matcher<Value>+] matchers ) satisfies Matcher<Value> {
 		return str.string;
 	}
 	
+	shared default actual Matcher<Value&Other> and<Other>( Matcher<Other>* other ) {
+		if ( nonempty other ) {
+			return AndMatcher<Value&Other>( matchers.append( other ) );	
+		}
+		else {
+			return this;
+		}
+	}
+	
 }
 
 
@@ -88,6 +97,15 @@ class OrMatcher<Value>( [Matcher<Value>+] matchers ) satisfies Matcher<Value> {
 		return str.string;
 	}
 	
+	shared default actual Matcher<Value&Other> or<Other>( Matcher<Other>* other ) {
+		if ( nonempty other ) {
+			return OrMatcher<Value&Other>( matchers.append( other ) );	
+		}
+		else {
+			return this;
+		}
+	}
+	
 }
 
 
@@ -99,6 +117,9 @@ class NotMatcher<Value>( Matcher<Value> matcher ) satisfies Matcher<Value> {
 		value m = matcher.match( val );
 		return m.not();
 	}
+	
+	shared actual Matcher<Value> not() => matcher;
+	
 	
 	shared actual String string => "!``matcher``";
 	

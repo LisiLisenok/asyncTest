@@ -15,9 +15,13 @@ shared class TestVariant (
 	shared Type<Anything>[] parameters,
 	"Function arguments."
 	shared Anything[] arguments
-) {
+)
+		extends Object ()
+{
 
 	variable String? memoizedName = null;
+	variable Integer memoizedHash = 0;
+
 
 	String buildName() {
 		StringBuilder builder = StringBuilder();
@@ -63,6 +67,26 @@ shared class TestVariant (
 			return ret;
 		}
 	}
+	
+	shared actual default Boolean equals( Object that ) {
+		if ( is TestVariant that ) {
+			return parameters == that.parameters && 
+				arguments == that.arguments && variantName == that.variantName;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	shared actual default Integer hash {
+		if ( memoizedHash == 0 ) {
+			memoizedHash = 31 + variantName.hash;
+			memoizedHash = 31 * memoizedHash + sequenceHash( parameters, 31 );
+			memoizedHash = 31 * memoizedHash + sequenceHash( arguments, 31 );
+		}
+		return memoizedHash;
+	}
+	
 }
 
 

@@ -37,10 +37,10 @@ shared final class MatchResult (
 		}
 	}
 	
-	"Combines this and other by `logical and`."
+	"Combines all from this and other by _logical and_."
 	shared MatchResult and( MatchResult* other ) => combineWith( "&&", andBoolean, *other );
 	
-	"Combines this and other by `logical or`."
+	"Combines all from this and other by _logical or_."
 	shared MatchResult or( MatchResult* other ) => combineWith( "||", orBoolean, *other );
 
 	
