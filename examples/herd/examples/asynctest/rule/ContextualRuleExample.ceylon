@@ -20,7 +20,7 @@ async class ContextualRuleExample() {
 	shared testRule ContextualRule<Integer> intValue = ContextualRule<Integer>(0);
 
 
-	shared test void contextual(AsyncTestContext context) {
+	shared test void contextual(AsyncTestContext context) {		
 		context.assertThat<Integer>(intValue.get, EqualObjects(0), "initial", true);
 		try (u1 = intValue.Using(2)) {
 			context.assertThat<Integer>(intValue.get, EqualObjects(2), "step", true);

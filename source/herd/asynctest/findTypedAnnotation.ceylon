@@ -40,7 +40,7 @@ Return[] findContainerTypedAnnotations<Return>( Package | ClassDeclaration decla
 }
 
 
-"Returns first annotation found indeclaration or its containers."
+"Returns first annotation found in declaration or its containers."
 since( "0.6.0" ) by( "Lis" )
 AnnotationType? findFirstAnnotation<AnnotationType>( Package | NestableDeclaration declaration )
 	given AnnotationType satisfies Annotation
@@ -54,8 +54,17 @@ AnnotationType? findFirstAnnotation<AnnotationType>( Package | NestableDeclarati
 			else null;
 	}
 	case ( is NestableDeclaration ) {
+		if ( is ClassDeclaration declaration ) {
+			variable ClassDeclaration? exDecl = declaration;
+			while ( exists decl = exDecl ) {
+				if ( nonempty ann = decl.annotations<AnnotationType>() ) {
+					return ann.first;
+				}
+				exDecl = decl.extendedType?.declaration;
+			}
+		}
 		return if ( nonempty list = declaration.annotations<AnnotationType>() )
-		then list.first
-		else findFirstAnnotation<AnnotationType>( declaration.container );
+			then list.first
+			else findFirstAnnotation<AnnotationType>( declaration.container );
 	}
 }

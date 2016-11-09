@@ -7,7 +7,7 @@ import herd.asynctest.rule {
 
 "Allows pre- and post- test functions to interract with test executor.  
  
- Prepost function has to call [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]]
+ Pre- or post- function has to call [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]]
  when initialization or disposing is completed or errored, correspondently.  
  The test executor blocks execution thread until [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]] is called.
  

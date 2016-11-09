@@ -31,8 +31,7 @@ import ceylon.language.meta {
 
 
 "Processes test execution with the branch test generic parameters and function arguments."
-since( "0.2.0" )
-by( "Lis" )
+since( "0.2.0" ) by( "Lis" )
 class AsyncTestProcessor(
 	"Test function." FunctionDeclaration functionDeclaration,
 	"Object contained function or `null` if function is top level." Object? instance,

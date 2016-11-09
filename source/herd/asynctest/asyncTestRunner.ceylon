@@ -27,26 +27,28 @@ import ceylon.language.meta.model {
 }
 
 
-"Performs test initialization and execution."
-since( "0.0.1" )
-by( "Lis" )
+"Combines tests in the suites and starts test executions."
+since( "0.0.1" ) by( "Lis" )
 object asyncTestRunner {
 
-	
 	"Memoization of [[TestRuleAnnotation]]."
+	see( `class TestGroupExecutor` )
 	shared Class<TestRuleAnnotation, []> ruleAnnotationClass = `TestRuleAnnotation`;
 
 	
 	"AsyncTestContext declaration memoization."
+	see( `function isAsyncDeclaration` )
 	InterfaceDeclaration asyncContextDeclaration = `interface AsyncTestContext`;
 	
 	"AsyncPrePostContext declaration memoization."
+	see( `function isAsyncPrepostDeclaration` )
 	InterfaceDeclaration prepostContextDeclaration = `interface AsyncPrePostContext`;
 	
 	"AsyncFactoryContext declaration memoization."
+	see( `function isAsyncFactoryDeclaration` )
 	InterfaceDeclaration factoryContextDeclaration = `interface AsyncFactoryContext`;
 	
-	"Cache async test executor declaration"
+	"Cache async test executor declaration. See `function isAsyncExecutedTest`" 
 	ClassDeclaration asyncTestDeclaration = `class AsyncTestExecutor`;
 
 		
@@ -118,29 +120,9 @@ object asyncTestRunner {
 	
 	
 	"`true` if execution is performed using `AsyncTestExecutor`"
-	Boolean isAsyncExecutedTest( FunctionDeclaration functionDeclaration ) {
-		if ( nonempty ann = functionDeclaration.annotations<TestExecutorAnnotation>() ) {
-			return ann.first.executor == asyncTestDeclaration;
-		}
-		if ( is ClassDeclaration cont = functionDeclaration.container ) {
-			variable ClassDeclaration? exDecl = cont;
-			while ( exists decl = exDecl ) {
-				if ( nonempty ann = decl.annotations<TestExecutorAnnotation>() ) {
-					return ann.first.executor == asyncTestDeclaration;
-				}
-				exDecl = decl.extendedType?.declaration;
-			}
-		}
-		if ( nonempty ann = functionDeclaration.containingPackage.annotations<TestExecutorAnnotation>() ) {
-			return ann.first.executor == asyncTestDeclaration;
-		}
-		else if ( nonempty ann = functionDeclaration.containingModule.annotations<TestExecutorAnnotation>() ) {
-			return ann.first.executor == asyncTestDeclaration;
-		}
-		else {
-			return false;
-		}
-	}
+	Boolean isAsyncExecutedTest( FunctionDeclaration functionDeclaration ) =>
+		if ( exists ann = findFirstAnnotation<TestExecutorAnnotation>( functionDeclaration ) )
+			then ann.executor == asyncTestDeclaration else false;
 	
 	
 	"Returns `true` if function takes `firstArg` as first argument."
