@@ -7,27 +7,15 @@ shared class Point
 (
 	"Position on categoty axis." shared Float category,
 	"Position on value axis." shared Float val
-)
-	extends Object()
-{
+) {
 	
 	shared actual Boolean equals( Object that ) {
-		if ( is Point that ) {
-			return	category == that.category && 
-					val == that.val;
-		}
-		else {
-			return false;
-		}
+		return if ( is Point that )
+			then category == that.category && val == that.val
+			else false;
 	}
 	
-	shared actual Integer hash {
-		variable value hash = 1;
-		hash = 31 * hash + category.hash;
-		hash = 31 * hash + val.hash;
-		return hash;
-	}
-	
+	shared actual Integer hash => 31 * ( 31 + category.hash ) + val.hash;
 	
 	shared actual String string => "Point of x=``category``, y=``val``";
 	

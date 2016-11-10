@@ -15,9 +15,7 @@ shared class TestVariant (
 	shared Type<Anything>[] parameters,
 	"Function arguments."
 	shared Anything[] arguments
-)
-		extends Object ()
-{
+) {
 
 	variable String? memoizedName = null;
 	variable Integer memoizedHash = 0;
@@ -80,9 +78,8 @@ shared class TestVariant (
 	
 	shared actual default Integer hash {
 		if ( memoizedHash == 0 ) {
-			memoizedHash = 31 + variantName.hash;
-			memoizedHash = 31 * memoizedHash + sequenceHash( parameters, 31 );
-			memoizedHash = 31 * memoizedHash + sequenceHash( arguments, 31 );
+			memoizedHash = 31 * sequenceHash( parameters, 31 ) + sequenceHash( arguments, 31 );
+			memoizedHash = 31 * memoizedHash + variantName.hash;
 		}
 		return memoizedHash;
 	}
@@ -94,4 +91,14 @@ shared class TestVariant (
 since( "0.6.0" ) by( "Lis" )
 object emptyTestVariant extends TestVariant( [], [] ) {
 	shared actual String variantName = "";
+	shared actual Boolean equals( Object that ) {
+		if ( is TestVariant that ) {
+			return that === this;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	shared actual Integer hash => 37;	
 }

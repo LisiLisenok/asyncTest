@@ -20,7 +20,7 @@ shared final class TestInfo (
 	shared String variantName,
 	"Time out in milliseconds for a one test function run, <= 0 if no limit."
 	shared Integer timeOutMilliseconds
-) extends Object() {
+) {
 	
 	variable Integer memoizedHash = 0;
 	
@@ -39,9 +39,9 @@ shared final class TestInfo (
 	
 	shared actual Integer hash {
 		if ( memoizedHash == 0 ) {
-			memoizedHash = 31 + testFunction.hash;
-			memoizedHash = 31 * memoizedHash + sequenceHash( parameters, 31 );
+			memoizedHash = sequenceHash( parameters, 31 );
 			memoizedHash = 31 * memoizedHash + sequenceHash( arguments, 31 );
+			memoizedHash = 31 * memoizedHash + testFunction.hash;
 			memoizedHash = 31 * memoizedHash + variantName.hash;
 			memoizedHash = 31 * memoizedHash + timeOutMilliseconds;
 		}

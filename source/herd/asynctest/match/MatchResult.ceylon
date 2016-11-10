@@ -10,9 +10,7 @@ shared final class MatchResult (
 	String message,
 	"`true` if matching is accepted and `false` if rejected."
 	shared Boolean accepted
-)
-		extends Object ()
-{
+) {
 	
 	shared actual String string
 		=> if ( accepted ) then "accepted->'``message``'" else "rejected->'``message``'";
@@ -49,19 +47,11 @@ shared final class MatchResult (
 	
 	
 	shared actual Boolean equals( Object that ) {
-		if ( is MatchResult that ) {
-			return message == that.message && accepted == that.accepted;
-		}
-		else {
-			return false;
-		}
+		return if ( is MatchResult that )
+			then message == that.message && accepted == that.accepted
+			else false;
 	}
 	
-	shared actual Integer hash {
-		variable value hash = 1;
-		hash = 31*hash + message.hash;
-		hash = 31*hash + accepted.hash;
-		return hash;
-	}
+	shared actual Integer hash => 31*message.hash + accepted.hash;
 	
 }
