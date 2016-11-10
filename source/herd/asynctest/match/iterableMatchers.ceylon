@@ -236,7 +236,7 @@ shared class EveryOf<Value> (
 "Verifies if matching value is contained in the given stream of `Iterable`."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class Contained<Value> (
-	"Stream to check if it contains matcing value." {Value*} stream
+	"Stream to check if it contains matching value." {Value*} stream
 )
 		satisfies Matcher<Value&Object>
 {
@@ -253,7 +253,7 @@ shared class Contained<Value> (
 "Verifies if matching value is the first in the given stream of `Iterable`."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class First<Value> (
-	"Stream to check if matcing value is the first in." {Value*} stream
+	"Stream to check if matching value is the first in." {Value*} stream
 )
 		satisfies Matcher<Value&Object>
 {
@@ -270,7 +270,7 @@ shared class First<Value> (
 "Verifies if matching value is the last in the given stream of `Iterable`."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class Last<Value> (
-	"Stream to check if matcing value is the last in." {Value*} stream
+	"Stream to check if matching value is the last in." {Value*} stream
 )
 		satisfies Matcher<Value&Object>
 {
@@ -281,4 +281,52 @@ shared class Last<Value> (
 		);
 	
 	shared actual String string => "matching value to be the last in the given stream";
+}
+
+
+"Compare uing operator `==` for non-null objects. If both are null return `true`."
+since( "0.6.0" ) by( "Lis" )
+Boolean compareByValue( Anything first, Anything second ) {
+	if ( exists first ) {
+		if ( exists second ) {
+			return first == second;
+		}
+		else {
+			return false;
+		}
+	}
+	else {
+		return !second exists;
+	}
+}
+
+
+"Verifies if matching stream contains the same elements as the given one.  
+ The matcher doesn't rely on exact stream type - just content is compared."
+tagged( "Streams" ) since( "0.6.0" ) by( "Lis" )
+shared class EqualContent<Value> (
+	"Stream to check with matching one."
+	[Value*] stream,
+	"Comparison function which has to return `true` if two elements are equal and `false` otherwise.
+	 By default operator `==` is applied for non-null elements, if both element are null returns `true`."
+	Boolean(Value, Value) compare = compareByValue 
+)
+		satisfies Matcher<[Value*]>
+{
+	shared actual MatchResult match( [Value*] val ) {
+		if ( stream.size == val.size ) {
+			return MatchResult (
+				"``stringify( val )`` has same content as given stream",
+				everyPair( compare, stream, val )
+			);
+		}
+		else {
+			return MatchResult (
+				"``stringify( val )`` has same content as given stream - matching size is ``val.size`` and merit size is ``stream.size``",
+				false
+			);
+		}
+	}
+	
+	shared actual String string => "matching stream content";
 }
