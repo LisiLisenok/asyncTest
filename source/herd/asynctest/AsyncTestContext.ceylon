@@ -54,9 +54,8 @@ import ceylon.promise {
  
  --------------------------------------------
  "
-by( "Lis" )
 see( `class AsyncTestExecutor`, `package herd.asynctest.match` )
-since( "0.0.1" )
+since( "0.0.1" ) by( "Lis" )
 shared interface AsyncTestContext
 {
 	"Completes the testing. To be called by test function when testing is completed.

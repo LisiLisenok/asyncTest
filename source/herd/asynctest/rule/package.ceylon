@@ -3,7 +3,7 @@
  
  Provide a way to perform initialization / disposing before / after test execution and to modify test behaviour.
  
- Each rule is top-level value or class attribute which satisfies some of the following interfaces:  
+ Each rule is a top-level value or class attribute which satisfies some of the following interfaces:  
  1. [[SuiteRule]] performs initialization or disposing before or after execution of _all_ tests in the scope
     (package for top-level value or class for attribute).  
  2. [[TestRule]] performs initialization or disposing before or after execution of _each_ test in the scope

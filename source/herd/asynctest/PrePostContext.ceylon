@@ -15,16 +15,14 @@ import ceylon.collection {
 }
 import herd.asynctest.internal {
 
-	ExecutionThread
-}
-import java.util.concurrent {
-
-	CountDownLatch,
-	TimeUnit { milliseconds }
+	ExecutionThread,
+	LatchWaiter
 }
 import java.lang {
 
-	ThreadGroup
+	ThreadGroup,
+	Thread,
+	ThreadDeath
 }
 import ceylon.language.meta.model {
 
@@ -39,7 +37,32 @@ by( "Lis" )
 class PrePostContext()
 {
 	"Group to run functions if timeout specified."
-	ThreadGroup group = ThreadGroup( "asyncpreposttester" );
+	object group extends ThreadGroup( "asyncPrePost" ) {
+		variable AsyncPrePostContext? context = null;
+		
+		shared void setContext( AsyncPrePostContext c ) {
+			context = c;
+		}
+		
+		shared void resetContext() {
+			context = null;
+		}
+		
+		shared actual void uncaughtException( Thread t, Throwable e ) {
+			if ( is ThreadDeath e ) {
+				super.uncaughtException( t, e );
+			}
+			else {
+				if ( exists c = context ) {
+					c.abort( e, "uncaught exception in child thread." );
+					resetContext();
+				}
+				else {
+					super.uncaughtException( t, e );
+				}
+			}
+		}
+	}
 	
 	"locks concurrent access"
 	ReentrantLock locker = ReentrantLock();
@@ -124,11 +147,12 @@ class PrePostContext()
 	}
 	
 	"Runs prepost function in separated thread and controls timeout."
-	void runWithTimeout( PrePostFunction init, TestInfo testInfo ) {
-		CountDownLatch latch = CountDownLatch( 1 );
+	void runInSeparatedThread( PrePostFunction init, TestInfo testInfo ) {
+		LatchWaiter latch = LatchWaiter( 1 );
 		InternalContext context = InternalContext( init.functionTitle, testInfo );
+		group.setContext( context );
 		ExecutionThread thr = ExecutionThread (
-			group, "asyncpreposttester",
+			group, "asyncPrePostThread",
 			() {
 				try { runFunction( init, context ); }
 				catch ( Throwable err ) { context.abort( err ); }
@@ -139,7 +163,7 @@ class PrePostContext()
 			}
 		);
 		thr.start();
-		if ( !latch.await( init.timeOutMilliseconds, milliseconds ) ) {
+		if ( !latch.awaitUntil( init.timeOutMilliseconds ) ) {
 			// timeout!
 			context.stop();
 			try { group.interrupt(); }
@@ -147,6 +171,7 @@ class PrePostContext()
 			value excep = TimeOutException( init.timeOutMilliseconds );
 			abort( excep, excep.message );
 		}
+		group.resetContext();
 	}
 	
 	"Runs prepost process. Returns errors if occured."
@@ -156,19 +181,9 @@ class PrePostContext()
 	) {
 		for ( init in inits ) {
 			running.set( true );
-			if ( init.timeOutMilliseconds > 0 ) {
-				TestInfo t = testInfo else
-					TestInfo( init.prepostDeclaration, [], init.arguments, init.functionTitle, init.timeOutMilliseconds );
-				runWithTimeout( init, t );
-			}
-			else {
-				TestInfo t = testInfo else
-					TestInfo( init.prepostDeclaration, [], init.arguments, init.functionTitle, init.timeOutMilliseconds );
-				InternalContext context = InternalContext( init.functionTitle, t );
-				try { runFunction( init, context ); }
-				catch ( Throwable err ) { context.abort( err, err.message ); }
-				context.stop();
-			}
+			TestInfo t = testInfo else
+				TestInfo( init.prepostDeclaration, [], init.arguments, init.functionTitle, init.timeOutMilliseconds );
+			runInSeparatedThread( init, t );
 		}
 		running.set( false );
 		value ret = outputs.sequence(); 

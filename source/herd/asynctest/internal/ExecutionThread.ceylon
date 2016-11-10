@@ -5,7 +5,7 @@ import java.lang {
 
 
 "Runs a function in separate thread belonging to a group `group`."
-since( "0.0.1" ) by( "Lis" )
+since( "0.6.0" ) by( "Lis" )
 shared class ExecutionThread( ThreadGroup group, String name, run )
 		extends Thread( group, name )
 {

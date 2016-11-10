@@ -6,14 +6,13 @@ import java.util.concurrent.atomic {
 	AtomicBoolean
 }
 import herd.asynctest.internal {
-	ExecutionThread
-}
-import java.util.concurrent {
-	CountDownLatch,
-	TimeUnit { milliseconds }
+	ExecutionThread,
+	LatchWaiter
 }
 import java.lang {
-	ThreadGroup
+	ThreadGroup,
+	Thread,
+	ThreadDeath
 }
 
 
@@ -23,7 +22,32 @@ since( "0.6.0" ) by( "Lis" )
 class FactoryContext( "Factory declaration title." String factoryTitle )
 {
 	"Group to run functions if timeout specified."
-	ThreadGroup group = ThreadGroup( "asyncfactory" );
+	object group extends ThreadGroup( "asyncFactory" ) {
+		variable AsyncFactoryContext? context = null;
+		
+		shared void setContext( AsyncFactoryContext c ) {
+			context = c;
+		}
+		
+		shared void resetContext() {
+			context = null;
+		}
+		
+		shared actual void uncaughtException( Thread t, Throwable e ) {
+			if ( is ThreadDeath e ) {
+				super.uncaughtException( t, e );
+			}
+			else {
+				if ( exists c = context ) {
+					c.abort( e );
+					resetContext();
+				}
+				else {
+					super.uncaughtException( t, e );
+				}
+			}
+		}
+	}
 	
 	"locks concurrent access"
 	ReentrantLock locker = ReentrantLock();
@@ -39,7 +63,7 @@ class FactoryContext( "Factory declaration title." String factoryTitle )
 	variable Object? instantiatedObject = null;
 	
 	
-	class InternalContext() satisfies AsyncFactoryContext{
+	class InternalContext() satisfies AsyncFactoryContext {
 		AtomicBoolean running = AtomicBoolean( true );
 		
 		"Stops context. No reporting will be submited to `outer`."
@@ -102,11 +126,12 @@ class FactoryContext( "Factory declaration title." String factoryTitle )
 	}
 	
 	"Runs the function with timeout taken into account."
-	void runFactoryWithTimeout( Anything(AsyncFactoryContext) factory, Integer timeOutMilliseconds ) {
-		CountDownLatch latch = CountDownLatch( 1 );
+	void runFactoryinSeparatedThread( Anything(AsyncFactoryContext) factory, Integer timeOutMilliseconds ) {
+		LatchWaiter latch = LatchWaiter( 1 );
 		InternalContext context = InternalContext();
+		group.setContext( context );
 		ExecutionThread thr = ExecutionThread (
-			group, "asyncfactory",
+			group, "asyncFactoryThread",
 			() {
 				try { runFactoryFunction( factory, context ); }
 				catch ( Throwable err ) {
@@ -119,30 +144,21 @@ class FactoryContext( "Factory declaration title." String factoryTitle )
 			}
 		);
 		thr.start();
-		if ( !latch.await( timeOutMilliseconds, milliseconds ) ) {
+		if ( !latch.awaitUntil( timeOutMilliseconds ) ) {
 			// timeout!
 			context.stop();
 			try { group.interrupt(); }
 			catch ( Throwable err ) {}
-			value excep = TimeOutException( timeOutMilliseconds );
-			abort( excep );
+			abort( TimeOutException( timeOutMilliseconds ) );
 		}
+		group.resetContext();
 	}
 	
 	
 	"Runs intantiation. Returns instantiated object or throws if errors."
 	shared Object run( Anything(AsyncFactoryContext) factory, Integer timeOutMilliseconds ) {
 		try {
-			if ( timeOutMilliseconds > 0 ) {
-				runFactoryWithTimeout( factory, timeOutMilliseconds );
-			}
-			else {
-				InternalContext context = InternalContext();
-				try { runFactoryFunction( factory, context ); }
-				catch ( Throwable err ) {
-					context.abort( err );
-				}
-			}
+			runFactoryinSeparatedThread( factory, timeOutMilliseconds );
 			if ( exists ret = abortReason ) { throw ret; }
 			else if ( exists inst = instantiatedObject ) { return inst; }
 			else { throw FactoryReturnsNothing( factoryTitle ); }

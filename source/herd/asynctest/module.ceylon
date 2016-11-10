@@ -4,7 +4,7 @@
  is an extension to SDK `ceylon.test` module with following capabilities:
  * testing asynchronous multithread code
  * executing tests concurrently or sequentially
- * value- or type- parameterized testing
+ * value- and type- parameterized testing
  * organizing complex test conditions into a one flexible expression with matchers
  * initialization and disposing
  * conditional test execution
@@ -200,9 +200,9 @@
  provided with [[arguments]] annotation or without arguments if the annotation is missed.  
  
  > Just a one instance of the test class is used for the overall test runcycle it may cause several misalignments:
-   1. Test relations. Please, remember best-practices say the tests have to be independent.  
-   2. Test isolation. If test class has some mutable properties next test may get results of previous one but not
-      purely initialized property! Always use test rules or initializers for such properties.  
+   1. Test interrelation. Please, remember best-practices say the tests have to be independent.  
+   2. Test isolation. If test class has some mutable properties then a test may get mutation state from previous run
+      but not purely initialized property! Always use test rules or initializers for such properties.  
  
  
  -------------------------------------------
@@ -223,7 +223,7 @@
    sequential order is applied nevetherless exists [[concurrent]] annotation or not.  
  
  > Functions annotated with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` are executed _once_ before / after
-   all test executions and have no influence on the test functions execution order.  
+   execution of all test functions within correponding container and have no influence on execution mode.  
  
  
  -------------------------------------------
@@ -241,6 +241,7 @@
   
  [[parameterized]] annotation satisfies [[TestVariantProvider]] interface and
  provides parameterized testing based on collection of test variants.  
+ 
  
  **Custom parameterization:**  
  

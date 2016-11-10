@@ -2,7 +2,7 @@
 is an extension to SDK `ceylon.test` module with following capabilities:
  * testing asynchronous multithread code
  * executing tests concurrently or sequentially
- * value- or type- parameterized testing
+ * value- and type- parameterized testing
  * organizing complex test conditions into a one flexible expression with matchers
  * initialization and disposing
  * conditional test execution

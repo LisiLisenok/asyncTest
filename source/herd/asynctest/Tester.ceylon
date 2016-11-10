@@ -32,16 +32,14 @@ import ceylon.promise {
 }
 import java.lang {
 
-	ThreadGroup
-}
-import java.util.concurrent {
-
-	CountDownLatch,
-	TimeUnit { milliseconds }
+	ThreadGroup,
+	Thread,
+	ThreadDeath
 }
 import herd.asynctest.internal {
 
-	ExecutionThread
+	ExecutionThread,
+	LatchWaiter
 }
 
 
@@ -50,7 +48,34 @@ since( "0.0.1" ) by( "Lis" )
 class Tester()
 {
 	
-	ThreadGroup group = ThreadGroup( "asynctester" );
+	"Thread group the test is performed using."
+	object group extends ThreadGroup( "asyncTester" ) {
+		variable AsyncTestContext? context = null;
+		
+		shared void setContext( AsyncTestContext c ) {
+			context = c;
+		}
+		
+		shared void resetContext() {
+			context = null;
+		}
+		
+		shared actual void uncaughtException( Thread t, Throwable e ) {
+			if ( is ThreadDeath e ) {
+				super.uncaughtException( t, e );
+			}
+			else {
+				if ( exists c = context ) {
+					c.fail( e, "uncaught exception in child thread." );
+					c.complete();
+					resetContext();
+				}
+				else {
+					super.uncaughtException( t, e );
+				}
+			}
+		}
+	}
 	
 	"`true` if currently run"
 	AtomicBoolean running = AtomicBoolean( false );
@@ -297,6 +322,7 @@ class Tester()
 		return ret.promise;
 	}
 	
+	
 	"Runs test function."
 	void execute( Anything(AsyncTestContext) testFunction, String functionTitle, InternalContext context ) {
 		startTime = system.milliseconds;
@@ -332,14 +358,15 @@ class Tester()
 	}
 
 	"Runs test function isseparated thread andlooks for timeout."
-	void executeWithTimeOut (
+	void executeInSeparatedThread (
 		TestFunction testFunction
 	) {
 		// thread to execute test function
-		CountDownLatch latch = CountDownLatch( 1 );
+		LatchWaiter latch = LatchWaiter( 1 );
 		InternalContext context = InternalContext();
+		group.setContext( context );
 		ExecutionThread thr = ExecutionThread (
-			group, "asynctester",
+			group, "asyncTesterThread",
 			() {
 				try { execute( testFunction.run, testFunction.functionTitle, context ); }
 				catch ( Throwable err ) {
@@ -355,7 +382,7 @@ class Tester()
 		
 		thr.start();
 		
-		if ( !latch.await( testFunction.timeOutMilliseconds, milliseconds ) ) {
+		if ( !latch.awaitUntil( testFunction.timeOutMilliseconds ) ) {
 			// timeout!
 			context.stop();
 			group.interrupt();
@@ -366,24 +393,14 @@ class Tester()
 			);
 			complete( "" );
 		}
+		group.resetContext();
 	}
 
 	"Returns output from the test."
 	shared TestVariantResult run( TestFunction testFunction ) {
 		if ( running.compareAndSet( false, true ) ) {
 			// execute the test
-			if ( testFunction.timeOutMilliseconds > 0 ) {
-				executeWithTimeOut( testFunction );
-			}
-			else {
-				InternalContext context = InternalContext();
-				try { execute( testFunction.run, testFunction.functionTitle, context ); }
-				catch ( Throwable err ) {
-					context.fail( err, if ( testFunction.functionTitle.empty ) then "failed with exception"
-						else  "``testFunction.functionTitle`` failed with exception" );
-				}
-				context.stop();
-			}
+			executeInSeparatedThread( testFunction );
 			// return results
 			outputLocker.lock();
 			try {

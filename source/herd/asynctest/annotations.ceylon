@@ -125,6 +125,7 @@ shared final annotation class ParameterizedAnnotation (
  or while total number of failed variants not exceeds specified limit. 
  
  > [[parameterized]] annotation may occur multiple times at a given test function.  
+ > The variants source may be either top-level or tested class shared member.  
  
  
  #### Example:
