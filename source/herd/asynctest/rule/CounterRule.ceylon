@@ -6,7 +6,7 @@ import java.util.concurrent.atomic {
 }
 
 
-"Counter rule. Atomically counts something. Reset to `initial` value before _each_ test."
+"Atomically counts something. Resets to `initial` value before _each_ test."
 since( "0.6.0" ) by( "Lis" )
 shared class CounterRule( "Initial value of the counter." Integer initial = 0 ) satisfies TestRule {
 	

@@ -18,7 +18,7 @@
   
  > Matchers are aimed to be used in conjunction with [[herd.asynctest::AsyncTestContext.assertThat]] method.  
  
- > Custom matchers: just implemeny [[Matcher]] interface.  
+ > Custom matchers: just implement [[Matcher]] interface.  
  
  --------------------------------------------
  "

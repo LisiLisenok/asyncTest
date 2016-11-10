@@ -201,8 +201,8 @@
  
  > Just a one instance of the test class is used for the overall test runcycle it may cause several misalignments:
    1. Test interrelation. Please, remember best-practices say the tests have to be independent.  
-   2. Test isolation. If test class has some mutable properties then a test may get mutation state from previous run
-      but not purely initialized property! Always use test rules or initializers for such properties.  
+   2. Test isolation. If test class has some mutable properties then a test may get mutated state from previous run
+      but not purely initialized property! Always use test rules or initializers / cleaners for such properties.  
  
  
  -------------------------------------------
@@ -251,9 +251,9 @@
  
  			shared actual void moveNext(TestVariantResult result) {
  				if (testToBeCompleted) {
- 					// set `current` to `finished`
- 				} else {
  					// set `current` to test variant to be tested next
+ 				} else {
+ 					// set `current` to `finished`
  				}
  			}
  		}

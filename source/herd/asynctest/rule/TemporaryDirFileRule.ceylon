@@ -8,7 +8,7 @@ import ceylon.file {
 }
 
 
-"The rule which creates new temporary directory before _each_ test and destroyes it after."
+"Creates new temporary directory before _each_ test and destroyes it after."
 since( "0.6.0" ) by( "Lis" )
 shared class TemporaryDirectoryRule()
 		satisfies TestRule
@@ -33,7 +33,7 @@ shared class TemporaryDirectoryRule()
 }
 
 
-"The rule which creates new temporary file before _each_ test and destroyes it after."
+"Creates new temporary file before _each_ test and destroyes it after."
 since( "0.6.0" ) by( "Lis" )
 shared class TemporaryFileRule()
 	satisfies TestRule
