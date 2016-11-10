@@ -7,7 +7,8 @@ import herd.asynctest {
 	AsyncTestContext,
 	parameterized,
 	async,
-	TestVariant
+	TestVariant,
+	timeout
 }
 import herd.asynctest.match {
 
@@ -39,6 +40,7 @@ see( `function runFibonacciTest` )
  The function is marked with `testExecutor` annotation in order to perform asynchronous test.
  Alternatively `testExecutor` annotation can be used at module level."
 test async parameterized( `value fibonacciNumbers` )
+timeout( 5000 )
 shared void runFibonacciTest (
 	"Context to send test results." AsyncTestContext context,
 	"Index of Fibonacci number to be calculated." Integer indexOfFibonacciNumber,
