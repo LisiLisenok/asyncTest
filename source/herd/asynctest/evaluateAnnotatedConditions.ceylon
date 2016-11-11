@@ -11,10 +11,6 @@ import ceylon.test.engine {
 
 	TestSkippedException
 }
-import ceylon.collection {
-
-	ArrayList
-}
 import ceylon.language.meta.declaration {
 
 	Package,
@@ -34,11 +30,10 @@ import herd.asynctest.internal {
 "Evaluates test conditions applied as annotations."
 since( "0.0.1" )
 by( "Lis" )
-TestOutput[] runAnnotatedConditions (
+TestOutput? runAnnotatedConditions (
 	TestCondition[] conditions,
 	"Test context used for evaluation." TestExecutionContext context
 ) {
-	ArrayList<TestOutput> builder = ArrayList<TestOutput>(); 
 	for ( condition in conditions ) {
 		try {
 			value result = condition.evaluate( context );
@@ -51,28 +46,24 @@ TestOutput[] runAnnotatedConditions (
 						if ( exists reason = result.reason, !reason.empty )
 						then "'``typeName( type( condition ) )``' condition with ``reason``"
 						else "'``typeName( type( condition ) )``' condition";
-				builder.add (
-					TestOutput( TestState.skipped, TestSkippedException( exTitle ), 0, title )
-				);
+				return TestOutput( TestState.skipped, TestSkippedException( exTitle ), 0, title );
 			}
 		}
 		catch ( Throwable err ) {
-			builder.add (
-				TestOutput (
-					TestState.skipped, err, 0,
-					"skipped by condition '``typeName( type( condition ) )``'"
-				)
+			return TestOutput (
+				TestState.skipped, err, 0,
+				"skipped by condition '``typeName( type( condition ) )``'"
 			);
 		}
 	}
-	return builder.sequence();
+	return null;
 }
 
 
 "Evaluates test conditions applied as annotations."
 since( "0.0.1" )
 by( "Lis" )
-TestOutput[] evaluateAnnotatedConditions (
+TestOutput? evaluateAnnotatedConditions (
 	"Declaration to evaluate conditions on." FunctionDeclaration declaration,
 	"Test context used for evaluation." TestExecutionContext context
 ) {
@@ -83,7 +74,7 @@ TestOutput[] evaluateAnnotatedConditions (
 "Evaluates test conditions applied as annotations."
 since( "0.0.1" )
 by( "Lis" )
-TestOutput[] evaluateContainerAnnotatedConditions (
+TestOutput? evaluateContainerAnnotatedConditions (
 	"Declaration to evaluate conditions on." Package | ClassDeclaration declaration,
 	"Test context used for evaluation." TestExecutionContext context
 ) {

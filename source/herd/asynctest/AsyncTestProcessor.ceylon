@@ -167,11 +167,11 @@ class AsyncTestProcessor(
 	"Runs the test of a one function inlucding parameterization."
 	shared ExecutionTestOutput runTest() {
 		try {
-			if ( nonempty conditions = evaluateAnnotatedConditions( functionDeclaration, functionContext ) ) {
+			if ( exists condition = evaluateAnnotatedConditions( functionDeclaration, functionContext ) ) {
 				// test has been skipped due to unsatisfying some conditions
 				return ExecutionTestOutput (
 					functionContext,
-					[VariantTestOutput( conditions, [], [], 0, "", TestState.skipped )],
+					[VariantTestOutput( [condition], [], [], 0, "", TestState.skipped )],
 					0, TestState.skipped
 				);
 			}

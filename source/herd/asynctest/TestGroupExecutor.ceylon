@@ -80,15 +80,8 @@ class TestGroupExecutor (
 	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
 	ContextThreadGroup group = ContextThreadGroup( "asyncPrePost" );
 	
-	
-	"Description of execution to be done."
-	class TestExecutionDescription(
-		"Test function." shared FunctionDeclaration functionDeclaration,
-		"Description of the test." shared TestDescription description
-	) {}
-	
 	"Executions the group contains."
-	LinkedList<TestExecutionDescription> executions = LinkedList<TestExecutionDescription>();
+	LinkedList<TestDescription> executions = LinkedList<TestDescription>();
 
 	
 	"Instantiates a test container if `ClassDeclaration`.
@@ -175,24 +168,26 @@ class TestGroupExecutor (
 			CountDownLatch latch = CountDownLatch( totalTests );
 			// run tests
 			for ( test in executions ) {
-				executor.execute (
-					ConcurrentTestRunner (
-						AsyncTestProcessor (
-							test.functionDeclaration, instance, groupContext.childContext( test.description ),
-							[], [], [] // doesn't apply test rules - not working in concurent mode
-						),
-						latch, retLock, ret
-					)
-				);
+				if ( exists decl = test.functionDeclaration ) {
+					executor.execute (
+						ConcurrentTestRunner (
+							AsyncTestProcessor (
+								decl, instance, groupContext.childContext( test ),
+								[], [], [] // doesn't apply test rules - not working in concurent mode
+							),
+							latch, retLock, ret
+						)
+					);
+				}
 			}
 			latch.await();
 			executor.shutdown();
 			return ret.sequence();
 		}
-		else if ( exists first = executions.first ) {
+		else if ( exists first = executions.first, exists decl = first.functionDeclaration ) {
 			// just a one function - run it in sequential mode
 			return [ AsyncTestProcessor (
-					first.functionDeclaration, instance, groupContext.childContext( first.description ),
+				decl, instance, groupContext.childContext( first ),
 					[], [], []
 				).runTest()
 			];
@@ -208,10 +203,10 @@ class TestGroupExecutor (
 		"Statements called after each test - may modify test results." TestFunction[] statements,
 		"Functions called after each test." PrePostFunction[] cleaners
 	) {
-		return [ for ( test in executions )
+		return [ for ( test in executions ) if ( exists decl = test.functionDeclaration )
 			AsyncTestProcessor (
-				test.functionDeclaration, instance,
-				groupContext.childContext( test.description ),
+				decl, instance,
+				groupContext.childContext( test ),
 				intializers, statements, cleaners
 			).runTest()
 		];
@@ -473,17 +468,18 @@ class TestGroupExecutor (
 	
 	
 	"Adds new test to the group."
-	shared void addTest (
-		FunctionDeclaration functionDeclaration,
-		TestDescription description
-	) => executions.add( TestExecutionDescription( functionDeclaration, description ) );
+	shared void addTest( TestDescription description ) {
+		if ( description.functionDeclaration exists ) {
+			executions.add( description );
+		}
+	}
 	
 	
 	"Runs tests in this group."
 	shared void run() {
-		if ( nonempty conditions = evaluateContainerAnnotatedConditions( container, groupContext ) ) {
+		if ( exists condition = evaluateContainerAnnotatedConditions( container, groupContext ) ) {
 			// skip all tests since some conditions haven't met requirements
-			skipGroupTest( conditions );
+			skipGroupTest( [condition] );
 		}
 		else {
 			try {
@@ -535,7 +531,7 @@ class TestGroupExecutor (
 		if ( is Package container ) {
 			// for top-level functions add outputs to each function
 			for ( execution in executions ) {
-				TestExecutionContext context = groupContext.childContext( execution.description );
+				TestExecutionContext context = groupContext.childContext( execution );
 				fillContextWithTestResults( context,
 					[VariantTestOutput(
 						[], [], [], 0, "", TestState.skipped
@@ -545,7 +541,7 @@ class TestGroupExecutor (
 		else {
 			// for class - skipeach function and add failures as class variants
 			for ( execution in executions ) {
-				TestExecutionContext context = groupContext.childContext( execution.description );
+				TestExecutionContext context = groupContext.childContext( execution );
 				context.fire().testStarted( TestStartedEvent( context.description ) );
 				context.fire().testFinished( TestFinishedEvent (
 					TestResult( context.description, TestState.skipped, false, null, 0 )

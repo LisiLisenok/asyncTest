@@ -108,7 +108,7 @@ object asyncTestRunner {
 		
 		// add test
 		getTestExecutor( classDeclaration else functionDeclaration.containingPackage, parent )
-				.addTest( functionDeclaration, description );
+				.addTest( description );
 		addedTestNumber ++;
 		// if it is last test - execute all tests
 		if ( addedTestNumber == totalTestNumber ) {

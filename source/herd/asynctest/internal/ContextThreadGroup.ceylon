@@ -34,7 +34,7 @@ shared class ContextThreadGroup( String title )
 				return ret;
 			}
 			else {
-				ReusableThread ret = ReusableThread( this, title );
+				ReusableThread ret = ReusableThread( this, "failOnTimeout" );
 				reusedThread = ret;
 				ret.start();
 				return ret;

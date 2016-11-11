@@ -116,7 +116,8 @@
  
  **Notes:**  
  * There is no specific order the initializers or cleaners are executed in.  
- * If some initializer reports on failure the test is skipped but cleaners are executed.  
+ * If some initializer reports on failure the test is skipped.  
+ * Every initializer / cleaner is always executed regardless failure reporting.  
  * Top-level functions marked with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` have to take no arguments!
    While methods may take.  
  * Test executor blocks current thread until initializer or cleaner calls 
@@ -305,6 +306,9 @@
  
  For an example, see `ceylon.test::ignore` annotation.
  
+ > Conditions evaluation is done up to the first unsatisfied condition.
+   So, there is no guarantee for a condition to be evaluated.  
+  
  
  -------------------------------------------
  ### <a name=\"charts\"></a> Reporting test results using charts
