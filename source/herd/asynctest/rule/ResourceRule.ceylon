@@ -8,7 +8,7 @@ import herd.asynctest {
 
 "A file packaged within a module and loaded before all tests started.    
  See `ceylon.language::Resource` for details."
-since( "0.6.0" ) by( "Lis" )
+tagged( "SuiteRule" ) since( "0.6.0" ) by( "Lis" )
 shared class ResourceRule (
 	"Module the resource is to be looked in." Module mod,
 	"Path the resource is located at." String path

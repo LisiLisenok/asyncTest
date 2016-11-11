@@ -12,7 +12,7 @@ import herd.asynctest {
  Declare attribute or top-level value satisfies the interface and mark it with [[testRule]] annotation.  
  "
 see( `function testRule`, `interface TestRule`, `interface TestStatement` )
-since( "0.6.0" ) by( "Lis" )
+tagged( "SuiteRule" ) since( "0.6.0" ) by( "Lis" )
 shared interface SuiteRule
 {
 	"Initializer which is called _once_ before all tests within the scope
@@ -37,7 +37,7 @@ shared interface SuiteRule
  Usage:
  Declare attribute or top-level value satisfies the interface and mark it with [[testRule]] annotation.
  "
-see( `function testRule`, `interface SuiteRule`, `interface TestStatement` )
+tagged( "TestRule" ) see( `function testRule`, `interface SuiteRule`, `interface TestStatement` )
 since( "0.6.0" ) by( "Lis" )
 shared interface TestRule
 {
@@ -65,7 +65,7 @@ shared interface TestRule
  Declare attribute or top-level value satisfies the interface and mark it with [[testRule]] annotation.
  "
 see( `function testRule`, `interface SuiteRule`, `interface TestRule` )
-since( "0.6.0" ) by( "Lis" )
+tagged( "Statement" ) since( "0.6.0" ) by( "Lis" )
 shared interface TestStatement
 {
 	

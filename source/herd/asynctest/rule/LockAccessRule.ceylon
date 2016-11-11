@@ -29,7 +29,7 @@ import java.util.concurrent.locks {
  
  If `Element` is mutable be careful with proper cleaning after the test - factory function is prefered in this case.  
  "
-since( "0.6.0" ) by( "Lis" )
+tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
 shared class LockAccessRule<Element>( Element | Element() initial ) satisfies TestRule
 {
 	

@@ -7,7 +7,7 @@ import herd.asynctest {
  Initialization (i.e. `initialize` methods) is performed with iterating of the `rules` in direct order,
  while diposing (i.e. `dispose` methods) is performed in reverse order. So the first initialized is
  the last disposed."
-since( "0.6.0" ) by( "Lis" )
+tagged( "SuiteRule" ) since( "0.6.0" ) by( "Lis" )
 shared class SuiteRuleChain (
 	SuiteRule* rules
 ) satisfies SuiteRule {
@@ -33,7 +33,7 @@ shared class SuiteRuleChain (
  Initialization (i.e. `before` methods) is performed with iterating of the `rules` in direct order,
  while diposing (i.e. `after` methods) is performed in reverse order. So the first initialized is
  the last disposed."
-since( "0.6.0" ) by( "Lis" )
+tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
 shared class TestRuleChain (
 	TestRule* rules
 ) satisfies TestRule {

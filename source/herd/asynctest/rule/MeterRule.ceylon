@@ -25,7 +25,7 @@ import herd.asynctest {
  "
 see( `class StatisticSummary` )
 by( "Lis" ) since( "0.6.0" )
-shared class MeterRule() satisfies TestRule
+tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 {
 	
 	"Calculations of the time statistic data."

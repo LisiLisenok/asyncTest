@@ -6,7 +6,7 @@ import herd.asynctest {
 "Provides statistics of some variate values.  
  Statistic data is reseted before _each_ test.  "
 see( `class StatisticSummary` )
-by( "Lis" ) since( "0.6.0" )
+tagged( "TestRule" ) by( "Lis" ) since( "0.6.0" )
 shared class StatisticRule() satisfies TestRule
 {
 

@@ -10,7 +10,7 @@ import herd.asynctest.match {
  Actually `source` is called when the verifier is evaluated i.e. _after each_ test.
  This is main difference to [[VerifyRule]] which evaluates `source` _before_ each test."
 see( `function AsyncTestContext.assertThat`, `package herd.asynctest.match`, `class VerifyRule` )
-since ( "0.6.0" ) by( "Lis" )
+tagged( "Statement" ) since ( "0.6.0" ) by( "Lis" )
 shared class Verifier<Element> (
 	"Element source, actually called when statement is evaluated" Element() source,
 	"Matcher to verify stored value." Matcher<Element> matcher,

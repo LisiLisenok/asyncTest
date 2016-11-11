@@ -10,7 +10,7 @@ import herd.asynctest {
  The initial value is evaluated _before_ each test. This is main difference with [[Verifier]]
  which evaluates value _after_ each test. 
  ."
-see( `function AsyncTestContext.assertThat`, `package herd.asynctest.match`, `class Verifier` )
+tagged( "TestRule", "Statement" ) see( `function AsyncTestContext.assertThat`, `package herd.asynctest.match`, `class Verifier` )
 since( "0.6.0" ) by( "Lis" )
 shared class VerifyRule<Element> (
 	"Initial value source." Element | Element() initial,

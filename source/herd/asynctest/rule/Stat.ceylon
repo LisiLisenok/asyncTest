@@ -7,6 +7,7 @@ import java.lang {
 }
 
 "Statistic summary from some variate values stream."
+see( `class StatisticRule`, `class MeterRule` )
 by( "Lis" ) since( "0.6.0" )
 shared class StatisticSummary (
 	"Minimum of the values that have been statisticaly treated."
