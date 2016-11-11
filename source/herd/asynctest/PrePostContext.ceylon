@@ -25,10 +25,16 @@ import java.lang {
  Runs a stream of the prepost functions, provides them with prepost context
  and collects report from all of them."
 since( "0.6.0" ) by( "Lis" )
-class PrePostContext()
+class PrePostContext (
+	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
+	ContextThreadGroup group
+)
 {	
 	"non-null if aborted"
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
+	
+	//"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
+	//ContextThreadGroup group = ContextThreadGroup( "asyncPrePost" );
 
 
 	"Provides prepost context to clients.  
@@ -37,9 +43,6 @@ class PrePostContext()
 			"Title for the currently run function." String currentFunction,
 			shared actual TestInfo testInfo
 	) extends ContextBase() satisfies AsyncPrePostContext {
-		
-		"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-		shared ContextThreadGroup group = ContextThreadGroup( "asyncPrePost" );
 		
 		shared actual void abort( Throwable reason, String title ) {
 			if ( running.compareAndSet( true, false ) ) {
@@ -85,7 +88,7 @@ class PrePostContext()
 			TestInfo t = testInfo else
 				TestInfo( init.prepostDeclaration, [], init.arguments, init.functionTitle, init.timeOutMilliseconds );
 			InternalContext context = InternalContext( init.functionTitle, t );
-			if ( !context.group.execute( context.abortWithUncaughtException, init.timeOutMilliseconds, runFunction( init, context ) ) ) {
+			if ( !group.execute( context.abortWithUncaughtException, init.timeOutMilliseconds, runFunction( init, context ) ) ) {
 				// timeout!
 				value excep = TimeOutException( init.timeOutMilliseconds );
 				context.abort( excep, excep.message );

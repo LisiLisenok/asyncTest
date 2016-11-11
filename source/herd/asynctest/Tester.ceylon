@@ -39,11 +39,15 @@ import java.lang {
 "Performs a one test execution and provides tet function with test context.  
  Rule: one tester - one test function!"
 since( "0.0.1" ) by( "Lis" )
-class Tester() extends ContextBase() satisfies AsyncTestContext
+class Tester (
+	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
+	ContextThreadGroup group
+)
+		extends ContextBase() satisfies AsyncTestContext
 {
 	
-	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	ContextThreadGroup group = ContextThreadGroup( "asyncTester" );
+	//"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
+	//ContextThreadGroup group = ContextThreadGroup( "asyncTester" );
 
 	"outputs locking"
 	ReentrantLock outputLocker = ReentrantLock();

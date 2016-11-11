@@ -63,6 +63,10 @@ import ceylon.test.event {
 	TestFinishedEvent,
 	TestStartedEvent
 }
+import herd.asynctest.internal {
+
+	ContextThreadGroup
+}
 
 
 "Posseses and executes grouped tests."
@@ -72,6 +76,10 @@ class TestGroupExecutor (
 	"Container the test is performed on." Package | ClassDeclaration container,
 	"Context the group executed on." shared TestExecutionContext groupContext
 ) {	
+	
+	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
+	ContextThreadGroup group = ContextThreadGroup( "asyncPrePost" );
+	
 	
 	"Description of execution to be done."
 	class TestExecutionDescription(
@@ -97,7 +105,7 @@ class TestGroupExecutor (
 				if ( exists factory = optionalAnnotation( `FactoryAnnotation`, declaration ) ) {
 					// factory exists - use this to instantiate object
 					if ( asyncTestRunner.isAsyncFactoryDeclaration( factory.factoryFunction ) ) {
-						return FactoryContext( "``factory.factoryFunction.name``" ).run (
+						return FactoryContext( "``factory.factoryFunction.name``", group ).run (
 							( AsyncFactoryContext context ) {
 								factory.factoryFunction.apply<>().apply( context );
 							},
@@ -105,7 +113,7 @@ class TestGroupExecutor (
 						);
 					}
 					else {
-						return FactoryContext( "``factory.factoryFunction.name``" ).run (
+						return FactoryContext( "``factory.factoryFunction.name``", group ).run (
 							( AsyncFactoryContext context ) {
 								if ( exists ret = factory.factoryFunction.apply<>().apply() ) {
 									context.fill( ret );
@@ -399,7 +407,7 @@ class TestGroupExecutor (
 				else getSuiteInitializers( null, null );
 		
 		// context used for initialization / disposing
-		PrePostContext prePostContext = PrePostContext();
+		PrePostContext prePostContext = PrePostContext( group );
 		if ( nonempty initsRet = prePostContext.run( testRunInits, null ) ) {
 			// test has been skipped by some initializer
 			// perform disposing and skip the test
@@ -426,7 +434,7 @@ class TestGroupExecutor (
 					.append( getSuiteCleaners( instance, instanceType ) )
 				else getSuiteCleaners( null, null );
 		// context used for initialization / disposing
-		PrePostContext prePostContext = PrePostContext();
+		PrePostContext prePostContext = PrePostContext( group );
 		// perform all test disposing
 		return prePostContext.run( cleaners, null );
 	}
@@ -517,6 +525,7 @@ class TestGroupExecutor (
 				skipGroupTest( [TestOutput( TestState.aborted, err, 0, "" )] );
 			}
 		}
+		group.completeCurrent();
 	}
 	
 	

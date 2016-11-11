@@ -2,8 +2,7 @@ import java.lang {
 	Thread,
 	ThreadDeath,
 	ThreadGroup,
-	SecurityException,
-	InterruptedException
+	SecurityException
 }
 import java.util.concurrent.locks {
 	ReentrantLock
@@ -12,41 +11,109 @@ import java.util.concurrent.locks {
 
 "Represent group of the context - run main function listens uncaught exceptions and interrupt all threads."
 since( "0.6.0" ) by( "Lis" )
-shared class ContextThreadGroup( String title ) extends ThreadGroup( title )
+shared class ContextThreadGroup( String title )
 {
-	ReentrantLock litenerLock = ReentrantLock();
-	variable Anything( Thread, Throwable )? uncaughtExceptionListener = null;
 	
-	shared actual void uncaughtException( Thread t, Throwable e ) {
-		if ( is ThreadDeath e ) {
-			super.uncaughtException( t, e );
-		}
-		else {
-			litenerLock.lock();
-			try {
-				if ( exists listener = uncaughtExceptionListener ) {
-					listener( t, e );
-					interruptAllThreads();
-				}
-				else {
-					// TODO: log - ?
-					//super.uncaughtException( t, e );
-				}
+	"Thread group."
+	class InternalThreadGroup() extends ThreadGroup( title ) {
+		
+		ReentrantLock listenerLock = ReentrantLock();
+		variable Anything( Thread, Throwable )? uncaughtExceptionListener = null;
+	
+		"Reused thread or null if has to be initialized."
+		variable ReusableThread? reusedThread = null;
+	
+		variable Boolean hasBeenInterrupted = false;
+		"The group has been interrupted."
+		shared Boolean groupInterrupted => hasBeenInterrupted;
+		
+	
+		"Creates new thread or returns reused one."
+		ReusableThread getThread() {
+			if ( exists ret = reusedThread ) {
+				return ret;
 			}
-			finally { litenerLock.unlock(); }
+			else {
+				ReusableThread ret = ReusableThread( this, title );
+				reusedThread = ret;
+				ret.start();
+				return ret;
+			}
 		}
-	}
+	
+		shared actual void uncaughtException( Thread t, Throwable e ) {
+			if ( is ThreadDeath e ) {
+				super.uncaughtException( t, e );
+			}
+			else {
+				listenerLock.lock();
+				try {
+					if ( exists listener = uncaughtExceptionListener ) {
+						listener( t, e );
+						interruptAllThreads();
+					}
+					else {
+						// TODO: log - ?
+						//super.uncaughtException( t, e );
+					}
+				}
+				finally { listenerLock.unlock(); }
+			}
+		}
 
-	"Interrupts all threads belong to the group like `ThreadGroup.interrupt` but doesn't throw."
-	void interruptAllThreads() {
-		// interrupt may cause security exception - we may do nothing with
-		try { interrupt(); }
-		catch ( SecurityException err ) {
-			// TODO: log - ?
+		"Interrupts all threads belong to the group like `ThreadGroup.interrupt` but doesn't throw."
+		void interruptAllThreads() {
+			hasBeenInterrupted = true;
+			completeCurrent();
+			// interrupt may cause security exception - we may do nothing with
+			try { interrupt(); }
+			catch ( SecurityException err ) {
+				// TODO: log - ?
+			}
 		}
-	}
 
 	
+		"Stops the current thread."
+		shared void completeCurrent() {
+			if ( exists r = reusedThread ) {
+				r.complete();
+				reusedThread = null;
+			}
+		}
+	
+		"Executes `run` on separated thread belongs to this group.
+		 Awaits completion no more then `timeoutMilliseconds` or unlimited if it is <= 0."
+		shared Boolean execute (
+			"Listener on uncaught exceptions." Anything( Thread, Throwable ) uncaughtExceptionListener,
+			"Timeout in millieconds, <= 0 if unlimited." Integer timeoutMilliseconds,
+			"Function to be executed on separated thread." Anything() run
+		) {
+			listenerLock.lock();
+			this.uncaughtExceptionListener = uncaughtExceptionListener;
+			listenerLock.unlock();
+		
+			// create new thread or reuse current one
+			ReusableThread thr = getThread();
+			// execute the function and take latcher to await completion
+			LatchWaiter latch = thr.execute( run );
+			// await until timeout or completion if timeout <= 0 await completion or unlimited time
+			if ( !latch.awaitUntil( timeoutMilliseconds ) ) {
+				interruptAllThreads();
+				return false;
+			}
+			else {
+				return true;
+			}
+		}
+	}
+	
+	
+	"Thread group."
+	variable InternalThreadGroup currentGroup = InternalThreadGroup();
+	
+	
+	"Stops the current thread."
+	shared void completeCurrent() => currentGroup.completeCurrent();
 	
 	"Executes `run` on separated thread belongs to this group.
 	 Awaits completion no more then `timeoutMilliseconds` or unlimited if it is <= 0."
@@ -55,29 +122,10 @@ shared class ContextThreadGroup( String title ) extends ThreadGroup( title )
 		"Timeout in millieconds, <= 0 if unlimited." Integer timeoutMilliseconds,
 		"Function to be executed on separated thread." Anything() run
 	) {
-		litenerLock.lock();
-		this.uncaughtExceptionListener = uncaughtExceptionListener;
-		litenerLock.unlock();
-		LatchWaiter latch = LatchWaiter( 1 );
-		// execute in eparated thread
-		ExecutionThread thr = ExecutionThread ( this, title,
-			() {
-				try { run(); }
-				catch ( InterruptedException err ) {
-					// this means condition awaited completion has been interrupted
-					// TODO: log - ?
-				}
-				finally { latch.countDown(); }
-			}
-		);
-		thr.start();
-		// await until timeout or completion if timeout <= 0 await completion or unlimited time
-		if ( !latch.awaitUntil( timeoutMilliseconds ) ) {
-			interruptAllThreads();
-			return false;
+		if ( currentGroup.groupInterrupted ) {
+			currentGroup = InternalThreadGroup();
 		}
-		else {
-			return true;
-		}
+		return currentGroup.execute( uncaughtExceptionListener, timeoutMilliseconds, run );
 	}
+	
 }

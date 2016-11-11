@@ -28,6 +28,10 @@ import ceylon.language.meta {
 	
 	type
 }
+import herd.asynctest.internal {
+
+	ContextThreadGroup
+}
 
 
 "Processes test execution with the branch test generic parameters and function arguments."
@@ -49,9 +53,12 @@ class AsyncTestProcessor(
 
 	"`true` if test function is run on async test context."
 	Boolean runOnAsyncContext = asyncTestRunner.isAsyncDeclaration( functionDeclaration );
+	
+	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
+	ContextThreadGroup group = ContextThreadGroup( "asyncTester" );
 
 	"Init context to perform test initialization."
-	PrePostContext prePostContext = PrePostContext();
+	PrePostContext prePostContext = PrePostContext( group );
 	
 	
 	"Applies function from declaration, container and a given type parameters."
@@ -98,11 +105,11 @@ class AsyncTestProcessor(
 		}
 		else {
 			// run test - separated `Tester` is used for each variant!
-			TestVariantResult output = Tester().run( getTestFunction( variant ) );
+			TestVariantResult output = Tester( group ).run( getTestFunction( variant ) );
 			
 			// run test statements which may add something to the test report
 			// separated `Tester` is used for each statement!
-			value statementOuts = [ for ( statement in statements ) Tester().run( statement ) ];
+			value statementOuts = [ for ( statement in statements ) Tester( group ).run( statement ) ];
 			variable TestState totalState = output.overallState;
 			for ( item in statementOuts ) {
 				if ( totalState < item.overallState ) { totalState = item.overallState; }
@@ -190,6 +197,7 @@ class AsyncTestProcessor(
 				0, TestState.error
 			);
 		}
+		finally { group.completeCurrent(); }
 	}
 	
 }

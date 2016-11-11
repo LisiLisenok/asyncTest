@@ -11,10 +11,16 @@ import java.lang {
  Rule: one factory function - one context."
 see( `function factory` )
 since( "0.6.0" ) by( "Lis" )
-class FactoryContext( "Factory declaration title." String factoryTitle ) extends ContextBase() satisfies AsyncFactoryContext
-{
+class FactoryContext (
+	"Factory declaration title."
+	String factoryTitle,
 	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	ContextThreadGroup group = ContextThreadGroup( "asyncFactory" );
+	ContextThreadGroup group
+)
+		extends ContextBase() satisfies AsyncFactoryContext
+{
+	//"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
+	//ContextThreadGroup group = ContextThreadGroup( "asyncFactory" );
 	
 	"non-null if aborted"
 	variable Throwable? abortReason = null;
