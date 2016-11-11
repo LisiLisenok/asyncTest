@@ -400,7 +400,7 @@ class TestGroupExecutor (
 		
 		// context used for initialization / disposing
 		PrePostContext prePostContext = PrePostContext();
-		if ( nonempty initsRet = prePostContext.run ( testRunInits, null ) ) {
+		if ( nonempty initsRet = prePostContext.run( testRunInits, null ) ) {
 			// test has been skipped by some initializer
 			// perform disposing and skip the test
 			value cleaners =

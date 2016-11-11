@@ -50,8 +50,6 @@ class AsyncTestProcessor(
 	"`true` if test function is run on async test context."
 	Boolean runOnAsyncContext = asyncTestRunner.isAsyncDeclaration( functionDeclaration );
 
-	"Tester to run a one function execution."
-	Tester tester = Tester();
 	"Init context to perform test initialization."
 	PrePostContext prePostContext = PrePostContext();
 	
@@ -99,11 +97,12 @@ class AsyncTestProcessor(
 			return VariantTestOutput( initErrs, [], disposeErrs, 0, variant.variantName, TestState.aborted );
 		}
 		else {
-			// run test
-			TestVariantResult output = tester.run( getTestFunction( variant ) );
+			// run test - separated `Tester` is used for each variant!
+			TestVariantResult output = Tester().run( getTestFunction( variant ) );
 			
 			// run test statements which may add something to the test report
-			value statementOuts = [ for ( statement in statements ) tester.run( statement ) ];
+			// separated `Tester` is used for each statement!
+			value statementOuts = [ for ( statement in statements ) Tester().run( statement ) ];
 			variable TestState totalState = output.overallState;
 			for ( item in statementOuts ) {
 				if ( totalState < item.overallState ) { totalState = item.overallState; }

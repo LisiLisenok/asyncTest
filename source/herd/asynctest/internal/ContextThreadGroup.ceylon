@@ -1,6 +1,3 @@
-import java.util.concurrent.atomic {
-	AtomicReference
-}
 import java.lang {
 	Thread,
 	ThreadDeath,
@@ -8,26 +5,35 @@ import java.lang {
 	SecurityException,
 	InterruptedException
 }
+import java.util.concurrent.locks {
+	ReentrantLock
+}
 
 
+"Represent group of the context - run main function listens uncaught exceptions and interrupt all threads."
 since( "0.6.0" ) by( "Lis" )
-shared abstract class ContextThreadGroup<Context>( String title ) extends ThreadGroup( title )
+shared class ContextThreadGroup( String title ) extends ThreadGroup( title )
 {
-	AtomicReference<Context?> context = AtomicReference<Context?>( null );
+	ReentrantLock litenerLock = ReentrantLock();
+	variable Anything( Thread, Throwable )? uncaughtExceptionListener = null;
 	
 	shared actual void uncaughtException( Thread t, Throwable e ) {
 		if ( is ThreadDeath e ) {
 			super.uncaughtException( t, e );
 		}
 		else {
-			if ( exists c = context.getAndSet( null ) ) {
-				stopWithError( c, e );
-				interruptAllThreads();
+			litenerLock.lock();
+			try {
+				if ( exists listener = uncaughtExceptionListener ) {
+					listener( t, e );
+					interruptAllThreads();
+				}
+				else {
+					// TODO: log - ?
+					//super.uncaughtException( t, e );
+				}
 			}
-			else {
-				// TODO: log - ?
-				//super.uncaughtException( t, e );
-			}
+			finally { litenerLock.unlock(); }
 		}
 	}
 
@@ -39,16 +45,20 @@ shared abstract class ContextThreadGroup<Context>( String title ) extends Thread
 			// TODO: log - ?
 		}
 	}
-	
-	"Stops the context with the given error."
-	shared formal void stopWithError( Context c, Throwable err );
+
 	
 	
 	"Executes `run` on separated thread belongs to this group.
 	 Awaits completion no more then `timeoutMilliseconds` or unlimited if it is <= 0."
-	shared Boolean execute( Context c, Integer timeoutMilliseconds, Anything() run ) {
+	shared Boolean execute (
+		"Listener on uncaught exceptions." Anything( Thread, Throwable ) uncaughtExceptionListener,
+		"Timeout in millieconds, <= 0 if unlimited." Integer timeoutMilliseconds,
+		"Function to be executed on separated thread." Anything() run
+	) {
+		litenerLock.lock();
+		this.uncaughtExceptionListener = uncaughtExceptionListener;
+		litenerLock.unlock();
 		LatchWaiter latch = LatchWaiter( 1 );
-		while ( !context.compareAndSet( context.get(), c ) ) {}
 		// execute in eparated thread
 		ExecutionThread thr = ExecutionThread ( this, title,
 			() {

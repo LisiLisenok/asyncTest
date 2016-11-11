@@ -15,18 +15,16 @@ import ceylon.language.meta.model {
 	IncompatibleTypeException,
 	InvocationException
 }
+import java.lang {
+
+	Thread
+}
 
 
 "Performs initialization or disposing."
 since( "0.6.0" ) by( "Lis" )
 class PrePostContext()
-{
-	"Group to run functions if timeout specified."
-	object group extends ContextThreadGroup<AsyncPrePostContext>( "asyncPrePost" ) {
-		shared actual void stopWithError( AsyncPrePostContext c, Throwable err )
-			=> c.abort( err, "uncaught exception in child thread." );
-	}
-	
+{	
 	"non-null if aborted"
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 
@@ -37,6 +35,9 @@ class PrePostContext()
 			"Title for the currently run function." String currentFunction,
 			shared actual TestInfo testInfo
 	) extends ContextBase() satisfies AsyncPrePostContext {
+		
+		"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
+		shared ContextThreadGroup group = ContextThreadGroup( "asyncPrePost" );
 		
 		shared actual void abort( Throwable reason, String title ) {
 			if ( running.compareAndSet( true, false ) ) {
@@ -52,6 +53,9 @@ class PrePostContext()
 				signal();
 			}
 		}
+		
+		shared void abortWithUncaughtException( Thread t, Throwable e )
+			=> abort( e, "uncaught exception in child thread." );
 		
 	}
 	
@@ -70,16 +74,6 @@ class PrePostContext()
 		context.await();
 	}
 	
-	"Runs prepost function on separated thread and controls timeout."
-	void runPrePostOnSeparatedThread( PrePostFunction init, TestInfo testInfo ) {
-		InternalContext context = InternalContext( init.functionTitle, testInfo );
-		if ( !group.execute( context, init.timeOutMilliseconds, runFunction( init, context ) ) ) {
-			// timeout!
-			value excep = TimeOutException( init.timeOutMilliseconds );
-			context.abort( excep, excep.message );
-		}
-	}
-	
 	"Runs prepost process. Returns errors if occured."
 	shared TestOutput[] run (
 		"Function to be preposted" PrePostFunction[] inits,
@@ -88,7 +82,12 @@ class PrePostContext()
 		for ( init in inits ) {
 			TestInfo t = testInfo else
 				TestInfo( init.prepostDeclaration, [], init.arguments, init.functionTitle, init.timeOutMilliseconds );
-			runPrePostOnSeparatedThread( init, t );
+			InternalContext context = InternalContext( init.functionTitle, t );
+			if ( !context.group.execute( context.abortWithUncaughtException, init.timeOutMilliseconds, runFunction( init, context ) ) ) {
+				// timeout!
+				value excep = TimeOutException( init.timeOutMilliseconds );
+				context.abort( excep, excep.message );
+			}
 		}
 		value ret = outputs.sequence(); 
 		outputs.clear();
