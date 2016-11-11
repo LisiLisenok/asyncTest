@@ -40,6 +40,9 @@ class ReusableThread( ThreadGroup group, String name )
 	"Stops thecurrent thread."
 	shared void complete() {
 		running.set( false );
+		executeLock.lock();
+		try { executeCondition.signal(); }
+		finally { executeLock.unlock(); }
 	}
 	
 	

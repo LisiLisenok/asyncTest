@@ -15,17 +15,17 @@
  and annotated with [[testRule]] annotation.  
  
  
- > Top-level rule is applied to top-level functions within the same package.  
- 
- > Attribute is applide to methods of the same class.  
- 
- > Attribute has to be shared. Inherited attributes are evaluated also.  
- 
- > The rules inititalization / dispose functions takes [[herd.asynctest::AsyncPrePostContext]] and the interface contract
+ **Notes:**  
+ * There is no specific order to execute the rules! Use [[SuiteRuleChain]] or [[TestRuleChain]]
+   in order to apply ordered execution.
+ * Top-level rule is applied to top-level functions within the same package.  
+ * Attribute is applide to methods of the same class.  
+ * Attribute has to be shared.  
+ * Inherited attributes are evaluated also.  
+ * The rules inititalization / dispose functions takes [[herd.asynctest::AsyncPrePostContext]] and the interface contract
    has to be adopted: [[herd.asynctest::AsyncPrePostContext.proceed]] or [[herd.asynctest::AsyncPrePostContext.abort]]
-   has to be called in order to complete / abort initialization / disposing process.  
-   
- > [[TestStatement.apply]] takes [[herd.asynctest::AsyncTestContext]] and the interface contract
+   has to be called in order to complete / abort initialization / disposing process.   
+ * [[TestStatement.apply]] takes [[herd.asynctest::AsyncTestContext]] and the interface contract
    has to be adopted: [[herd.asynctest::AsyncTestContext.complete]] has to be called
    in order to complete the statement evaluation.  
 

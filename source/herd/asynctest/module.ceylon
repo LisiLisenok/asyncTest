@@ -114,17 +114,15 @@
  (package for top-level and class for methods) is interrupted and failure is reported.  
  All initializers and cleaners are called disregard the failure reporting.  
  
- > If some initializer reports on failure the test is skipped but cleaners are executed.  
-  
- > Top-level functions marked with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` have to take no arguments!
+ **Notes:**  
+ * There is no specific order the initializers or cleaners are executed in.  
+ * If some initializer reports on failure the test is skipped but cleaners are executed.  
+ * Top-level functions marked with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` have to take no arguments!
    While methods may take.  
- 
- > Test executor blocks current thread until initializer or cleaner calls 
+ * Test executor blocks current thread until initializer or cleaner calls 
    [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]].  
- 
- > Both initializer and cleaner methods have to be shared! Top-level functions may not be shared.  
- 
- > Inherited initializer or cleaner methods are executed also.  
+ * Both initializer and cleaner methods have to be shared! Top-level functions may not be shared.  
+ * Inherited initializer or cleaner methods are executed also.  
  
  
  #### Test initialization and disposing example
