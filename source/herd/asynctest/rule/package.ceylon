@@ -87,7 +87,8 @@
  * [[LockAccessRule]] tool for controlling access to a shared resource by multiple threads.  
  * [[MeterRule]] collects statistic data on an execution time and on a rate (per second) at which a set of events occur.  
  * [[ResourceRule]] represents a file packaged within a module and loaded before _all_ tests started.  
- * [[StatisticRule]] provides statistics data for some variate values.  
+ * [[StatisticRule]] provides statistics data for some variate values.
+ * [[SuiteRuleChain]] and [[TestRuleChain]] are intended to execute rules in the given order.  
  * [[TemporaryDirectoryRule]] represents a temporary directory which is created before _each_ test and destroyed after.  
  * [[TemporaryFileRule]] represents a temporary file which is created before _each_ test and destroyed after.
  * [[Verifier]] extracts value from source function after _each_ test and verifies it with given matcher.    

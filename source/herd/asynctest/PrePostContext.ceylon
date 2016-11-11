@@ -21,7 +21,9 @@ import java.lang {
 }
 
 
-"Performs initialization or disposing."
+"Performs initialization or disposing.
+ Runs a stream of the prepost functions, provides them with prepost context
+ and collects report from all of them."
 since( "0.6.0" ) by( "Lis" )
 class PrePostContext()
 {	
@@ -76,7 +78,7 @@ class PrePostContext()
 	
 	"Runs prepost process. Returns errors if occured."
 	shared TestOutput[] run (
-		"Function to be preposted" PrePostFunction[] inits,
+		"Functions to be preposted." PrePostFunction[] inits,
 		"Info about current test or `null` if prepost is global." TestInfo? testInfo 
 	) {
 		for ( init in inits ) {
