@@ -117,13 +117,14 @@
  **Notes:**  
  * There is no specific order the initializers or cleaners are executed in.  
  * If some initializer reports on failure the test is skipped.  
- * Every initializer / cleaner is always executed regardless failure reporting.  
+ * Every initializer / cleaner is always executed regardless failure reporting
+   since a right to be disposed has to be provided for each.  
  * Top-level functions marked with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` have to take no arguments!
-   While methods may take.  
+   While methods may take (see [below](#initargs)).  
  * Test executor blocks current thread until initializer or cleaner calls 
    [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]].  
  * Both initializer and cleaner methods have to be shared! Top-level functions may not be shared.  
- * Inherited initializer or cleaner methods are executed also.  
+ * Inherited initializer or cleaner method is executed also.  
  
  
  #### Test initialization and disposing example
@@ -153,7 +154,7 @@
 		}
  
  
- #### Initializer or cleaner arguments
+ #### <a name=\"initargs\"></a> Initializer or cleaner arguments
  
  [[arguments]] annotation is intended to provide arguments for a `one-shot` function like test initializers are.  
  The annotation takes a one argument - declaration of top-level function or value which returns a tupple with
@@ -202,6 +203,9 @@
    1. Test interrelation. Please, remember best-practices say the tests have to be independent.  
    2. Test isolation. If test class has some mutable properties then a test may get mutated state from previous run
       but not purely initialized property! Always use test rules or initializers / cleaners for such properties.  
+ 
+ > From the other side having only one test class instance during overall test runcycle
+   helps to orginaze initialization logic in manner more suitable for asynchronous code testing.  
  
  
  -------------------------------------------
@@ -289,7 +293,7 @@
  overrides definitions of upper-level. So, if both function and class annotated with [[timeout]] the function annotation
  is applied.  
  
- [[timeout]] annotation is applicable to every function executed during test: test function, initialization, disposing,
+ [[timeout]] annotation is applicable to every function executed during the test: test function, initialization, disposing,
  rule or factory.  
  
  Example, function `doMyTest` will be interrupted if not completed during 1 second:
@@ -306,7 +310,7 @@
  
  For an example, see `ceylon.test::ignore` annotation.
  
- > Conditions evaluation is done up to the first unsatisfied condition.
+ > Conditions are evaluation up to the first unsatisfied condition.
    So, there is no guarantee for a condition to be evaluated.  
   
  

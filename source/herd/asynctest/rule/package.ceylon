@@ -4,29 +4,30 @@
  Provide a way to perform initialization / disposing before / after test execution and to modify test behaviour.
  
  Each rule is a top-level value or class attribute which satisfies some of the following interfaces:  
- 1. [[SuiteRule]] performs initialization or disposing before or after execution of _all_ tests in the scope
+ 1. [[SuiteRule]] performs initialization or disposing respectively before or after execution of _all_ tests in the scope
     (package for top-level value or class for attribute).  
- 2. [[TestRule]] performs initialization or disposing before or after execution of _each_ test in the scope
+ 2. [[TestRule]] performs initialization or disposing respectively before or after execution of _each_ test in the scope
     (package for top-level value or class for attribute).  
  3. [[TestStatement]] is indended to add success or failure report to the test results
     and is evaluated after _each_ test is completed.  
  
  In order to apply a rule a top-level value or class attribute satisfied some of the rule interfaces has to be declared
- and annotated with [[testRule]] annotation.  
+ and marked with [[testRule]] annotation.  
  
  
  **Notes:**  
  * There is no specific order to execute the rules! Use [[SuiteRuleChain]] or [[TestRuleChain]]
    in order to apply ordered execution.
- * Top-level rule is applied to top-level functions within the same package.  
- * Attribute is applide to methods of the same class.  
+ * Top-level rule is applied to top-level test functions within the same package.  
+ * Attribute is applied to test methods of the same class.  
  * Attribute has to be shared.  
  * Inherited attributes are evaluated also.  
- * The rules inititalization / dispose functions takes [[herd.asynctest::AsyncPrePostContext]] and the interface contract
-   has to be adopted: [[herd.asynctest::AsyncPrePostContext.proceed]] or [[herd.asynctest::AsyncPrePostContext.abort]]
-   has to be called in order to complete / abort initialization / disposing process.   
- * [[TestStatement.apply]] takes [[herd.asynctest::AsyncTestContext]] and the interface contract
-   has to be adopted: [[herd.asynctest::AsyncTestContext.complete]] has to be called
+ * The rules inititalization / dispose functions takes [[herd.asynctest::AsyncPrePostContext]] and the context interface
+   contract has to be adopted, i.e [[herd.asynctest::AsyncPrePostContext.proceed]]
+   or [[herd.asynctest::AsyncPrePostContext.abort]] has to be called in order to
+   complete / abort initialization / disposing process.   
+ * [[TestStatement.apply]] takes [[herd.asynctest::AsyncTestContext]] and the context interface contract
+   has to be adopted, i.e. [[herd.asynctest::AsyncTestContext.complete]] has to be called
    in order to complete the statement evaluation.  
 
   
@@ -98,7 +99,7 @@
    
  Why every build-in test rule implements `non-default` rule methods? Since each method calls
  [[herd.asynctest::AsyncPrePostContext.proceed]] or [[herd.asynctest::AsyncPrePostContext.abort]]
- which completes initialization / disposing. Delegation should be used instead of extending.  
+ which complete initialization / disposing. Delegation should be used instead of extending.  
  
  
  > Reminding: annotate the rule top-level value or attribute with [[testRule]]!
