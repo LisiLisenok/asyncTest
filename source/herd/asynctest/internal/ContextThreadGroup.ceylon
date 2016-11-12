@@ -4,12 +4,9 @@ import java.lang {
 	ThreadGroup,
 	SecurityException
 }
-import java.util.concurrent.locks {
-	ReentrantLock
-}
 
 
-"Represent group of the context - run main function listens uncaught exceptions and interrupt all threads."
+"Represents group of the context - run main function, listens uncaught exceptions and interrupt all threads."
 since( "0.6.0" ) by( "Lis" )
 shared class ContextThreadGroup( String title )
 {
@@ -17,7 +14,6 @@ shared class ContextThreadGroup( String title )
 	"Thread group."
 	class InternalThreadGroup() extends ThreadGroup( title ) {
 		
-		ReentrantLock listenerLock = ReentrantLock();
 		variable Anything( Thread, Throwable )? uncaughtExceptionListener = null;
 	
 		"Reused thread or null if has to be initialized."
@@ -46,24 +42,21 @@ shared class ContextThreadGroup( String title )
 				super.uncaughtException( t, e );
 			}
 			else {
-				listenerLock.lock();
-				try {
-					if ( exists listener = uncaughtExceptionListener ) {
-						listener( t, e );
-						interruptAllThreads();
-					}
-					else {
-						// TODO: log - ?
-						//super.uncaughtException( t, e );
-					}
+				if ( exists listener = uncaughtExceptionListener ) {
+					listener( t, e );
+					interruptAllThreads();
 				}
-				finally { listenerLock.unlock(); }
+				else {
+					// TODO: log - ?
+					//super.uncaughtException( t, e );
+				}
 			}
 		}
 
 		"Interrupts all threads belong to the group like `ThreadGroup.interrupt` but doesn't throw."
 		void interruptAllThreads() {
 			hasBeenInterrupted = true;
+			uncaughtExceptionListener = null;
 			completeCurrent();
 			// interrupt may cause security exception - we may do nothing with
 			try { interrupt(); }
@@ -88,10 +81,7 @@ shared class ContextThreadGroup( String title )
 			"Timeout in millieconds, <= 0 if unlimited." Integer timeoutMilliseconds,
 			"Function to be executed on separated thread." Anything() run
 		) {
-			listenerLock.lock();
 			this.uncaughtExceptionListener = uncaughtExceptionListener;
-			listenerLock.unlock();
-		
 			// create new thread or reuse current one
 			ReusableThread thr = getThread();
 			// execute the function and take latcher to await completion
