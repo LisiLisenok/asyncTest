@@ -7,7 +7,7 @@ import ceylon.language.meta.model {
 
 
 "Test info provided to initializer / cleaner."
-see( `interface AsyncPrePostContext`)
+see( `interface AsyncPrePostContext` )
 since( "0.6.0" ) by( "Lis" )
 shared final class TestInfo (
 	"Declaration of the test function."

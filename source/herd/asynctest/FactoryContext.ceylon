@@ -19,8 +19,6 @@ class FactoryContext (
 )
 		extends ContextBase() satisfies AsyncFactoryContext
 {
-	//"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	//ContextThreadGroup group = ContextThreadGroup( "asyncFactory" );
 	
 	"non-null if aborted"
 	variable Throwable? abortReason = null;

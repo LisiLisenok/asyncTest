@@ -33,9 +33,6 @@ class PrePostContext (
 	"non-null if aborted"
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 	
-	//"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	//ContextThreadGroup group = ContextThreadGroup( "asyncPrePost" );
-
 
 	"Provides prepost context to clients.  
 	 Delegates reporting to `outer` until `stop` called."

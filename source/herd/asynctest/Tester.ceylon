@@ -45,9 +45,6 @@ class Tester (
 )
 		extends ContextBase() satisfies AsyncTestContext
 {
-	
-	//"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	//ContextThreadGroup group = ContextThreadGroup( "asyncTester" );
 
 	"outputs locking"
 	ReentrantLock outputLocker = ReentrantLock();
