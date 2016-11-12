@@ -30,7 +30,10 @@ import java.util.concurrent.locks {
  If `Element` is mutable be careful with proper cleaning after the test - factory function is prefered in this case.  
  "
 tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
-shared class LockAccessRule<Element>( Element | Element() initial ) satisfies TestRule
+shared class LockAccessRule<Element> (
+	"Initial value source. Value is extracted _before_ each test" Element | Element() initial
+)
+		satisfies TestRule
 {
 	
 	class Box( shared variable Element elem ) {
@@ -42,7 +45,8 @@ shared class LockAccessRule<Element>( Element | Element() initial ) satisfies Te
 	variable Box stored = Box( if ( is Element() initial ) then initial() else initial );
 	
 	
-	"Locks the resource and provides access to."
+	"Locks the resource and provides access to.  
+	 Actual resource is stored when `release` is called, but not when `element` is modified."
 	shared class Lock() satisfies Obtainable {
 		Box box = stored;
 		variable Boolean locked = true;

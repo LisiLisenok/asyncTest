@@ -37,8 +37,8 @@ Result extractArgumentList<Result>( FunctionOrValueDeclaration source, Object? i
 	}
 	case ( is ValueDeclaration ) {
 		return if ( !source.toplevel, exists instance ) 
-		then source.memberApply<Nothing, Result>( type( instance ) ).bind( instance ).get()
-		else source.apply<Result>().get();
+			then source.memberApply<Nothing, Result>( type( instance ) ).bind( instance ).get()
+			else source.apply<Result>().get();
 	}
 }
 
