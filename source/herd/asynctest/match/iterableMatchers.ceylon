@@ -73,6 +73,18 @@ shared class Contains<Value>( "Item to check if matching stream contains." Objec
 }
 
 
+"Verifies if matching stream of `Iterable` does _not_ contain the given `item`."
+tagged( "Streams" ) since( "0.6.0" ) by( "Lis" )
+shared class DoesNotContain<Value>( "Item to check if matching stream doesn't contain." Object item )
+		satisfies Matcher<{Value*}>
+{
+	shared actual MatchResult match( {Value*} val )
+			=> MatchResult( "stream doesn't contain ``item``", !val.contains( item ) );
+	
+	shared actual String string => "stream doesn't contain ``item``";
+}
+
+
 "Verifies if matching stream of `Iterable` contains every item from the given `elements` stream."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class ContainsEvery<Value>( "Elements to check if matching stream contains every item from." {Value&Object*} elements )
@@ -233,10 +245,13 @@ shared class EveryOf<Value> (
 }
 
 
-"Verifies if matching value is contained in the given stream of `Iterable`."
+"Verifies if matching value is contained in the given stream of `Sequence`.  
+ 
+ > Note: `Iterable` is lazy and there is no quarantee to get the same stream
+ when it is iterating second time. While `Sequence` is eager and repeatably iterated."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class Contained<Value> (
-	"Stream to check if it contains matching value." {Value*} stream
+	"Stream to check if it contains matching value." [Value*] stream
 )
 		satisfies Matcher<Value&Object>
 {
@@ -250,10 +265,33 @@ shared class Contained<Value> (
 }
 
 
-"Verifies if matching value is the first in the given stream of `Iterable`."
+"Verifies if matching value is _not_ contained in the given stream of `Sequence`.  
+ 
+ > Note: `Iterable` is lazy and there is no quarantee to get the same stream
+ when it is iterating second time. While `Sequence` is eager and repeatably iterated."
+tagged( "Streams" ) since( "0.6.0" ) by( "Lis" )
+shared class IsNotContained<Value> (
+	"Stream to check if it doesn't contain matching value." [Value*] stream
+)
+		satisfies Matcher<Value&Object>
+{
+	shared actual MatchResult match( Value&Object val )
+			=> MatchResult (
+		"``stringify( val )`` is not contained in the given stream ``stringify( stream )``",
+		!stream.contains( val )
+	);
+	
+	shared actual String string => "matching value to be not contained in the given stream";
+}
+
+
+"Verifies if matching value is the first in the given stream of `Sequence`.  
+ 
+ > Note: `Iterable` is lazy and there is no quarantee to get the same stream
+ when it is iterating second time. While `Sequence` is eager and repeatably iterated."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class First<Value> (
-	"Stream to check if matching value is the first in." {Value*} stream
+	"Stream to check if matching value is the first in." [Value*] stream
 )
 		satisfies Matcher<Value&Object>
 {
@@ -267,10 +305,13 @@ shared class First<Value> (
 }
 
 
-"Verifies if matching value is the last in the given stream of `Iterable`."
+"Verifies if matching value is the last in the given stream of `Sequence`.  
+ 
+ > Note: `Iterable` is lazy and there is no quarantee to get the same stream
+ when it is iterating second time. While `Sequence` is eager and repeatably iterated."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class Last<Value> (
-	"Stream to check if matching value is the last in." {Value*} stream
+	"Stream to check if matching value is the last in." [Value*] stream
 )
 		satisfies Matcher<Value&Object>
 {
