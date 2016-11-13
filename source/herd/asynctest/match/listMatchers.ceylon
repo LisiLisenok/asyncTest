@@ -69,3 +69,33 @@ shared class Finishing<Value>( List<Value> list )
 		return "finishing list of <``typeName( tVal )``>";
 	}
 }
+
+
+"Verifies if matching `List` value is included in the given `list`."
+tagged( "Streams", "List" ) since( "0.6.0" ) by( "Lis" )
+shared class Included<Value>( SearchableList<Value> list, Integer from = 0 )
+		satisfies Matcher<List<Value>>
+{
+	shared actual MatchResult match( "List to end with matching value."List<Value> val )
+			=> MatchResult( "list ``stringify( val )`` is included in ``stringify( list )``", list.includes( val, from ) );
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "included in <``typeName( tVal )``>";
+	}
+}
+
+
+"Verifies if matching `SearchableList` value includes the given `list`."
+tagged( "Streams", "List" ) since( "0.6.0" ) by( "Lis" )
+shared class Includes<Value>( List<Value> list )
+		satisfies Matcher<SearchableList<Value>>
+{
+	shared actual MatchResult match( "List to end with matching value."SearchableList<Value> val )
+			=> MatchResult( "list ``stringify( val )`` includes ``stringify( list )``", val.includes( list ) );
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "includes <``typeName( tVal )``>";
+	}
+}

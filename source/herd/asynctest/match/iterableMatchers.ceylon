@@ -371,3 +371,30 @@ shared class EqualContent<Value> (
 	
 	shared actual String string => "matching stream content";
 }
+
+
+"Verifies if matching stream is sorted."
+tagged( "Streams" ) since( "0.6.0" ) by( "Lis" )
+shared class IsSorted<Value> (
+	"The function comparing pairs of elements."
+	Comparison(Value, Value) comparing 
+)
+		satisfies Matcher<[Value*]>
+{
+	shared actual MatchResult match( [Value*] val ) {
+		variable Boolean ret = true;
+		if ( exists first = val.first ) {
+			variable Value prev = first;
+			for ( item in val.rest ) {
+				if ( comparing( prev, item ) == larger ) {
+					ret = false;
+					break;
+				}
+				prev = item;
+			}
+		}
+		return MatchResult( "``stringify( val )`` is sorted", ret );
+	}
+	
+	shared actual String string => "is stream sorted";
+}
