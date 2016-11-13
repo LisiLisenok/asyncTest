@@ -13,8 +13,7 @@ import herd.asynctest {
 import herd.asynctest.match {
 
 	EqualTo,
-	Mapping,
-	MatchResult
+	Mapping
 }
 
 
@@ -47,12 +46,20 @@ shared void runFibonacciTest (
 	"Expected results of the calculations." Integer expectedFibonacciNumber
 ) {
 	// perform calculation and checking
-	context.assertThat<Integer> (
-		asyncPositiveFibonacciNumber( indexOfFibonacciNumber ),
-		EqualTo( expectedFibonacciNumber ).and( Mapping( fibonacciNumberIndex, EqualTo( indexOfFibonacciNumber ) ) ),
-		"",
-		true
-	).onComplete( ( MatchResult|Throwable res ) => context.complete() );
+	asyncPositiveFibonacciNumber(indexOfFibonacciNumber).completed (
+		(Integer val) {
+			context.assertThat<Integer> (
+				val,
+				EqualTo( expectedFibonacciNumber ).and( Mapping( fibonacciNumberIndex, EqualTo( indexOfFibonacciNumber ) ) ),
+				"", true
+			);
+			context.complete();
+		},
+		(Throwable reason) {
+			context.fail(reason);
+			context.complete();
+		}
+	);
 	
 	// just return whithout completion
 	// the test will be completed later when promise returned by `asyncPositiveFibonacciNumber` is resolved

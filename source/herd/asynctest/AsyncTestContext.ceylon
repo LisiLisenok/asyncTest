@@ -1,12 +1,8 @@
 import herd.asynctest.match {
 
-	Matcher,
-	MatchResult
+	Matcher
 }
-import ceylon.promise {
 
-	Promise
-}
 
 "
  Provides interaction with asynchronous test executor.
@@ -35,24 +31,6 @@ import ceylon.promise {
  
  > It is _not_ required to notify with success,
    if test function doesn't notify on failure the test is considered as successfull.
-
- 
- ### Promises
- 
- [[assertThat]] and [[assertThatException]] accept `ceylon.promise::Promise`
- to perform matching operation when actual value is available. `Promise` returned by these methods
- can be used to complete testing. Example:
- 
- 		context.assertThat (
- 			promiseOnActualValue,
- 			matchingOperation
- 		).onComplete((MatchResult|Throwable result) => context.complete());
- 
- 
- > If `value` is passed to [[assertThat]] or [[assertThatException]] methods the matching operation is performed immediately
-   and methods return already fulfilled promise.
- 
- --------------------------------------------
  "
 see( `class AsyncTestExecutor`, `package herd.asynctest.match` )
 since( "0.0.1" ) by( "Lis" )
@@ -70,42 +48,6 @@ shared interface AsyncTestContext
 	shared formal void succeed( "Success message." String message );
 	
 	
-	"Fails the test if [[source]] doesn't match [[matcher]] or succeeds the test otherwise.  
-	 Returns `promise` resolved with results of the matching.  
-	 If value source function throws or promise rejects corresponding failure is reported
-	 and returned promise is rejected with the failure."
-	see( `package herd.asynctest.match`, `function assertThatListener` )
-	since( "0.4.0" )
-	shared formal Promise<MatchResult> assertThat<Value> (
-		"Value source: value itself, function returned value or promise on value to be matched."
-		Value | Value() | Promise<Value> source,
-		"Verifies if the value matches expectations."
-		Matcher<Value> matcher,
-		"Optional title to be shown within test name."
-		String title = "",
-		"If `true` reports on failures and successes.
-		 Otherwise reportes only on failures."
-		Boolean reportSuccess = false
-	);
-	
-	
-	"Similar to [[assertThat]] but instantiates a listener on value to be matched."
-	see( `package herd.asynctest.match`, `function assertThat` )
-	since( "0.6.0" )
-	shared default Promise<MatchResult> assertThatListener<Value> (
-		"Verifies if the value matches expectations."
-		Matcher<Value> matcher,
-		"Optional title to be shown within test name."
-		String title = "",
-		"If `true` reports on failures and successes.
-		 Otherwise reportes only on failures."
-		Boolean reportSuccess = false
-	)
-	 ( "Value source: value itself, function returned value or promise on value to be matched."
-			Value | Value() | Promise<Value> source )
-		=> assertThat<Value>( source, matcher, title, reportSuccess );
-	
-	
 	"Fails the test with either `AssertionError` or `Exception`."
 	shared formal void fail (
 		"Reason fails this test or a function which throws either `AssertionError` or `Exception`.
@@ -116,15 +58,99 @@ shared interface AsyncTestContext
 	);
 	
 	
+	"Verifies matcher." since( "0.6.0" )
+	void verifyMatcher<Value> (
+		"Value source: value itself or function returned value to be matched."
+		Value source,
+		"Verifies if the value matches expectations."
+		Matcher<Value> matcher,
+		"Optional title to be shown within test name."
+		String title,
+		"If `true` reports on failures and successes.
+		 Otherwise reportes only on failures."
+		Boolean reportSuccess
+	) {
+		value m = matcher.match( source );
+		if ( m.accepted ) {
+			if ( reportSuccess ) {
+				succeed( if ( title.empty ) then m.string else title + " - " + m.string );
+			}
+		}
+		else {
+			fail (
+				AssertionError( m.string ),
+				if ( title.empty ) then m.string else title + " - " + m.string
+			);
+		}
+		
+	}
+	
+	"Fails the test if [[source]] doesn't match [[matcher]] or succeeds the test otherwise.  
+	 If value source function throws corresponding failure is reported."
+	see( `package herd.asynctest.match`, `function assertThatListener` )
+	since( "0.4.0" )
+	shared default void assertThat<Value> (
+		"Value source: value itself or function returned value to be matched."
+		Value | Value() source,
+		"Verifies if the value matches expectations."
+		Matcher<Value> matcher,
+		"Optional title to be shown within test name."
+		String title = "",
+		"If `true` reports on failures and successes.
+		 Otherwise reportes only on failures."
+		Boolean reportSuccess = false
+	) {
+		try { 
+			if ( is Value() source ) {
+				verifyMatcher( source(), matcher, title, reportSuccess );
+			}
+			else {
+				verifyMatcher( source, matcher, title, reportSuccess );
+			}
+		}
+		catch ( Throwable err ) {
+			fail( err, title );
+		}
+	}
+	
+	
+	"Similar to [[assertThat]] but instantiates a listener on value to be matched."
+	see( `package herd.asynctest.match`, `function assertThat` )
+	since( "0.6.0" )
+	shared default void assertThatListener<Value> (
+		"Verifies if the value matches expectations."
+		Matcher<Value> matcher,
+		"Optional title to be shown within test name."
+		String title = "",
+		"If `true` reports on failures and successes.
+		 Otherwise reportes only on failures."
+		Boolean reportSuccess = false
+	)
+	 ( "Value source: value itself or function returned value to be matched."
+			Value | Value() source )
+		=> assertThat<Value>( source, matcher, title, reportSuccess );
+	
+	
+	"Creates a function which throws and to be checked on exception with `assertThat`."
+	since( "0.6.0" )
+	Throwable toThrow( Throwable | Anything() source )() {
+		if ( is Anything() source ) {
+			try { source(); }
+			catch ( Throwable err ) { return err; }
+			throw AssertionError( "assertion failed: exception was not thrown." );
+		}
+		else {
+			return source;
+		}
+	}
+	
 	"Fails the test if a given exception doesn't match [[matcher]] or succeeds the test otherwise.  
-	 Returns `promise` resolved with results of the matching.    
-	 The exception source may be an exception itself, function throwing an exception
-	 or promise to be rejected with an exception."
+	 The exception source may be an exception itself or function throwing an exception."
 	see( `package herd.asynctest.match`, `function assertThatExceptionListener` )
 	since( "0.6.0" )
-	shared formal Promise<MatchResult> assertThatException (
-		"Exception source: exception itself, function throwing exception or promise to be rejected."
-		Throwable | Anything() | Promise<Anything> source,
+	shared default void assertThatException (
+		"Exception source: exception itself or function throwing exception."
+		Throwable | Anything() source,
 		"Verifies if the exception matches expectations."
 		Matcher<Throwable> matcher,
 		"Optional title to be shown within test name."
@@ -132,13 +158,13 @@ shared interface AsyncTestContext
 		"If `true` reports on failures and successes.
 		 Otherwise reportes only on failures."
 		Boolean reportSuccess = false
-	);
+	) => assertThat<Throwable>( toThrow( source ), matcher, title, reportSuccess );
 	
 	
 	"Similar to [[assertThatException]] but instantiates a listener on exception to be matched."
 	see( `package herd.asynctest.match`, `function assertThat` )
 	since( "0.6.0" )
-	shared default Promise<MatchResult> assertThatExceptionListener (
+	shared default void assertThatExceptionListener (
 		"Verifies if the exception matches expectations."
 		Matcher<Throwable> matcher,
 		"Optional title to be shown within test name."
@@ -147,8 +173,8 @@ shared interface AsyncTestContext
 		 Otherwise reportes only on failures."
 		Boolean reportSuccess = false
 	)
-	( "Exception source: exception itself, function throwing exception or promise to be rejected."
-		Throwable | Anything() | Promise<Anything> source )
+	( "Exception source: exception itself or function throwing exception."
+		Throwable | Anything() source )
 			=> assertThatException( source, matcher, title, reportSuccess );
 	
 }

@@ -26,7 +26,6 @@ Available on JVM only
 * ceylon.collection/1.3.0
 * ceylon.file/1.3.0 shared
 * ceylon.language/1.3.0
-* ceylon.promise/1.3.0 shared
 * ceylon.test/1.3.0 shared
 * java.base/8 JDK
 
