@@ -105,10 +105,10 @@ class AsyncTestProcessor(
 		}
 		else {
 			// run test
-			TestVariantResult output = Tester( group, getTestFunction( variant ) ).run();
+			TestVariantResult output = Tester( group, getTestFunction( variant ), testInfo ).run();
 			
 			// run test statements which may add something to the test report
-			value statementOuts = [ for ( statement in statements ) Tester( group, statement ).run() ];
+			value statementOuts = [ for ( statement in statements ) Tester( group, statement, testInfo ).run() ];
 			variable TestState totalState = output.overallState;
 			for ( item in statementOuts ) {
 				if ( totalState < item.overallState ) { totalState = item.overallState; }

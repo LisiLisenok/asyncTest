@@ -23,7 +23,9 @@ import ceylon.language.meta {
 }
 import herd.asynctest.internal {
 
-	typeName
+	typeName,
+	findContainerTypedAnnotations,
+	findTypedAnnotations
 }
 
 

@@ -1,6 +1,7 @@
 import herd.asynctest.internal {
 	typeName,
-	stringify
+	stringify,
+	sequenceHash
 }
 import ceylon.language.meta.model {
 	Type

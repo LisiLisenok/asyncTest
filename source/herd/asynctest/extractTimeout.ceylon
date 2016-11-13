@@ -1,6 +1,9 @@
 import ceylon.language.meta.declaration {
 	NestableDeclaration
 }
+import herd.asynctest.internal {
+	findFirstAnnotation
+}
 
 
 "Extracts timeout for the declaration searching `timeout` annotation

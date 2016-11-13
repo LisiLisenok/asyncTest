@@ -25,6 +25,10 @@ import ceylon.language.meta.model {
 
 	Class
 }
+import herd.asynctest.internal {
+
+	findFirstAnnotation
+}
 
 
 "Combines tests in the suites and starts test executions."

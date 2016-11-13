@@ -24,6 +24,10 @@ import java.util.concurrent.atomic {
 
 	AtomicBoolean
 }
+import herd.asynctest.runner {
+
+	AsyncTestRunner
+}
 
 
 "* Performs a one test execution.  
@@ -37,7 +41,9 @@ class Tester (
 	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
 	ContextThreadGroup group,
 	"Function to be tested."
-	TestFunction testFunction
+	TestFunction testFunction,
+	"Information on the currently run variant."
+	TestInfo info
 )
 		satisfies AsyncTestContext
 {
@@ -125,11 +131,16 @@ class Tester (
 	}
 
 	"Returns output from the test."
-	shared TestVariantResult run() {
+	shared TestVariantResult run( AsyncTestRunner? runner = null ) {
 		// execute test function
 		startTime = system.milliseconds;
 		completeTime = startTime;
-		runWithGuard( this );
+		if ( exists runner ) {
+			runner.run( runWithGuard, this, info );
+		}
+		else {
+			runWithGuard( this );
+		}
 		complete();  // completes if something wrong and no completion has been done by runner
 		
 		// return results
