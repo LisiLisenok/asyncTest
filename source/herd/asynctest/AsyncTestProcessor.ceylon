@@ -104,12 +104,11 @@ class AsyncTestProcessor(
 			return VariantTestOutput( initErrs, [], disposeErrs, 0, variant.variantName, TestState.aborted );
 		}
 		else {
-			// run test - separated `Tester` is used for each variant!
-			TestVariantResult output = Tester( group ).run( getTestFunction( variant ) );
+			// run test
+			TestVariantResult output = Tester( group, getTestFunction( variant ) ).run();
 			
 			// run test statements which may add something to the test report
-			// separated `Tester` is used for each statement!
-			value statementOuts = [ for ( statement in statements ) Tester( group ).run( statement ) ];
+			value statementOuts = [ for ( statement in statements ) Tester( group, statement ).run() ];
 			variable TestState totalState = output.overallState;
 			for ( item in statementOuts ) {
 				if ( totalState < item.overallState ) { totalState = item.overallState; }
@@ -177,9 +176,9 @@ class AsyncTestProcessor(
 			}
 			else {
 				// test parameters - series of arguments
-				value argList = resolveParameterizedList( functionDeclaration, instance );
+				value argEnumerator = resolveParameterizedList( functionDeclaration, instance );
 				// execute test
-				return executeVariants( functionContext, argList );
+				return executeVariants( functionContext, argEnumerator );
 			}
 		}
 		catch ( TestSkippedException e ) {

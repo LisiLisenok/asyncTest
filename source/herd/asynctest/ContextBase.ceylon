@@ -7,7 +7,7 @@ import java.util.concurrent.atomic {
 }
 
 
-"Base class for several contexts."
+"Base class for several contexts. Provide await and signalling capability."
 see( `interface AsyncTestContext`, `interface AsyncPrePostContext`, `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 class ContextBase() {
@@ -24,12 +24,6 @@ class ContextBase() {
 		locker.lock();
 		try { condition.signal(); }
 		finally { locker.unlock(); }
-	}
-	
-	"Stops context. No reporting will be submited to `outer`."
-	shared void stop() {
-		running.set( false );
-		signal();
 	}
 	
 	"Await signaling."

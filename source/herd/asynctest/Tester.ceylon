@@ -16,36 +16,34 @@ import ceylon.test.engine {
 import java.util.concurrent.locks {
 	ReentrantLock
 }
-import herd.asynctest.match {
-
-	Matcher,
-	MatchResult
-}
-import ceylon.promise {
-
-	Promise,
-	Deferred
-}
 import herd.asynctest.internal {
 
 	ContextThreadGroup
 }
-import java.lang {
+import java.util.concurrent.atomic {
 
-	Thread
+	AtomicBoolean
 }
 
 
-"Performs a one test execution and provides tet function with test context.  
- Rule: one tester - one test function!"
+"* Performs a one test execution.  
+ * Provides test function with test context.  
+ * Collects test report.  
+ 
+ Rule: a one test function a one tester.
+ "
 since( "0.0.1" ) by( "Lis" )
 class Tester (
 	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	ContextThreadGroup group
+	ContextThreadGroup group,
+	"Function to be tested."
+	TestFunction testFunction
 )
-		extends ContextBase() satisfies AsyncTestContext
+		satisfies AsyncTestContext
 {
 
+	AtomicBoolean running = AtomicBoolean( true );
+	
 	"outputs locking"
 	ReentrantLock outputLocker = ReentrantLock();
 	"storage for reports"
@@ -55,100 +53,6 @@ class Tester (
 	variable Integer completeTime = 0; 
 	variable TestState totalState = TestState.skipped;
 	
-	
-	shared actual Promise<MatchResult> assertThat<Value> (
-		Value|Value()|Promise<Value> source, Matcher<Value> matcher, String title, Boolean reportSuccess
-	) {
-		if ( running.get() ) {
-			Deferred<MatchResult> ret = Deferred<MatchResult>();
-			if ( is Promise<Value> source ) {
-				source.completed (
-					( Value source ) {
-						if ( running.get() ) { fillMatcher( ret, source, matcher, title, reportSuccess ); }
-						else { ret.reject( TestContextHasBeenStopped() ); }
-					},
-					( Throwable err ) {
-						addOutput( TestState.failure, err, title );
-						ret.reject( err );
-					}
-				);
-			}
-			else if ( is Value() source ) {
-				if ( running.get() ) {
-					try {
-						Value v = source();
-						fillMatcher( ret, v, matcher, title, reportSuccess );
-					}
-					catch ( Throwable err ) {
-						addOutput( TestState.failure, err, title );
-						ret.reject( err );
-					}
-				}
-				else {
-					ret.reject( TestContextHasBeenStopped() );
-				}
-			}
-			else {
-				if ( running.get() ) { fillMatcher( ret, source, matcher, title, reportSuccess ); }
-				else { ret.reject( TestContextHasBeenStopped() ); }
-			}
-			return ret.promise;
-		}
-		else {
-			return getContextStoppedRejectedPromise();
-		}
-	}
-		
-	shared actual Promise<MatchResult> assertThatException (
-		Throwable|Anything()|Promise<Anything> source, Matcher<Throwable> matcher, String title, Boolean reportSuccess
-	) {
-		if ( running.get() ) {
-			Deferred<MatchResult> ret = Deferred<MatchResult>();
-			if ( is Promise<Anything> source ) {
-				source.completed (
-					( Anything source ) {
-						if ( running.get() ) {
-							value err = AssertionError( "assertion failed: exception was not thrown." );
-							addOutput( TestState.failure, err, title );
-							ret.reject( err );
-						}
-						else {
-							ret.reject( TestContextHasBeenStopped() );
-						}
-					},
-					( Throwable err ) {
-						if ( running.get() ) { fillMatcher( ret, err, matcher, title, reportSuccess ); }
-						else { ret.reject( TestContextHasBeenStopped() ); }
-					}
-				);
-			}
-			else if ( is Anything() source ) {
-				if ( running.get() ) {
-					try {
-						source();
-						value err = AssertionError( "assertion failed: exception was not thrown." );
-						addOutput( TestState.failure, err, title );
-						ret.reject( err );
-					}
-					catch ( Throwable err ) {
-						fillMatcher( ret, err, matcher, title, reportSuccess );
-						ret.reject( err );
-					}
-				}
-				else {
-					ret.reject( TestContextHasBeenStopped() );
-				}
-			}
-			else {
-				if ( running.get() ) { fillMatcher( ret, source, matcher, title, reportSuccess ); }
-				else { ret.reject( TestContextHasBeenStopped() ); }
-			}
-			return ret.promise;
-		}
-		else {
-			return getContextStoppedRejectedPromise();
-		}
-	}
 		
 	shared actual void complete( String title ) {
 		if ( running.compareAndSet( true, false ) ) {
@@ -158,7 +62,6 @@ class Tester (
 			}
 			completeTime = system.milliseconds;
 			if ( startTime == 0 ) { startTime = completeTime; }
-			signal();
 		}
 	}
 		
@@ -173,7 +76,7 @@ class Tester (
 			}
 		}
 	}
-		
+	
 	shared actual void succeed( String message ) {
 		if ( running.get() ) {
 			addOutput( TestState.success, null, message );
@@ -198,102 +101,37 @@ class Tester (
 			addOutput( TestState.failure, reason, title );
 		}
 		else {
-			addOutput( TestState.error, reason, title );
-		}
-	}
-	
-	"Fails and completes the test with uncaught exception from some execution thread."
-	void failWithUncaughtException( Thread t, Throwable e ) {
-		fail( e, "uncaught exception in child thread." );
-		complete();
-	}
-	
-	"Fills matcher with value, reports and returns results."
-	void fillMatcher<Value> (
-		Deferred<MatchResult> deferred, Value val, Matcher<Value> matcher, String title, Boolean reportSuccess
-	) {
-		try {
-			value m = matcher.match( val );
-			if ( m.accepted ) {
-				if ( reportSuccess ) {
-					addOutput (
-						TestState.success, null,
-						if ( title.empty ) then m.string else title + " - " + m.string
-					);
-				}
+			if ( reason is TestSkippedException ) {
+				addOutput( TestState.skipped, reason, if ( title.empty ) then "skipped with exception" else title );
+			}
+			else if ( reason is TestAbortedException ) {
+				addOutput( TestState.aborted, reason, if ( title.empty ) then "aborted with exception" else title );
+			}
+			else if ( reason is IncompatibleTypeException | InvocationException ) {
+				addOutput( TestState.aborted, reason, if ( title.empty ) then "incompatible invocation" else title );
 			}
 			else {
-				addOutput (
-					TestState.failure, AssertionError( m.string ),
-					if ( title.empty ) then m.string else title + " - " + m.string
-				);
+				addOutput( TestState.error, reason, title );
 			}
-			deferred.fulfill( m );
-		}
-		catch ( Throwable err ) {
-			addOutput( TestState.failure, err, title );
-			deferred.reject( err );
 		}
 	}
-
 	
-	"Runs test function."
-	void execute( Anything(AsyncTestContext) testFunction, String functionTitle )() {
-		startTime = system.milliseconds;
-		completeTime = startTime; 
-		try {
-			// invoke test function
-			testFunction( this );
-		}
-		catch ( Throwable err ) {
-			if ( err is TestSkippedException ) {
-				if ( running.get() ) {
-					addOutput( TestState.skipped, err, if ( functionTitle.empty ) then "skipped with exception"
-						else "``functionTitle`` skipped with exception" );
-				}
-			}
-			else if ( err is TestAbortedException ) {
-				if ( running.get() ) {
-					addOutput( TestState.aborted, err, if ( functionTitle.empty ) then "aborted with exception"
-						else "``functionTitle`` aborted with exception");
-				}
-			}
-			else if ( err is IncompatibleTypeException | InvocationException ) {
-				if ( running.get() ) {
-					addOutput( TestState.aborted, err, if ( functionTitle.empty ) then "incompatible invocation"
-						else "incompatible invocation ``functionTitle``" );
-				}
-			}
-			else {
-				if ( running.get() ) {
-					fail( err, if ( functionTitle.empty ) then "failed with exception"
-						else  "``functionTitle`` failed with exception" );
-				}
-			}
-			complete( "" );
-		}
-		// await test completion
-		await();
+	
+	"Runs test function using guard context."
+	see( `class GuardTester` )
+	void runWithGuard( AsyncTestContext context ) {
+		GuardTester guard = GuardTester( group, testFunction, context );
+		guard.execute();
 	}
-
 
 	"Returns output from the test."
-	shared TestVariantResult run( TestFunction testFunction ) {
-		// execute the test
-		if ( !group.execute (
-			failWithUncaughtException, testFunction.timeOutMilliseconds,
-			execute( testFunction.run, testFunction.functionTitle ) )
-		) {
-			// timeout!
-			stop();
-			value excep = TimeOutException( testFunction.timeOutMilliseconds );
-			addOutput( TestState.error, excep,
-				if ( testFunction.functionTitle.empty ) then excep.message
-				else "time out of ``testFunction.functionTitle`` execution"
-			);
-			completeTime = system.milliseconds;
-			if ( startTime == 0 ) { startTime = completeTime; }
-		}
+	shared TestVariantResult run() {
+		// execute test function
+		startTime = system.milliseconds;
+		completeTime = startTime;
+		runWithGuard( this );
+		complete();  // completes if something wrong and no completion has been done by runner
+		
 		// return results
 		outputLocker.lock();
 		try {

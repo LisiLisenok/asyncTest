@@ -15,8 +15,7 @@ import ceylon.collection {
 
 
 "Runs test on another thread and notifies when test is completed."
-since( "0.3.0" )
-by( "Lis" )
+since( "0.3.0" ) by( "Lis" )
 class ConcurrentTestRunner (
 	"Processor to be run." AsyncTestProcessor processor,
 	"Latch to control execution." CountDownLatch latch,
@@ -29,11 +28,9 @@ class ConcurrentTestRunner (
 		try {
 			value testResults = processor.runTest();
 			retLock.lock();
-			ret.add( testResults );
+			try { ret.add( testResults ); }
+			finally { retLock.unlock(); }
 		}
-		finally {
-			retLock.unlock();
-			latch.countDown();
-		}
+		finally { latch.countDown(); }
 	}
 }

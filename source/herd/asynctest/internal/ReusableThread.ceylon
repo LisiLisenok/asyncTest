@@ -37,32 +37,33 @@ class ReusableThread( ThreadGroup group, String name )
 		finally { executeLock.unlock(); }
 	}
 	
-	"Stops thecurrent thread."
+	"Stops the function to be executed waiting and the current thread."
 	shared void complete() {
-		running.set( false );
 		executeLock.lock();
-		try { executeCondition.signal(); }
+		try {
+			running.set( false );
+			executeCondition.signal();
+		}
 		finally { executeLock.unlock(); }
 	}
 	
 	
 	shared actual void run() {
 		while ( running.get() ) {
+			if ( exists f = toBeExecuted ) {
+				toBeExecuted = null;
+				f();
+				latch.countDown();
+			}
 			executeLock.lock();
 			try {
-				if ( exists f = toBeExecuted ) {
-					f();
-					latch.countDown();
-				}
-				executeCondition.await();
+				if ( running.get(), !toBeExecuted exists ) { executeCondition.await(); }
 			}
 			catch ( InterruptedException err ) {
 				// this means condition awaited completion has been interrupted
 				// TODO: log - ?
 			}
-			finally {
-				executeLock.unlock();
-			}
+			finally { executeLock.unlock(); }
 		}
 	}
 }
