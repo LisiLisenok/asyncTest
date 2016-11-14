@@ -29,12 +29,24 @@ import herd.asynctest.internal {
 
 	findFirstAnnotation
 }
+import java.util.concurrent {
+
+	ExecutorService,
+	Executors
+}
+import java.lang {
+
+	Runtime
+}
 
 
 "Combines tests in the suites and starts test executions."
 since( "0.0.1" ) by( "Lis" )
 object asyncTestRunner {
 
+	"Executor used in concurrent mode."
+	shared ExecutorService executor = Executors.newFixedThreadPool( Runtime.runtime.availableProcessors() );
+	
 	"Memoization of [[TestRuleAnnotation]]."
 	see( `class TestGroupExecutor` )
 	shared Class<TestRuleAnnotation, []> ruleAnnotationClass = `TestRuleAnnotation`;

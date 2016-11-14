@@ -27,15 +27,9 @@ import ceylon.collection {
 	LinkedList,
 	ArrayList
 }
-import java.lang {
-
-	Runtime
-}
 import java.util.concurrent {
 
-	CountDownLatch,
-	Executors,
-	ExecutorService
+	CountDownLatch
 }
 import ceylon.language.meta.model {
 
@@ -163,13 +157,12 @@ class TestGroupExecutor (
 			// array to store test results and lockerto synchronize results storing 
 			ArrayList<ExecutionTestOutput> ret = ArrayList<ExecutionTestOutput>(); 
 			ReentrantLock retLock = ReentrantLock();
-			// executor and synchronizer
-			ExecutorService executor = Executors.newFixedThreadPool( Runtime.runtime.availableProcessors() );
+			// runs synchronizer
 			CountDownLatch latch = CountDownLatch( totalTests );
 			// run tests
 			for ( test in executions ) {
 				if ( exists decl = test.functionDeclaration ) {
-					executor.execute (
+					asyncTestRunner.executor.execute (
 						ConcurrentTestRunner (
 							AsyncTestProcessor (
 								decl, instance, groupContext.childContext( test ),
@@ -181,7 +174,6 @@ class TestGroupExecutor (
 				}
 			}
 			latch.await();
-			executor.shutdown();
 			return ret.sequence();
 		}
 		else if ( exists first = executions.first, exists decl = first.functionDeclaration ) {
