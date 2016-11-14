@@ -10,13 +10,13 @@ import ceylon.collection {
 see( `class TestVariantResult`, `class TestOutput` )
 since( "0.6.0" ) by( "Lis" )
 shared class VariantResultBuilder() {
-	variable Integer startTime = system.milliseconds;
+	variable Integer startTime = system.nanoseconds;
 	variable TestState overallState = TestState.skipped;
 	ArrayList<TestOutput> outs = ArrayList<TestOutput>(); 
 	
 	"Starts building from scratch."
 	shared void start() {
-		startTime = system.milliseconds;
+		startTime = system.nanoseconds;
 		overallState = TestState.skipped;
 		outs.clear();
 	}
@@ -32,17 +32,17 @@ shared class VariantResultBuilder() {
 	"Adds test failure report to the test results."
 	shared void addFailure( Throwable reason, String title = "" ) {
 		TestState state = if ( is AssertionError reason ) then TestState.failure else TestState.error; 
-		addOutput( TestOutput( state, reason, system.milliseconds - startTime, title ) );
+		addOutput( TestOutput( state, reason, (system.nanoseconds - startTime)/1000000, title ) );
 	}
 	
 	"Adds test success report to the test results."
 	shared void addSuccess( String title ) {
-		addOutput( TestOutput( TestState.success, null, system.milliseconds - startTime, title ) );
+		addOutput( TestOutput( TestState.success, null, (system.nanoseconds - startTime)/1000000, title ) );
 	}
 	
 	
 	shared TestVariantResult variantResult {
 		TestState state = if ( outs.empty ) then TestState.success else overallState;
-		return TestVariantResult( outs.sequence(), system.milliseconds - startTime, state );
+		return TestVariantResult( outs.sequence(), (system.nanoseconds - startTime)/1000000, state );
 	}
 }

@@ -78,7 +78,7 @@ shared class ContextThreadGroup( String title )
 		 Awaits completion no more then `timeoutMilliseconds` or unlimited if it is <= 0."
 		shared Boolean execute (
 			"Listener on uncaught exceptions." Anything( Thread, Throwable ) uncaughtExceptionListener,
-			"Timeout in millieconds, <= 0 if unlimited." Integer timeoutMilliseconds,
+			"Timeout in milliseconds, <= 0 if unlimited." Integer timeoutMilliseconds,
 			"Function to be executed on separated thread." Anything() run
 		) {
 			this.uncaughtExceptionListener = uncaughtExceptionListener;
@@ -109,7 +109,7 @@ shared class ContextThreadGroup( String title )
 	 Awaits completion no more then `timeoutMilliseconds` or unlimited if it is <= 0."
 	shared Boolean execute (
 		"Listener on uncaught exceptions." Anything( Thread, Throwable ) uncaughtExceptionListener,
-		"Timeout in millieconds, <= 0 if unlimited." Integer timeoutMilliseconds,
+		"Timeout in milliseconds, <= 0 if unlimited." Integer timeoutMilliseconds,
 		"Function to be executed on separated thread." Anything() run
 	) {
 		if ( currentGroup.groupInterrupted ) {

@@ -474,7 +474,7 @@ class TestGroupExecutor (
 		}
 		else {
 			try {
-				Integer startTime = system.milliseconds;
+				Integer startTime = system.nanoseconds;
 				Object? instance = instantiate();
 				ClassOrInterface<Object>? instanceType = if ( exists i = instance ) then type( i ) else null;
 				
@@ -505,7 +505,7 @@ class TestGroupExecutor (
 					// perform all test disposing
 					value disposeOut = runCleaners( instance, instanceType );
 					// report on test results - use combined report of test execution and overall cleaners
-					fillTestResults( combineTestReports( testReport, disposeOut), system.milliseconds - startTime );
+					fillTestResults( combineTestReports( testReport, disposeOut), (system.nanoseconds - startTime)/1000000 );
 				}
 			}
 			catch ( Throwable err ) {

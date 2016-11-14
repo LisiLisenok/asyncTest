@@ -145,7 +145,7 @@ class AsyncTestProcessor(
 	
 	"Executes all variants for the given list of test variants (`parameters`)."
 	ExecutionTestOutput executeVariants( TestExecutionContext context, TestVariantEnumerator testParameters ) {
-		variable Integer startTime = system.milliseconds;
+		variable Integer startTime = system.nanoseconds;
 		variable TestState state = TestState.skipped;
 		ArrayList<VariantTestOutput> variants = ArrayList<VariantTestOutput>();
 		
@@ -171,7 +171,7 @@ class AsyncTestProcessor(
 			}
 		}
 		
-		return ExecutionTestOutput( context, variants.sequence(), system.milliseconds - startTime, state );
+		return ExecutionTestOutput( context, variants.sequence(), (system.nanoseconds - startTime)/1000000, state );
 	}
 
 	

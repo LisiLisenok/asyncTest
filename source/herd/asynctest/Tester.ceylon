@@ -42,6 +42,7 @@ class Tester (
 	"storage for reports"
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 
+	// Time is in nanoseconds!
 	variable Integer startTime = 0;
 	variable Integer completeTime = 0; 
 	variable TestState totalState = TestState.skipped;
@@ -52,7 +53,7 @@ class Tester (
 			if ( title.empty ) { totalState = TestState.success; }
 			else { addOutput( TestState.success, null, title ); }
 		}
-		completeTime = system.milliseconds;
+		completeTime = system.nanoseconds;
 		if ( startTime == 0 ) { startTime = completeTime; }
 	}
 		
@@ -73,7 +74,7 @@ class Tester (
 	
 	"Adds new output to `outputs`"
 	void addOutput( TestState state, Throwable? error, String title ) {
-		Integer elapsed = if ( startTime > 0 ) then system.milliseconds - startTime else 0;
+		Integer elapsed = if ( startTime > 0 ) then (system.nanoseconds - startTime)/1000000 else 0;
 		outputs.add( TestOutput( state, error, elapsed, title ) );
 		if ( totalState < state ) { totalState = state; }
 	}
@@ -110,7 +111,7 @@ class Tester (
 	"Returns output from the test."
 	shared TestVariantResult run( AsyncTestRunner? runner = null ) {
 		// execute test function
-		startTime = system.milliseconds;
+		startTime = system.nanoseconds;
 		completeTime = startTime;
 		if ( exists runner ) {
 			runner.run( this, runWithGuard, info );
