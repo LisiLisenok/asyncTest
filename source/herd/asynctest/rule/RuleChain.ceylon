@@ -3,7 +3,7 @@ import herd.asynctest {
 }
 
 
-"Chain of suite rules is indended to run suite rules in specific order.
+"Chain of suite rules is indended to apply suite rules in specific order.
  Initialization (i.e. `initialize` methods) is performed with iterating of the `rules` in direct order,
  while diposing (i.e. `dispose` methods) is performed in reverse order. So the first initialized is
  the last disposed."
@@ -29,7 +29,7 @@ shared class SuiteRuleChain (
 }
 
 
-"Chain of test rules is indended to run test rules in specific order.
+"Chain of test rules is indended to apply test rules in specific order.
  Initialization (i.e. `before` methods) is performed with iterating of the `rules` in direct order,
  while diposing (i.e. `after` methods) is performed in reverse order. So the first initialized is
  the last disposed."
