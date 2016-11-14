@@ -22,7 +22,7 @@ shared final class TestOutput (
 
 
 "Results of a one test function run with some arguments."
-see( `interface TestVariantEnumerator`, `class TestVariant` )
+see( `interface TestVariantEnumerator`, `class TestVariant`, `class VariantResultBuilder` )
 since( "0.6.0" ) by( "Lis" )
 shared final class TestVariantResult (
 	"Outputs from test." shared TestOutput[] testOutput,
