@@ -43,9 +43,6 @@ import java.lang {
 "Combines tests in the suites and starts test executions."
 since( "0.0.1" ) by( "Lis" )
 object asyncTestRunner {
-
-	"Executor used in concurrent mode."
-	shared ExecutorService executor = Executors.newFixedThreadPool( Runtime.runtime.availableProcessors() );
 	
 	"Memoization of [[TestRuleAnnotation]]."
 	see( `class TestGroupExecutor` )
@@ -128,9 +125,12 @@ object asyncTestRunner {
 		addedTestNumber ++;
 		// if it is last test - execute all tests
 		if ( addedTestNumber == totalTestNumber ) {
+			// Thread pool used in concurrent mode
+			ExecutorService pool = Executors.newFixedThreadPool( Runtime.runtime.availableProcessors() );
 			for ( executor in executors.items ) {
-				executor.run();
+				executor.run( pool );
 			}
+			pool.shutdown();
 		}
 	}
 	

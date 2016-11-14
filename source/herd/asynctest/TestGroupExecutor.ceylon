@@ -29,7 +29,8 @@ import ceylon.collection {
 }
 import java.util.concurrent {
 
-	CountDownLatch
+	CountDownLatch,
+	ExecutorService
 }
 import ceylon.language.meta.model {
 
@@ -150,7 +151,8 @@ class TestGroupExecutor (
 	"Runs all tests concurrently using fixed size thread pool with number of threads equal to number of available cores."
 	ExecutionTestOutput[] runConcurrently (
 		"Instance of the test class." Object? instance,
-		"Type of the container." ClassOrInterface<Object>? instanceType
+		"Type of the container." ClassOrInterface<Object>? instanceType,
+		"Executor to run tests in concurrent mode." ExecutorService executor
 	) {
 		Integer totalTests = executions.size;
 		if ( totalTests > 1 ) {
@@ -162,12 +164,9 @@ class TestGroupExecutor (
 			// run tests
 			for ( test in executions ) {
 				if ( exists decl = test.functionDeclaration ) {
-					asyncTestRunner.executor.execute (
-						ConcurrentTestRunner (
-							AsyncTestProcessor (
-								decl, instance, groupContext.childContext( test ),
-								[], [], [] // doesn't apply test rules - not working in concurent mode
-							),
+					executor.execute (
+						ConcurrentTestProcessor (
+							decl, instance, groupContext.childContext( test ),
 							latch, retLock, ret
 						)
 					);
@@ -468,7 +467,7 @@ class TestGroupExecutor (
 	
 	
 	"Runs tests in this group."
-	shared void run() {
+	shared void run( "Executor to run tests in concurrent mode." ExecutorService executor ) {
 		if ( exists condition = evaluateContainerAnnotatedConditions( container, groupContext ) ) {
 			// skip all tests since some conditions haven't met requirements
 			skipGroupTest( [condition] );
@@ -492,7 +491,7 @@ class TestGroupExecutor (
 					ExecutionTestOutput[] testReport;
 					// perform testing
 					if ( testInitializers.empty && testCleaners.empty && testStatements.empty && isConcurrent() ) {
-						testReport = runConcurrently( instance, instanceType );
+						testReport = runConcurrently( instance, instanceType, executor );
 					}
 					else {
 						// if there are initializers, statements or cleaners the test can be performed only in sequential mode

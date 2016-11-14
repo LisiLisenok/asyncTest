@@ -18,10 +18,11 @@ shared interface AsyncTestRunner {
 	 
 	 Callbacks from `testing` to the `context` are synchronized - only one `context` method is
 	 executed at a given time.  
-	 But if test functions are executed in concurrent mode (see, [[module herd.asynctest#suites]])
-	 and the same runner value is submited to a number of test functions race condition still may occur since 
+	 But if test functions are executed in concurrent mode
+	 (see, [[module herd.asynctest#suites]] and [[herd.asynctest::concurrent]])
+	 and the same runner _value_ is submited to a number of test functions race condition still may occur since 
 	 the runner is executed with different contexts. In this case it is recommended to use factory function
-	 to instantiate different runners for different test functions call."
+	 to instantiate different runners for different test functions call or organize runner to be free of such race conditions."
 	shared formal void run (
 		"Context to run the test function with."
 		AsyncMessageContext context,
