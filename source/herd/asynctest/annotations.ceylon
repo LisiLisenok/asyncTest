@@ -26,9 +26,9 @@ since( "0.6.0" ) by( "Lis" )
 shared annotation TestExecutorAnnotation async() => testExecutor(`class AsyncTestExecutor`);
 
 
-"Calls [[source]] to get argument stream."
+"Calls [[source]] to get source value."
 since( "0.6.0" ) by( "Lis" )
-Result extractArgumentList<Result>( FunctionOrValueDeclaration source, Object? instance ) {
+Result extractSourceValue<Result>( FunctionOrValueDeclaration source, Object? instance ) {
 	switch ( source )
 	case ( is FunctionDeclaration ) {
 		return if ( !source.toplevel, exists instance ) 
@@ -57,7 +57,7 @@ shared final annotation class ArgumentsAnnotation (
 	"Calls [[source]] to get argument stream."
 	shared Anything[] argumentList (
 		"Instance of the test class or `null` if test is performed using top-level function." Object? instance
-	) => extractArgumentList<Anything[]>( source, instance );
+	) => extractSourceValue<Anything[]>( source, instance );
 	
 }
 
@@ -107,7 +107,7 @@ shared final annotation class ParameterizedAnnotation (
 	"Returns test variant enumerator based on test variants extracted from `source`."
 	shared actual TestVariantEnumerator variants( Object? instance )
 		=> TestVariantIterator (
-			extractArgumentList<{TestVariant*}>( source, instance ).iterator().next,
+			extractSourceValue<{TestVariant*}>( source, instance ).iterator().next,
 			maxFailedVariants
 		);
 	

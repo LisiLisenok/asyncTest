@@ -4,6 +4,9 @@ import herd.asynctest.internal {
 import java.lang {
 	Thread
 }
+import java.util.concurrent.locks {
+	ReentrantLock
+}
 
 
 "The most lower level of the runners - invokes test function itself.  
@@ -18,10 +21,14 @@ class GuardTester (
 	"Function to be executed."
 	TestFunction testFunction,
 	"Context the test function to be executed on."
-	AsyncTestContext context
+	AsyncMessageContext context
 )
 		extends ContextBase() satisfies AsyncTestContext
 {	
+	
+	"Callbacks locking."
+	ReentrantLock locker = ReentrantLock();
+	
 	
 	"Fails and completes the test with uncaught exception from some execution thread."
 	void failWithUncaughtException( Thread t, Throwable e ) {
@@ -47,20 +54,26 @@ class GuardTester (
 	
 	shared actual void complete( String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			context.complete( title );
+			locker.lock();
+			try { context.complete( title ); }
+			finally { locker.unlock(); }
 			signal();
 		}
 	}
 	
 	shared actual void fail( Throwable|Anything() exceptionSource, String title ) {
 		if ( running.get() ) {
-			context.fail( exceptionSource, title );
+			locker.lock();
+			try { context.fail( exceptionSource, title ); }
+			finally { locker.unlock(); }
 		}
 	}
 	
 	shared actual void succeed( String message ) {
 		if ( running.get() ) {
-			context.succeed( message );
+			locker.lock();
+			try { context.succeed( message ); }
+			finally { locker.unlock(); }
 		}
 	}
 	
@@ -73,7 +86,7 @@ class GuardTester (
 			fail (
 				excep,
 				if ( testFunction.functionTitle.empty ) then excep.message
-				else "time out of ``testFunction.functionTitle`` execution"
+				else "time out of ```testFunction.functionTitle``` execution"
 			);
 			complete();
 		}

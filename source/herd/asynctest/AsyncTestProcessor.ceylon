@@ -30,7 +30,13 @@ import ceylon.language.meta {
 }
 import herd.asynctest.internal {
 
-	ContextThreadGroup
+	ContextThreadGroup,
+	findFirstAnnotation
+}
+import herd.asynctest.runner {
+
+	AsyncTestRunner,
+	RunWithAnnotation
 }
 
 
@@ -60,6 +66,12 @@ class AsyncTestProcessor(
 	"Init context to perform test initialization."
 	PrePostContext prePostContext = PrePostContext( group );
 	
+	
+	"Extracts test runner from test function annotations."
+	AsyncTestRunner? getRunner() =>
+			if ( exists ann = findFirstAnnotation<RunWithAnnotation>( functionDeclaration ) )
+			then extractSourceValue<AsyncTestRunner>( ann.runner, instance )
+			else null;
 	
 	"Applies function from declaration, container and a given type parameters."
 	Function<Anything, Nothing> applyFunction( Type<Anything>* typeParams ) {
@@ -105,7 +117,7 @@ class AsyncTestProcessor(
 		}
 		else {
 			// run test
-			TestVariantResult output = Tester( group, getTestFunction( variant ), testInfo ).run();
+			TestVariantResult output = Tester( group, getTestFunction( variant ), testInfo ).run( getRunner() );
 			
 			// run test statements which may add something to the test report
 			value statementOuts = [ for ( statement in statements ) Tester( group, statement, testInfo ).run() ];

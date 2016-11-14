@@ -12,17 +12,9 @@ import ceylon.test.engine {
 	TestAbortedException,
 	TestSkippedException
 }
-
-import java.util.concurrent.locks {
-	ReentrantLock
-}
 import herd.asynctest.internal {
 
 	ContextThreadGroup
-}
-import java.util.concurrent.atomic {
-
-	AtomicBoolean
 }
 import herd.asynctest.runner {
 
@@ -45,13 +37,8 @@ class Tester (
 	"Information on the currently run variant."
 	TestInfo info
 )
-		satisfies AsyncTestContext
+		satisfies AsyncMessageContext
 {
-
-	AtomicBoolean running = AtomicBoolean( true );
-	
-	"outputs locking"
-	ReentrantLock outputLocker = ReentrantLock();
 	"storage for reports"
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 
@@ -61,44 +48,34 @@ class Tester (
 	
 		
 	shared actual void complete( String title ) {
-		if ( running.compareAndSet( true, false ) ) {
-			if ( outputs.empty ) {
-				if ( title.empty ) { totalState = TestState.success; }
-				else { addOutput( TestState.success, null, title ); }
-			}
-			completeTime = system.milliseconds;
-			if ( startTime == 0 ) { startTime = completeTime; }
+		if ( outputs.empty ) {
+			if ( title.empty ) { totalState = TestState.success; }
+			else { addOutput( TestState.success, null, title ); }
 		}
+		completeTime = system.milliseconds;
+		if ( startTime == 0 ) { startTime = completeTime; }
 	}
 		
 	shared actual void fail( Throwable|Anything() exceptionSource, String title ) {
-		if ( running.get() ) {
-			if ( is Throwable exceptionSource ) {
-				failWithError( exceptionSource, title );
-			}
-			else {
-				try { exceptionSource(); }
-				catch ( Throwable err ) { failWithError( err, title ); }
-			}
+		if ( is Throwable exceptionSource ) {
+			failWithError( exceptionSource, title );
+		}
+		else {
+			try { exceptionSource(); }
+			catch ( Throwable err ) { failWithError( err, title ); }
 		}
 	}
 	
 	shared actual void succeed( String message ) {
-		if ( running.get() ) {
-			addOutput( TestState.success, null, message );
-		}
+		addOutput( TestState.success, null, message );
 	}
 	
 	
 	"Adds new output to `outputs`"
 	void addOutput( TestState state, Throwable? error, String title ) {
 		Integer elapsed = if ( startTime > 0 ) then system.milliseconds - startTime else 0;
-		outputLocker.lock();
-		try {
-			outputs.add( TestOutput( state, error, elapsed, title ) );
-			if ( totalState < state ) { totalState = state; }
-		}
-		finally { outputLocker.unlock(); }
+		outputs.add( TestOutput( state, error, elapsed, title ) );
+		if ( totalState < state ) { totalState = state; }
 	}
 	
 	"Fails the test with either `Exception` or `AssertionError`."
@@ -125,7 +102,7 @@ class Tester (
 	
 	"Runs test function using guard context."
 	see( `class GuardTester` )
-	void runWithGuard( AsyncTestContext context ) {
+	void runWithGuard( AsyncMessageContext context ) {
 		GuardTester guard = GuardTester( group, testFunction, context );
 		guard.execute();
 	}
@@ -136,7 +113,7 @@ class Tester (
 		startTime = system.milliseconds;
 		completeTime = startTime;
 		if ( exists runner ) {
-			runner.run( runWithGuard, this, info );
+			runner.run( this, runWithGuard, info );
 		}
 		else {
 			runWithGuard( this );
@@ -144,13 +121,9 @@ class Tester (
 		complete();  // completes if something wrong and no completion has been done by runner
 		
 		// return results
-		outputLocker.lock();
-		try {
-			value ret = outputs.sequence();
-			outputs.clear();
-			return TestVariantResult( ret, completeTime - startTime, totalState );
-		}
-		finally { outputLocker.unlock(); }
+		value ret = outputs.sequence();
+		outputs.clear();
+		return TestVariantResult( ret, completeTime - startTime, totalState );
 	}
 	
 }
