@@ -6,7 +6,9 @@ import herd.asynctest {
 
 "Provides runners chaining:  
  the first runner executes the second one and so on,
- the last runner calls `testing` directly.
+ the last runner calls `testing` directly.  
+ 
+ > Free of race conditions in concurrent mode (see, [[herd.asynctest::concurrent]]).
  "
 tagged( "Runner" )
 since( "0.6.0" ) by( "Lis" )

@@ -11,14 +11,16 @@ import ceylon.test {
 
 
 "Collects all errors into a one `ceylon.test.engine::MultipleFailureException` exception.  
- Ignores success messages."
+ Ignores success messages.  
+ 
+ > Free of race conditions in concurrent mode (see, [[herd.asynctest::concurrent]]).
+ "
 tagged( "Runner" )
 since( "0.6.0" ) by( "Lis" )
 shared class ErrorCollectorRunner() satisfies AsyncTestRunner {
-	
-	CollectorContext collect = CollectorContext();
-	
+		
 	shared actual void run( AsyncMessageContext context, void testing(AsyncMessageContext context), TestInfo info ) {
+		CollectorContext collect = CollectorContext();
 		collect.start();
 		testing( collect );
 		value var = collect.variantResult;
