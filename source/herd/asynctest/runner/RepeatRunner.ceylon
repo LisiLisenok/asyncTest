@@ -1,6 +1,7 @@
 import herd.asynctest {
 	AsyncMessageContext,
-	TestInfo
+	TestInfo,
+	retry
 }
 
 
@@ -11,9 +12,15 @@ import herd.asynctest {
  * [[RepeatUpToFailureMessage]] - repeats up to the first failed message.  
  
  In order to implement custom strategy just implement [[RepeatStrategy]] interface.  
+ Pay attention: strategy has to take care to understand when it is started and when it is completed
+ to be ready for the next repeating run.  
+ 
+ The runner repeats only test function execution! All `before`, `after` and `testRule` callbacks
+ are executed _once_. In order to repeat overal test execution cycle see [[retry]].  
  
  > Free of race conditions in concurrent mode (see, [[herd.asynctest::concurrent]]).
  "
+see( `function retry` )
 tagged( "Runner", "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared class RepeatRunner( "Strategy which identifies test repeat times and reported results." RepeatStrategy strategy )
@@ -22,7 +29,6 @@ shared class RepeatRunner( "Strategy which identifies test repeat times and repo
 	
 	shared actual void run( AsyncMessageContext context, void testing(AsyncMessageContext context), TestInfo info ) {
 		CollectorContext collect = CollectorContext();
-		strategy.start();
 		while ( true ) {
 			collect.start();
 			testing( collect );

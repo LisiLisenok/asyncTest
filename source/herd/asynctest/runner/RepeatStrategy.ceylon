@@ -11,11 +11,6 @@ import ceylon.test {
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared interface RepeatStrategy {
-	
-	"Starts repeating strategy from scratch.  
-	 To be executed before each test repeating."
-	shared formal void start();
-	
 	"Takes result of the latest run and identifies if test has to be repeat or completed:  
 	 
 	 * If returns `null` then the test is repeated.  
@@ -27,21 +22,33 @@ shared interface RepeatStrategy {
 }
 
 
+"Repeats just once and returns the given test variant result."
+tagged( "Repeat" )
+since( "0.6.0" ) by( "Lis" )
+shared object repeatOnce satisfies RepeatStrategy {
+	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) => variant;
+}
+
+
 "Repeats up to the first successfull run but no more than `maxRepeats` times.  
  Reports result from the latest run."
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared class RepeatUpToSuccessRun( Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
-	variable Integer totalRuns = 1;
+	variable Integer? totalRuns = null;
 	
-	shared actual void start() {
-		totalRuns = 1;
+	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) {
+		Integer count = ( totalRuns else 1 ) + 1;
+		if ( variant.overallState == TestState.success || count > maxRepeats ) {
+			totalRuns = null;
+			return variant;
+		}
+		else {
+			totalRuns = count;
+			return null;
+		}
 	}
-	
-	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant )
-		=> if ( variant.overallState == TestState.success || totalRuns >= maxRepeats )
-			then variant else null;
 	
 }
 
@@ -52,15 +59,19 @@ tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared class RepeatUpToFailedRun( Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
-	variable Integer totalRuns = 1;
+	variable Integer? totalRuns = null;
 	
-	shared actual void start() {
-		totalRuns = 1;
+	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) {
+		Integer count = ( totalRuns else 1 ) + 1;
+		if ( variant.overallState > TestState.success || count > maxRepeats ) {
+			totalRuns = null;
+			return variant;
+		}
+		else {
+			totalRuns = count;
+			return null;
+		}
 	}
-	
-	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant )
-			=> if ( variant.overallState > TestState.success || ++totalRuns > maxRepeats )
-				then variant else null;
 	
 }
 
@@ -71,14 +82,12 @@ tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared class RepeatUpToFailureMessage( Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
-	variable Integer totalRuns = 1;
-	
-	shared actual void start() {
-		totalRuns = 1;
-	}
+	variable Integer? totalRuns = null;
 	
 	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) {
-		if ( variant.overallState > TestState.success || ++totalRuns > maxRepeats ) {
+		Integer count = ( totalRuns else 1 ) + 1;
+		if ( variant.overallState > TestState.success || count > maxRepeats ) {
+			totalRuns = null;
 			for ( item in variant.testOutput ) {
 				if ( exists reason = item.error ) {
 					return TestVariantResult (
@@ -96,6 +105,7 @@ shared class RepeatUpToFailureMessage( Integer maxRepeats = 1 ) satisfies Repeat
 			}
 		}
 		else {
+			totalRuns = count;
 			return null;
 		}
 	}

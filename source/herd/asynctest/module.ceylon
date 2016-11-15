@@ -31,15 +31,17 @@
  -------------------------------------------
  ### Content  
  
- 1. [Test procedure.](#procedure)   
- 2. [Test initialization and disposing.](#initialization)   
+ 1. [Test procedure.](#procedure)  
+ 2. [Test initialization and disposing.](#initialization)  
  3. [Instantiation the test container class.](#instantiation)  
- 4. [Test suites and concurrent execution.](#suites) 
+ 4. [Test suites and concurrent execution.](#suites)  
  5. [Value- and type- parameterized testing.](#parameterized)  
- 6. [Matchers.](#matchers)  
- 7. [Time out.](#timeout)  
- 8. [Conditional execution.](#conditions)  
- 9. [Reporting test results using charts.](#charts)  
+ 6. [Test runners.](#runners)  
+ 7. [Matchers.](#matchers)  
+ 8. [Time out.](#timeout)
+ 9. [Retry test.](#retry)    
+ 10. [Conditional execution.](#conditions)  
+ 11. [Reporting test results using charts.](#charts)  
 
  
  -------------------------------------------
@@ -276,6 +278,16 @@
  
  
  -------------------------------------------
+ ### <a name=\"runners\"></a> Test runners
+ 
+ Test runners provide a way to control test function execution.  
+ Simply, test runner takes a test function and invokes it.
+ But it may, for example, execute it several times or execute simultaneously in several threads,
+ or modify the function report or something else.  
+ For the details, see [[package herd.asynctest.runner]].   
+ 
+ 
+ -------------------------------------------
  ### <a name=\"matchers\"></a> Matchers
  
  Matchers are intended to organize complex test conditions into a one flexible expression.  
@@ -298,6 +310,15 @@
  
  Example, function `doMyTest` will be interrupted if not completed during 1 second:
  		timeout( 1K ) test async void doMyTest(...) {...}
+  
+ 
+ -------------------------------------------
+ ### <a name=\"retry\"></a> Retry test
+ 
+ If overall test runcycle (i.e. before callbacks - test function - test statements - after callbacks)
+ has to be retryed for each given test variant
+ (see section [Value- and type- parameterized testing](#parameterized)) the [[retry]] annotation may be applied
+ to the test function.  
  
  
  -------------------------------------------

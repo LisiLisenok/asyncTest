@@ -36,7 +36,9 @@ import herd.asynctest.internal {
 import herd.asynctest.runner {
 
 	AsyncTestRunner,
-	RunWithAnnotation
+	RunWithAnnotation,
+	RepeatStrategy,
+	repeatOnce
 }
 
 
@@ -105,13 +107,21 @@ class AsyncTestProcessor(
 		);
 	}
 	
+	
+	"Returns test repeat strategy from [[retry]] annotation."
+	RepeatStrategy getRepeatStrategy() =>
+			if ( exists ann = findFirstAnnotation<RetryAnnotation>( functionDeclaration ) )
+			then extractSourceValue<RepeatStrategy>( ann.source, instance )
+			else repeatOnce;
+	
+	
 	"Executes one variant and performs initialization and dispose.
 	 Returns output from this variant."
 	VariantTestOutput executeVariant( TestVariant variant ) {
-		// run initializers firstly
 		TestInfo testInfo = TestInfo (
 			functionDeclaration, variant.parameters, variant.arguments, variant.variantName, timeOutMilliseconds
 		);
+		// run initializers firstly
 		if ( nonempty initErrs = prePostContext.run( intializers, testInfo ) ) {
 			// initialization has been failed
 			// run disposing, complete test variant and return results
@@ -135,10 +145,16 @@ class AsyncTestProcessor(
 		variable TestState state = TestState.skipped;
 		ArrayList<VariantTestOutput> variants = ArrayList<VariantTestOutput>();
 		
+		// strategy for test repeating
+		RepeatStrategy repeat = getRepeatStrategy(); 
+		
 		// for each argument in collection results are stored as separated test variant
 		while ( is TestVariant variant = testParameters.current ) {
 		 	// execute current variant
-		 	value executionResults = executeVariant( variant );
+		 	variable VariantTestOutput executionResults = executeVariant( variant );
+		 	while ( !repeat.completeOrRepeat( executionResults.variantResult ) exists ) {
+		 		executionResults = executeVariant( variant );
+		 	}
 		 	// store results
 			variants.add( executionResults );
 			// check total state
@@ -173,10 +189,8 @@ class AsyncTestProcessor(
 				);
 			}
 			else {
-				// test parameters - series of arguments
-				value argEnumerator = resolveParameterizedList( functionDeclaration, instance );
-				// execute test
-				return executeVariants( functionContext, argEnumerator );
+				// execute test with the given number of test variants
+				return executeVariants( functionContext, resolveParameterizedList( functionDeclaration, instance ) );
 			}
 		}
 		catch ( TestSkippedException e ) {

@@ -22,9 +22,10 @@ shared final annotation class RunWithAnnotation( shared FunctionOrValueDeclarati
  is executed with the given runner.
  "
 since( "0.6.0" ) by( "Lis" )
-see( `package herd.asynctest.runner` )
+see( `package herd.asynctest.runner`, `interface AsyncTestRunner` )
 shared annotation RunWithAnnotation runWith (
-	"Runner source. Top-level function or value or test function container method or attribute."
+	"Runner source. Top-level function or value or test function container method or attribute.
+	 Which hasto return an intance of [[AsyncTestRunner]] interface."
 	FunctionOrValueDeclaration runner
 )
 		=> RunWithAnnotation( runner );

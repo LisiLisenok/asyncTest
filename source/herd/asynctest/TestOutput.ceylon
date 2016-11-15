@@ -44,6 +44,11 @@ final class VariantTestOutput (
 	"Total state of the execution" shared TestState totalState
 ) {
 	
+	shared TestVariantResult variantResult => TestVariantResult (
+		 		initOutput.append( testOutput ).append( disposeOutput ),
+		 		totalElapsedTime, totalState
+		 	);
+	
 	"`true` if `initOutput`, `testOutput` and `disposeOutput` all together are empty and `false` otherwise."
 	shared Boolean emptyOutput => initOutput.empty && testOutput.empty && disposeOutput.empty;
 	

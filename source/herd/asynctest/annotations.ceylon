@@ -19,6 +19,11 @@ import ceylon.language.meta {
 
 	type
 }
+import herd.asynctest.runner {
+
+	RepeatStrategy,
+	RepeatRunner
+}
 
 
 "The same as `testExecutor(`\`class AsyncTestExecutor\``)`"
@@ -47,7 +52,7 @@ Result extractSourceValue<Result>( FunctionOrValueDeclaration source, Object? in
 see( `function arguments` )
 since( "0.5.0" ) by( "Lis" )
 shared final annotation class ArgumentsAnnotation (
-	"The source function or value declaration. Which has to take no arguments and has to return a stream of values.
+	"The source function or value declaration which has to take no arguments and has to return a stream of values.
 	 The source may be either top-level or tested class shared member."
 	shared FunctionOrValueDeclaration source
 )
@@ -82,7 +87,7 @@ shared final annotation class ArgumentsAnnotation (
  "
 since( "0.5.0" ) by( "Lis" )
 shared annotation ArgumentsAnnotation arguments (
-	"The source function or value declaration. Which has to take no arguments and has to return a stream of values.
+	"The source function or value declaration which has to take no arguments and has to return a stream of values.
 	 The source may be either top-level or tested class shared member."
 	FunctionOrValueDeclaration source
 )
@@ -94,7 +99,7 @@ shared annotation ArgumentsAnnotation arguments (
 since( "0.6.0" ) by( "Lis" )
 see( `function parameterized`, `class TestVariant` )
 shared final annotation class ParameterizedAnnotation (
-	"The source function or value declaration. Which has to take no arguments and has to return a stream
+	"The source function or value declaration which has to take no arguments and has to return a stream
 	 of test variants: `{TestVariant*}`.  
 	 The source may be either top-level or tested class shared member."
 	shared FunctionOrValueDeclaration source,
@@ -180,7 +185,7 @@ shared final annotation class ParameterizedAnnotation (
 see( `class TestVariant` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation ParameterizedAnnotation parameterized (
-	"The source function or value declaration. Which has to take no arguments and has to return
+	"The source function or value declaration which has to take no arguments and has to return
 	 a stream of test variants: `{TestVariant*}`.  
 	 The source may be either top-level or tested class shared member."
 	FunctionOrValueDeclaration source,
@@ -195,8 +200,8 @@ see( `function factory`, `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class FactoryAnnotation (
 	"Function used to instantiate anotated class.  
-	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.
-	 "
+	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.  
+	 Has to return an instance of the looking class."
 	shared FunctionDeclaration factoryFunction
 )
 		satisfies OptionalAnnotation<FactoryAnnotation, ClassDeclaration>
@@ -244,8 +249,8 @@ see( `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation FactoryAnnotation factory (
 	"Function used to instantiate anotated class.  
-	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.
-	 "
+	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.  
+	 Has to return an instance of the looking class."
 	FunctionDeclaration factoryFunction
 	
 ) => FactoryAnnotation( factoryFunction );
@@ -278,8 +283,36 @@ shared final annotation class TimeoutAnnotation( "Timeout in milliseconds." shar
 
 "Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted.  
  The annotation is applied to any function called using [[AsyncTestExecutor]]: initializers, cleaners, test rules,
- factory and test functions.
- "
+ factory and test functions."
 since( "0.6.0" ) by( "Lis" )
 shared annotation TimeoutAnnotation timeout( "Timeout in milliseconds." Integer timeoutMilliseconds )
 		=> TimeoutAnnotation( timeoutMilliseconds );
+
+
+"Annotation class for [[retry]]."
+see( `function retry` )
+since( "0.6.0" ) by( "Lis" )
+shared final annotation class RetryAnnotation (
+	"Repeat strategy source which has to take no arguments and has to return instance of [[RepeatStrategy]] type.
+	 Either top-level function or value or test function container method or attribute."
+	shared FunctionOrValueDeclaration source
+)
+		satisfies OptionalAnnotation<RetryAnnotation, Module | Package | ClassDeclaration | FunctionDeclaration>
+{}
+
+
+"Indicates that test function or all functions within test container have to be tested using the given
+ `RepeatStrategy` (extracted from `source`).  
+ 
+ > Overall execution cycle including `before`, `after` and `testRule` callbacks are repeated!
+ 
+ If you need to repeat just test function execution, look on [[RepeatRunner]].
+ "
+see( `class RepeatRunner`, `interface RepeatStrategy` )
+since( "0.6.0" ) by( "Lis" )
+shared annotation RetryAnnotation retry (
+	"Repeat strategy source which has to take no arguments and has to return instance of [[RepeatStrategy]] type.
+	 Either top-level function or value or test function container method or attribute."
+	FunctionOrValueDeclaration source
+)
+		=> RetryAnnotation( source );

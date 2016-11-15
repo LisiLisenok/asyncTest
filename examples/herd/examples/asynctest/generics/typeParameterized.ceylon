@@ -21,8 +21,7 @@ import herd.asynctest.match {
 
 
 "Type parameterized test of `ceylon.language::identity<Value>`.
- Type parameters and function arguments are specified via [[identityArgs]].
- "
+ Type parameters and function arguments are specified via [[identityArgs]]."
 shared test parameterized(`value identityArgs`)
 void testIdentity<Value>(AsyncTestContext context, Value arg)
 	given Value satisfies Object
@@ -41,8 +40,7 @@ void testIdentity<Value>(AsyncTestContext context, Value arg)
 };
 
 "Type parameterized test of `ceylon.language::largest<Element>`.
- Type parameters and function arguments are specified via [[largestArgs]].
- "
+ Type parameters and function arguments are specified via [[largestArgs]]."
 shared test parameterized(`value largestArgs`)
 void testLargest<Element>(AsyncTestContext context, Element x, Element y, Element merit)
 		given Element satisfies Comparable<Element>
@@ -67,8 +65,7 @@ void testLargest<Element>(AsyncTestContext context, Element x, Element y, Elemen
 };
 
 "Type parameterized test of `ceylon.language::sort<Element>`.
- Type parameters and function arguments are specified via [[sortArgs]] and [[sortArgsString]].
- "
+ Type parameters and function arguments are specified via [[sortArgs]] and [[sortArgsString]]."
 shared test 
 parameterized(`value sortArgs`)
 parameterized(`value sortArgsString`)
