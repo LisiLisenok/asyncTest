@@ -6,7 +6,8 @@ import herd.asynctest {
 
 "Test runner is applied to execute test function with a one test variant.  
  
- > Just test function is executed by runner. All `before` and `after` callbacks are executed outside the runner!
+ > Just test function is executed by runner. All `before`, `after` and `testRule` (including `TestStatement`)
+   callbacks are executed outside the runner!  
  "
 since( "0.6.0" ) by( "Lis" )
 shared interface AsyncTestRunner {
@@ -21,8 +22,11 @@ shared interface AsyncTestRunner {
 	 But if test functions are executed in concurrent mode
 	 (see, [[module herd.asynctest#suites]] and [[herd.asynctest::concurrent]])
 	 and the same runner _value_ is submited to a number of test functions race condition still may occur since 
-	 the runner is executed with different contexts. In this case it is recommended to use factory function
-	 to instantiate different runners for different test functions call or organize runner to be free of such race conditions."
+	 the runner is executed with different contexts.  
+	 Two solutions may be recommended in this case:  
+	 * Using factory function to instantiate different runners for different test functions call.  
+	 * Organizing runner to be free of such race conditions.  
+	 "
 	shared formal void run (
 		"Context to run the test function with."
 		AsyncMessageContext context,

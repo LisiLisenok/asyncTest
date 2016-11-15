@@ -16,6 +16,9 @@
     declaration of value / function made under item 1.  
  3. Run the test.   
  
+ > Test runner executes only test function. All `before`, `after` and `testRule` (including `TestStatement`)
+   callbacks are executed outside the runner.  
+ 
  
  #### Built-in runners  
  
