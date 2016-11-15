@@ -12,7 +12,8 @@ import java.util.concurrent.locks {
 "The most lower level of the runners - invokes test function itself.  
  Guards from reporting when completed or interrupted.
  
- Rule: one test function one guard tester.
+ Rule: one test function run one guard tester. Since guard may interrupt test thread on timeout - but there is no quarantee
+ the threads are actually interrupted and will not put messages to guard (which is test context listens test messages).  
  "
 since( "0.6.0" ) by( "Lis" )
 class GuardTester (

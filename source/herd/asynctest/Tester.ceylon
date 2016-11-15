@@ -22,20 +22,16 @@ import herd.asynctest.runner {
 }
 
 
-"* Performs a one test execution.  
+"* Performs a one test execution (test function + statements).  
  * Provides test function with test context.  
  * Collects test report.  
  
- Rule: a one test function a one tester.
+ Uses [[GuardTester]] for each function or statement run.  
  "
 since( "0.0.1" ) by( "Lis" )
 class Tester (
 	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	ContextThreadGroup group,
-	"Function to be tested."
-	TestFunction testFunction,
-	"Information on the currently run variant."
-	TestInfo info
+	ContextThreadGroup group
 )
 		satisfies AsyncMessageContext
 {
@@ -44,8 +40,10 @@ class Tester (
 
 	// Time is in nanoseconds!
 	variable Integer startTime = 0;
-	variable Integer completeTime = 0; 
 	variable TestState totalState = TestState.skipped;
+
+	"Test function + statements which are executed after the test function."
+	variable TestFunction[] testFunctions = [];
 	
 		
 	shared actual void complete( String title ) {
@@ -53,8 +51,6 @@ class Tester (
 			if ( title.empty ) { totalState = TestState.success; }
 			else { addOutput( TestState.success, null, title ); }
 		}
-		completeTime = system.nanoseconds;
-		if ( startTime == 0 ) { startTime = completeTime; }
 	}
 		
 	shared actual void fail( Throwable|Anything() exceptionSource, String title ) {
@@ -74,8 +70,7 @@ class Tester (
 	
 	"Adds new output to `outputs`"
 	void addOutput( TestState state, Throwable? error, String title ) {
-		Integer elapsed = if ( startTime > 0 ) then (system.nanoseconds - startTime)/1000000 else 0;
-		outputs.add( TestOutput( state, error, elapsed, title ) );
+		outputs.add( TestOutput( state, error, ( system.nanoseconds - startTime ) / 1000000, title ) );
 		if ( totalState < state ) { totalState = state; }
 	}
 	
@@ -101,30 +96,47 @@ class Tester (
 	}
 	
 	
-	"Runs test function using guard context."
+	"Runs all test functions using guard context."
 	see( `class GuardTester` )
 	void runWithGuard( AsyncMessageContext context ) {
-		GuardTester guard = GuardTester( group, testFunction, context );
-		guard.execute();
+		// new GuardTest has to be used for each run
+		for ( statement in testFunctions ) {
+			GuardTester guard = GuardTester( group, statement, context );
+			guard.execute();
+		}
 	}
 
-	"Returns output from the test."
-	shared TestVariantResult run( AsyncTestRunner? runner = null ) {
-		// execute test function
+	"Runs the test and returns output from the test."
+	shared TestVariantResult run (
+		"Test function." TestFunction testFunction,
+		"Test statements which are executed after the test function." TestFunction[] statements,
+		"Information on the currently run variant." TestInfo info,
+		"Optional runner to run test function with." AsyncTestRunner? runner = null
+	) {
+		// make a clean tester
+		outputs.clear();
 		startTime = system.nanoseconds;
-		completeTime = startTime;
+		
+		// execute test function
+		testFunctions = [testFunction];
 		if ( exists runner ) {
 			runner.run( this, runWithGuard, info );
 		}
 		else {
 			runWithGuard( this );
 		}
+		// execute statements without runner since it is applied only to test function!
+		if ( !statements.empty ) {
+			testFunctions = statements;
+			runWithGuard( this );
+		}
+		testFunctions = [];
 		complete();  // completes if something wrong and no completion has been done by runner
 		
 		// return results
 		value ret = outputs.sequence();
 		outputs.clear();
-		return TestVariantResult( ret, completeTime - startTime, totalState );
+		return TestVariantResult( ret, ( system.nanoseconds - startTime ) / 1000000, totalState );
 	}
 	
 }

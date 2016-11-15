@@ -61,6 +61,7 @@ class ReusableThread( ThreadGroup group, String name )
 			}
 			catch ( InterruptedException err ) {
 				// this means condition awaited completion has been interrupted
+				running.set( false );
 				// TODO: log - ?
 			}
 			finally { executeLock.unlock(); }

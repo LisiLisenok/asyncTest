@@ -66,6 +66,9 @@ class AsyncTestProcessor(
 	"Init context to perform test initialization."
 	PrePostContext prePostContext = PrePostContext( group );
 	
+	"Tester to execute test + test statements."
+	Tester tester = Tester( group );
+	
 	
 	"Extracts test runner from test function annotations."
 	AsyncTestRunner? getRunner() =>
@@ -116,30 +119,13 @@ class AsyncTestProcessor(
 			return VariantTestOutput( initErrs, [], disposeErrs, 0, variant.variantName, TestState.aborted );
 		}
 		else {
-			// run test
-			TestVariantResult output = Tester( group, getTestFunction( variant ), testInfo ).run( getRunner() );
-			
-			// run test statements which may add something to the test report
-			value statementOuts = [ for ( statement in statements ) Tester( group, statement, testInfo ).run() ];
-			variable TestState totalState = output.overallState;
-			for ( item in statementOuts ) {
-				if ( totalState < item.overallState ) { totalState = item.overallState; }
-			}
-			value variantOuts = output.testOutput.append( concatenate( *statementOuts*.testOutput ) );
-			
+			// run test + statements
+			TestVariantResult output = tester.run( getTestFunction( variant ), statements, testInfo, getRunner() );
 			// run cleaners
 			value disposeErrs = prePostContext.run( cleaners, testInfo );
-			if ( !disposeErrs.empty && variantOuts.empty ) {
-				return VariantTestOutput (
-					[], [TestOutput( totalState, null, output.overallElapsedTime, "" )],
-					disposeErrs, output.overallElapsedTime, variant.variantName, totalState
-				);
-			}
-			else {
-				return VariantTestOutput (
-					[], variantOuts, disposeErrs, output.overallElapsedTime, variant.variantName, totalState
-				);
-			}
+			return VariantTestOutput (
+				[], output.testOutput, disposeErrs, output.overallElapsedTime, variant.variantName, output.overallState
+			);
 		}
 	}
 	
@@ -171,7 +157,7 @@ class AsyncTestProcessor(
 			}
 		}
 		
-		return ExecutionTestOutput( context, variants.sequence(), (system.nanoseconds - startTime)/1000000, state );
+		return ExecutionTestOutput( context, variants.sequence(), (system.nanoseconds - startTime) / 1000000, state );
 	}
 
 	
