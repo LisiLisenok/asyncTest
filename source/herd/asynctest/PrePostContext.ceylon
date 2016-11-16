@@ -30,21 +30,22 @@ class PrePostContext (
 	ContextThreadGroup group
 )
 {	
-	"non-null if aborted"
+	"Contains failed messages. Non-empty if aborted."
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 	
 
 	"Provides prepost context to clients.  
 	 Delegates reporting to `outer` until `stop` called."
 	class InternalContext (	
-			"Title for the currently run function." String currentFunction,
-			shared actual TestInfo testInfo
+			"Title for the currently run function." PrePostFunction prepostFunction,
+			"Test info the test is executed with." shared actual TestInfo testInfo
 	) extends ContextBase() satisfies AsyncPrePostContext {
 		
 		shared actual void abort( Throwable reason, String title ) {
 			if ( running.compareAndSet( true, false ) ) {
-				value tt = if ( currentFunction.empty ) then title else
-					if ( title.empty ) then currentFunction else currentFunction + ": " + title;
+				value tt = if ( prepostFunction.functionTitle.empty ) then title else
+					if ( title.empty ) then prepostFunction.functionTitle
+						else prepostFunction.functionTitle + ": " + title;
 				outer.outputs.add( TestOutput( TestState.aborted, reason, 0, tt ) );
 				signal();
 			}
@@ -56,42 +57,41 @@ class PrePostContext (
 			}
 		}
 		
+		"Aborts the context when uncaught exception found."
 		shared void abortWithUncaughtException( Thread t, Throwable e )
 			=> abort( e, "uncaught exception in child thread." );
 		
-	}
-	
-	
-	"Runs prepost function."
-	void runFunction( PrePostFunction init, InternalContext context )() {
-		try { init.run( context ); }
-		catch ( Throwable err ) {
-			if ( is IncompatibleTypeException | InvocationException err ) {
-				context.abort( err, "incompatible invocation of ``init.functionTitle``" );
+		"Executes the prepost function on the context."
+		shared void execute() {
+			try { prepostFunction.run( this ); }
+			catch ( Throwable err ) {
+				if ( is IncompatibleTypeException | InvocationException err ) {
+					abort( err, "incompatible invocation of ``prepostFunction.functionTitle``" );
+				}
+				else {
+					abort( err );
+				}
 			}
-			else {
-				context.abort( err );
-			}
+			await();
 		}
-		context.await();
+		
 	}
+
 	
 	"Runs prepost process. Returns errors if occured."
 	shared TestOutput[] run (
 		"Functions to be preposted." PrePostFunction[] inits,
-		"Info about current test or `null` if prepost is global." TestInfo? testInfo 
+		"Info about current test or `null` if prepost is global." TestInfo? testInfo
 	) {
 		for ( init in inits ) {
-			TestInfo t = testInfo else
-				TestInfo( init.prepostDeclaration, [], init.arguments, init.functionTitle, init.timeOutMilliseconds );
-			InternalContext context = InternalContext( init.functionTitle, t );
-			if ( !group.execute( context.abortWithUncaughtException, init.timeOutMilliseconds, runFunction( init, context ) ) ) {
+			InternalContext context = InternalContext( init, testInfo else init.testInfo );
+			if ( !group.execute( context.abortWithUncaughtException, init.timeOutMilliseconds, context.execute ) ) {
 				// timeout!
 				value excep = TimeOutException( init.timeOutMilliseconds );
 				context.abort( excep, excep.message );
 			}
 		}
-		value ret = outputs.sequence(); 
+		value ret = outputs.sequence();
 		outputs.clear();
 		return ret;
 	}

@@ -48,6 +48,7 @@ class AsyncTestProcessor(
 	"Test function." FunctionDeclaration functionDeclaration,
 	"Object contained function or `null` if function is top level." Object? instance,
 	"Test execution context of this function." TestExecutionContext functionContext,
+	"Group to run test function, looks for timeout and uncaught exceptions." ContextThreadGroup group,
 	"Functions called before each test." PrePostFunction[] intializers,
 	"Functions called after each test and may add reportings." TestFunction[] statements,
 	"Functions called after each test." PrePostFunction[] cleaners
@@ -62,9 +63,6 @@ class AsyncTestProcessor(
 	"`true` if test function is run on async test context."
 	Boolean runOnAsyncContext = asyncTestRunner.isAsyncDeclaration( functionDeclaration );
 	
-	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	ContextThreadGroup group = ContextThreadGroup( "asyncTester" );
-
 	"Init context to perform test initialization."
 	PrePostContext prePostContext = PrePostContext( group );
 	

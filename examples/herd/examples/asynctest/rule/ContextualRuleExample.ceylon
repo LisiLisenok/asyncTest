@@ -18,7 +18,7 @@ import herd.asynctest.match {
 async class ContextualRuleExample() {
 	
 	shared testRule ContextualRule<Integer> intValue = ContextualRule<Integer>(0);
-	
+
 
 	shared test void contextual(AsyncTestContext context) {		
 		context.assertThat<Integer>(intValue.get, EqualObjects(0), "initial", true);

@@ -24,13 +24,7 @@ import ceylon.language.meta.declaration {
 }
 import ceylon.collection {
 
-	LinkedList,
-	ArrayList
-}
-import java.util.concurrent {
-
-	CountDownLatch,
-	ExecutorService
+	LinkedList
 }
 import ceylon.language.meta.model {
 
@@ -49,10 +43,6 @@ import herd.asynctest.rule {
 	TestRuleAnnotation,
 	TestStatement
 }
-import java.util.concurrent.locks {
-
-	ReentrantLock
-}
 import ceylon.test.event {
 
 	TestFinishedEvent,
@@ -62,18 +52,24 @@ import herd.asynctest.internal {
 
 	ContextThreadGroup
 }
+import java.util.concurrent.locks {
+
+	ReentrantLock
+}
 
 
-"Posseses and executes grouped tests."
-since( "0.5.0" )
-by( "Lis" )
+"Posseses and executes grouped tests, i.e. top-level functions contained in a package or methods contained in a class."
+since( "0.5.0" ) by( "Lis" )
 class TestGroupExecutor (
-	"Container the test is performed on." Package | ClassDeclaration container,
-	"Context the group executed on." shared TestExecutionContext groupContext
+	"Container the test is performed on." shared Package | ClassDeclaration container,
+	"Context the group executed on." shared TestExecutionContext groupContext,
+	"Since `ceylon.test` uses socket to IDE which is not thread safe,
+	 this lock is neccessary in order to syncronize writing test results to test framework (i.e. socket)."
+	ReentrantLock resultWriteLock
 ) {	
 	
 	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
-	ContextThreadGroup group = ContextThreadGroup( "asyncPrePost" );
+	ContextThreadGroup group = ContextThreadGroup( "async test suite ``container.qualifiedName``" );
 	
 	"Executions the group contains."
 	LinkedList<TestDescription> executions = LinkedList<TestDescription>();
@@ -124,83 +120,6 @@ class TestGroupExecutor (
 			// top-level function
 			return null;
 		}
-	}
-	
-	"`True` if package or module marked with [[concurrent]] annotation."
-	Boolean isPackageOrModuleConcurrent( Package pac )
-			=> pac.annotated<ConcurrentAnnotation>() || pac.container.annotated<ConcurrentAnnotation>();
-	
-	"`True` if the test to be performed in concurrent order and `false` otherwise."
-	Boolean isConcurrent() {
-		switch ( container )
-		case ( is Package ) {
-			return isPackageOrModuleConcurrent( container );
-		}
-		case ( is ClassDeclaration ) {
-			variable ClassDeclaration? exDecl = container;
-			while ( exists decl = exDecl ) {
-				if ( decl.annotated<ConcurrentAnnotation>() ) {
-					return true;
-				}
-				exDecl = decl.extendedType?.declaration;
-			}
-			return isPackageOrModuleConcurrent( container.containingPackage );
-		}
-	}
-	
-	"Runs all tests concurrently using fixed size thread pool with number of threads equal to number of available cores."
-	ExecutionTestOutput[] runConcurrently (
-		"Instance of the test class." Object? instance,
-		"Type of the container." ClassOrInterface<Object>? instanceType,
-		"Executor to run tests in concurrent mode." ExecutorService executor
-	) {
-		Integer totalTests = executions.size;
-		if ( totalTests > 1 ) {
-			// array to store test results and lockerto synchronize results storing 
-			ArrayList<ExecutionTestOutput> ret = ArrayList<ExecutionTestOutput>(); 
-			ReentrantLock retLock = ReentrantLock();
-			// runs synchronizer
-			CountDownLatch latch = CountDownLatch( totalTests );
-			// run tests
-			for ( test in executions ) {
-				if ( exists decl = test.functionDeclaration ) {
-					executor.execute (
-						ConcurrentTestProcessor (
-							decl, instance, groupContext.childContext( test ),
-							latch, retLock, ret
-						)
-					);
-				}
-			}
-			latch.await();
-			return ret.sequence();
-		}
-		else if ( exists first = executions.first, exists decl = first.functionDeclaration ) {
-			// just a one function - run it in sequential mode
-			return [ AsyncTestProcessor (
-				decl, instance, groupContext.childContext( first ),
-					[], [], []
-				).runTest()
-			];
-		}
-		else { return []; }
-	}
-	
-	"Runs all tests sequentially."
-	ExecutionTestOutput[] runSequentially (
-		"Instance of the test class." Object? instance,
-		"Type of the container." ClassOrInterface<Object>? instanceType,
-		"Functions called before each test." PrePostFunction[] intializers,
-		"Statements called after each test - may modify test results." TestFunction[] statements,
-		"Functions called after each test." PrePostFunction[] cleaners
-	) {
-		return [ for ( test in executions ) if ( exists decl = test.functionDeclaration )
-			AsyncTestProcessor (
-				decl, instance,
-				groupContext.childContext( test ),
-				intializers, statements, cleaners
-			).runTest()
-		];
 	}
 
 	
@@ -467,7 +386,7 @@ class TestGroupExecutor (
 	
 	
 	"Runs tests in this group."
-	shared void run( "Executor to run tests in concurrent mode." ExecutorService executor ) {
+	shared void runTest() {
 		if ( exists condition = evaluateContainerAnnotatedConditions( container, groupContext ) ) {
 			// skip all tests since some conditions haven't met requirements
 			skipGroupTest( [condition] );
@@ -488,24 +407,19 @@ class TestGroupExecutor (
 					// test statements
 					value testStatements = getTestStatements( instance, instanceType );
 					
-					ExecutionTestOutput[] testReport;
-					// perform testing
-					if ( testInitializers.empty && testCleaners.empty && testStatements.empty && isConcurrent() ) {
-						testReport = runConcurrently( instance, instanceType, executor );
-					}
-					else {
-						// if there are initializers, statements or cleaners the test can be performed only in sequential mode
-						// since cleaner may clear some resources which are required for parallel execution
-						// or must way completion which leads to the same sequential mode
-						testReport = runSequentially (
-							instance, instanceType, testInitializers, testStatements, testCleaners
-						);
-					}
+					ExecutionTestOutput[] testReport = [ for ( test in executions )
+						if ( exists decl = test.functionDeclaration )
+							AsyncTestProcessor (
+								decl, instance, groupContext.childContext( test ),
+								group, testInitializers, testStatements, testCleaners
+							).runTest()
+					];
 					
 					// perform all test disposing
 					value disposeOut = runCleaners( instance, instanceType );
 					// report on test results - use combined report of test execution and overall cleaners
-					fillTestResults( combineTestReports( testReport, disposeOut), (system.nanoseconds - startTime)/1000000 );
+					fillTestResults( combineTestReports( testReport, disposeOut ),
+						( system.nanoseconds - startTime ) / 1000000 );
 				}
 			}
 			catch ( Throwable err ) {
@@ -516,63 +430,73 @@ class TestGroupExecutor (
 	}
 	
 	
-	"Skips all tests in the group."
+	"Skips all tests in the group.  
+	 Uses `resultWriteLock` for writing synchronization."
 	shared void skipGroupTest( [TestOutput+] outputs ) {
-		groupContext.fire().testStarted( TestStartedEvent( groupContext.description ) );
-		if ( is Package container ) {
-			// for top-level functions add outputs to each function
-			for ( execution in executions ) {
-				TestExecutionContext context = groupContext.childContext( execution );
-				fillContextWithTestResults( context,
-					[VariantTestOutput(
-						[], [], [], 0, "", TestState.skipped
-					)], 0, TestState.skipped );
+		resultWriteLock.lock();
+		try {
+			groupContext.fire().testStarted( TestStartedEvent( groupContext.description ) );
+			if ( is Package container ) {
+				// for top-level functions add outputs to each function
+				for ( execution in executions ) {
+					TestExecutionContext context = groupContext.childContext( execution );
+					fillContextWithTestResults( context,
+						[VariantTestOutput([], [], [], 0, "", TestState.skipped)],
+						0, TestState.skipped
+					);
+				}
 			}
+			else {
+				// for class - skipeach function and add failures as class variants
+				for ( execution in executions ) {
+					TestExecutionContext context = groupContext.childContext( execution );
+					context.fire().testStarted( TestStartedEvent( context.description ) );
+					context.fire().testFinished( TestFinishedEvent (
+						TestResult( context.description, TestState.skipped, false, null, 0 )
+					) );
+				}
+				variable Integer index = 0;
+				for ( res in outputs ) {
+					variantResultEvent( groupContext, "", res, ++ index );
+				}
+			}
+			groupContext.fire().testFinished( TestFinishedEvent (
+				TestResult( groupContext.description, TestState.skipped, true, null, 0 )
+			) );
 		}
-		else {
-			// for class - skipeach function and add failures as class variants
-			for ( execution in executions ) {
-				TestExecutionContext context = groupContext.childContext( execution );
-				context.fire().testStarted( TestStartedEvent( context.description ) );
-				context.fire().testFinished( TestFinishedEvent (
-					TestResult( context.description, TestState.skipped, false, null, 0 )
-				) );
-			}
-			variable Integer index = 0;
-			for ( res in outputs ) {
-				variantResultEvent( groupContext, "", res, ++ index );
-			}
-		}
-		groupContext.fire().testFinished( TestFinishedEvent (
-			TestResult( groupContext.description, TestState.skipped, true, null, 0 )
-		) );
+		finally { resultWriteLock.unlock(); }
 	}
 
 	
-	"Fills the context with test results."
+	"Fills the context with test results.  
+	 Uses `resultWriteLock` for writing synchronization."
 	void fillTestResults( ExecutionTestOutput[] results, Integer overallTime ) {
-		groupContext.fire().testStarted( TestStartedEvent( groupContext.description ) );
-		variable TestState overallState = TestState.skipped;
-		for ( res in results ) {
-			if ( nonempty vars = res.variants ) {
-				fillContextWithTestResults( res.context, vars, res.elapsedTime, res.state );
+		resultWriteLock.lock();
+		try {
+			groupContext.fire().testStarted( TestStartedEvent( groupContext.description ) );
+			variable TestState overallState = TestState.skipped;
+			for ( res in results ) {
+				if ( nonempty vars = res.variants ) {
+					fillContextWithTestResults( res.context, vars, res.elapsedTime, res.state );
+				}
+				else {
+					res.context.fire().testStarted( TestStartedEvent( res.context.description ) );
+					res.context.fire().testFinished( TestFinishedEvent (
+						TestResult( res.context.description, res.state, false )
+					) );
+				}
+				if ( res.state > overallState ) { overallState = res.state; }
 			}
-			else {
-				res.context.fire().testStarted( TestStartedEvent( res.context.description ) );
-				res.context.fire().testFinished( TestFinishedEvent (
-					TestResult( res.context.description, res.state, false )
-				) );
-			}
-			
-			if ( res.state > overallState ) { overallState = res.state; }
+			groupContext.fire().testFinished( TestFinishedEvent (
+				TestResult( groupContext.description, overallState, true, null, overallTime )
+			) );
 		}
-		groupContext.fire().testFinished( TestFinishedEvent (
-			TestResult( groupContext.description, overallState, true, null, overallTime )
-		) );
+		finally { resultWriteLock.unlock(); }
 	}
 	
-	"Fills results of the test to execution context. Here in order to avoind race conditions when filling to test runner."
-	shared default void fillContextWithTestResults (
+	"Fills results of the test to execution context. Here in order to avoind race conditions when filling to test runner.  
+	 Doesn't use `resultWriteLock` for writing synchronization!"
+	void fillContextWithTestResults (
 		"Context to be filled with results." TestExecutionContext context,
 		"List of variants." [VariantTestOutput+] variants,
 		"Total test elapsed time." Integer runInterval,
@@ -607,7 +531,8 @@ class TestGroupExecutor (
 	}
 	
 	"Reports a list of variants.  
-	 Returns `true` if test results are combined and `false` otherwise."
+	 Returns `true` if test results are combined and `false` otherwise.  
+	 Doesn't use `resultWriteLock` for writing synchronization!"
 	Boolean reportVariants (
 		"Context to be filled with results." TestExecutionContext context,
 		"List of variants." [VariantTestOutput+] variants
@@ -639,7 +564,8 @@ class TestGroupExecutor (
 		return combined;
 	}
 	
-	"Raises test variant results event."
+	"Raises test variant results event.  
+	 Doesn't use `resultWriteLock` for writing synchronization!"
 	void variantResultEvent (
 		"Context to raise event on." TestExecutionContext context,
 		"Name of the variant." String variantName,

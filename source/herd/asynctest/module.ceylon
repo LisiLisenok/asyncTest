@@ -57,7 +57,7 @@
  3. Run test in IDE or command line using Ceylon test tool.
  
  
- #### Notes
+ #### Notes  
  
  > Both modules ceylon.test and herd.asynctest have to be imported to run testing.  
    
@@ -67,7 +67,7 @@
  > [[async]] annotation is almost the same as `\`testExecutor(`class AsyncTestExecutor`)`\` annotation.  
  
  
- #### Test functions
+ #### Test functions  
  
  Any function or method marked with `test` and `async` annotation.  
  
@@ -82,12 +82,12 @@
    using [[AsyncTestContext]].
    
  > If a number of test functions are declared within some class just a one instance of the class
-   is used for the overall test runcycle. This opens way to have some test relations. Please, remember
+   is used for the overall test runcycle. This opens way to have some test interrelations. Please, remember
    best-practices say the tests have to be independent.  
    
  
  -------------------------------------------
- ### <a name=\"initialization\"></a> Test initialization and disposing
+ ### <a name=\"initialization\"></a> Test initialization and disposing  
  
  Top-level functions or methods marked with `ceylon.test::beforeTestRun` are executed _once_
  before starting all tests in its scope (package for top-level and class for methods).  
@@ -101,35 +101,37 @@
  Top-level functions or methods marked with `ceylon.test::afterTest` are executed _each_ time
  after _each_ test in its scope is completed.   
  
+ > All `before` and `after` callbacks are called prepost functions below.
 
- Test initializers and cleaners may take arguments (excepting a top-level function marked with `ceylon.test::beforeTestRun`
- and `ceylon.test::afterTestRun` which may take only no arguments):  
+ Prepost functions may take arguments (excepting a top-level function marked with `ceylon.test::beforeTestRun`
+ and `ceylon.test::afterTestRun` which may take only empty argument list):  
  * According to [[arguments]] annotation. In this case the functions are executed as synchronous and
    may asserting or throw exceptions.  
  * First argument of [[AsyncPrePostContext]] type and other arguments according to [[arguments]] annotation.
-   To complete or abort initialization / cleaning [[AsyncPrePostContext.proceed]] 
+   To complete or abort initialization / disposing process [[AsyncPrePostContext.proceed]] 
    or [[AsyncPrePostContext.abort]] has to be called.   
  
  
- If test initializer or cleaner reports on failure (throwing exception or calling [[AsyncPrePostContext.abort]] method)
+ If prepost function reports on failure (throwing exception or calling [[AsyncPrePostContext.abort]] method)
  the test procedure for every test function in the scope
  (package for top-level and class for methods) is interrupted and failure is reported.  
- All initializers and cleaners are called disregard the failure reporting.  
+ 
+ > All prepost functions are called disregard the failure reporting.  
  
  **Notes:**  
- * There is no specific order the initializers or cleaners are executed in.  
+ * There is no specific order the prepost functions are executed in.  
  * If some initializer reports on failure the test is skipped.  
- * Every initializer / cleaner is always executed regardless failure reporting
+ * Every prepost function is always executed regardless failure reporting
    since a right to be disposed has to be provided for each.  
  * Top-level functions marked with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` have to take no arguments!
    While methods may take (see [below](#initargs)).  
- * Test executor blocks current thread until initializer or cleaner calls 
+ * Test executor blocks current thread until prepost function calls 
    [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]].  
- * Both initializer and cleaner methods have to be shared! Top-level functions may not be shared.  
- * Inherited initializer or cleaner method is executed also.  
+ * Prepost methods have to be shared! Top-level prepost functions may not be shared.  
+ * Inherited prepost methods are executed also.  
  
  
- #### Test initialization and disposing example
+ #### Test initialization and disposing example  
  		
  		class StarshipTest() {
 			
@@ -156,9 +158,9 @@
 		}
  
  
- #### <a name=\"initargs\"></a> Initializer or cleaner arguments
+ #### <a name=\"initargs\"></a> Prepost function arguments  
  
- [[arguments]] annotation is intended to provide arguments for a `one-shot` function like test initializers are.  
+ [[arguments]] annotation is intended to provide arguments for a `one-shot` function like test prepost functions are.  
  The annotation takes a one argument - declaration of top-level function or value which returns a tupple with
  invoked function arguments: 
  
@@ -181,7 +183,7 @@
    to perform parameterized testing, see section [Value- and type- parameterized testing](#parameterized) below.  
  
  
- #### Test rules
+ #### Test rules  
  
  Test rules provide more flexible way for test initialization / disposing and for modification the test behaviour.
  See details in [[package herd.asynctest.rule]].  
@@ -191,7 +193,7 @@
  
  
  -------------------------------------------
- ### <a name=\"instantiation\"></a> Instantiation the test container class
+ ### <a name=\"instantiation\"></a> Instantiation the test container class  
  
  Sometimes instantiation and initialization of the test container class requires
  some complex logic or some asynchronous operations.
@@ -204,35 +206,44 @@
  > Just a one instance of the test class is used for the overall test runcycle it may cause several misalignments:
    1. Test interrelation. Please, remember best-practices say the tests have to be independent.  
    2. Test isolation. If test class has some mutable properties then a test may get mutated state from previous run
-      but not purely initialized property! Always use test rules or initializers / cleaners for such properties.  
+      but not purely initialized property! Always use test rules or `before` \\ `after` callbacks for such properties.  
  
  > From the other side having only one test class instance during overall test runcycle
    helps to orginaze initialization logic in manner more suitable for asynchronous code testing.  
  
  
  -------------------------------------------
- ### <a name=\"suites\"></a> Test suites and concurrent execution
+ ### <a name=\"suites\"></a> Test suites and concurrent execution  
  
- Test functions are collected into suites, which are defined by:
- * `ClassDeclaration` for methods.
- * `Package` for top-level functions.
+ Test functions are collected into suites, which are defined by:  
+ * `ClassDeclaration` for methods.  
+ * `Package` for top-level functions.  
  
- The suites are always executed in sequential mode. By default test functions in each suite are executed in
- sequential mode also. In order to execute functions within some suite in concurrent mode
- mark a container (`ClassDeclaration`, `Package` or `Module`) with [[concurrent]] annotation.
- Thread pool with fixed number of threads eqauls to number of available processors (cores)
- is used to execute functions in concurrent mode.  
+ So, each suite contains all top-level test functions in a given package
+ or all test methods of a given class.  
  
- > If the container (package for top-level functions or class for methods) contains initializers or cleaners marked
-   with `ceylon.test::beforeTest` or `ceylon.test::afterTest` or contains values marked with [[herd.asynctest.rule::testRule]]
-   sequential order is applied nevetherless exists [[concurrent]] annotation or not.  
+ > This is implicit suite organization!  
  
- > Functions annotated with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` are executed _once_ before / after
-   execution of all test functions within correponding container and have no influence on execution mode.  
+ All test and prepost functions within the given suite are always executed sequentially via a one
+ thread (note: any test function is free to run any number of threads it needs).  
+ 
+ By default the suites are executed sequentially also. In order to execute suites concurrently (each suite in separated thread)
+ the suite or upper-level container is to be marked with [[concurrent]] annotation.  
+ 
+ > Thread pool with fixed number of threads equals to number of available processors (cores)
+   is used to execute tests in concurrent mode.  
+ > If `package` or `module` is marked with [[concurrent]] all suites it contains are executed in concurrent mode.  
+ 
+ For example:  
+ * A package has three test classes.  
+ * Two of them are annotated with [[concurrent]] and third is not annotated.  
+ * Two marked suites are executed via thread pool. Each suite in separated thread if number of
+   available cores admits. But all test functions in the given suite are executed sequentially via a one thread.  
+ * After completion the test of the first two suites the third one is executed.  
  
  
  -------------------------------------------
- ### <a name=\"parameterized\"></a> Value- and type- parameterized testing
+ ### <a name=\"parameterized\"></a> Value- and type- parameterized testing  
  
  In order to perform parameterized testing the test function has to be marked with annotation which supports
  [[TestVariantProvider]] interface. The interface has just a one method - `variants()`
@@ -278,7 +289,7 @@
  
  
  -------------------------------------------
- ### <a name=\"runners\"></a> Test runners
+ ### <a name=\"runners\"></a> Test runners  
  
  Test runners provide a way to control test function execution.  
  Simply, test runner takes a test function and invokes it.
@@ -288,7 +299,7 @@
  
  
  -------------------------------------------
- ### <a name=\"matchers\"></a> Matchers
+ ### <a name=\"matchers\"></a> Matchers  
  
  Matchers are intended to organize complex test conditions into a one flexible expression.  
  Each matcher is represented as requirements specification and verification method which identifies
@@ -298,22 +309,22 @@
  
  
  -------------------------------------------
- ### <a name=\"timeout\"></a> Time out
+ ### <a name=\"timeout\"></a> Time out  
  
  [[timeout]] annotation indicates that if test has not been completed during some time it has to be interrupted.  
  Annotation applied at class, package or module level acts for each function within the scope. Lower-level declaration
  overrides definitions of upper-level. So, if both function and class annotated with [[timeout]] the function annotation
  is applied.  
  
- [[timeout]] annotation is applicable to every function executed during the test: test function, initialization, disposing,
- rule or factory.  
+ [[timeout]] annotation is applicable to every function executed during the test: test function, `before` or `after` callbacks,
+ test rule or factory.  
  
  Example, function `doMyTest` will be interrupted if not completed during 1 second:
  		timeout( 1K ) test async void doMyTest(...) {...}
   
  
  -------------------------------------------
- ### <a name=\"retry\"></a> Retry test
+ ### <a name=\"retry\"></a> Retry test  
  
  If overall test runcycle (i.e. before callbacks - test function - test statements - after callbacks)
  has to be retryed for each given test variant
@@ -322,7 +333,7 @@
  
  
  -------------------------------------------
- ### <a name=\"conditions\"></a> Conditional execution
+ ### <a name=\"conditions\"></a> Conditional execution  
  
  Test conditions can be specified via custom annotation which satisfies `ceylon.test.engine.spi::TestCondition` interface.  
  Any number of test conditions can be specified at function, class, package or module level.  
@@ -336,7 +347,7 @@
   
  
  -------------------------------------------
- ### <a name=\"charts\"></a> Reporting test results using charts
+ ### <a name=\"charts\"></a> Reporting test results using charts  
  
  Chart is simply a set of plots, where each plot is a sequence of 2D points.  
  Test results can be represented and reported with charts using staff provided by [[package herd.asynctest.chart]].  

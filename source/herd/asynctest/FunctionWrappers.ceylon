@@ -11,7 +11,11 @@ class PrePostFunction (
 	"Title used for reporting, usualy declaration name." shared String functionTitle,
 	"Declaration of this prepost function." shared FunctionDeclaration prepostDeclaration,
 	"Function arguments." shared Anything[] arguments
-) {}
+) {
+	shared TestInfo testInfo = TestInfo (
+		prepostDeclaration, [], arguments, functionTitle, timeOutMilliseconds
+	);
+}
 
 
 "Function which runs the test."

@@ -5,9 +5,9 @@ import herd.asynctest.rule {
 }
 
 
-"Allows pre- and post- test functions to interract with test executor.  
+"Allows prepost function functions to interract with test executor.  
  
- Pre- or post- function has to call [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]]
+ Prepost function has to call [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]]
  when initialization or disposing is completed or errored, correspondently.  
  The test executor blocks execution thread until [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]] is called.
  
@@ -23,8 +23,8 @@ shared interface AsyncPrePostContext {
 	shared formal void abort( Throwable reason, String title = "" );
 	
 	"Information about the current test:
-	 * Suite initializers / cleaners are provided with info about themselves.  
-	 * Test initizializers / cleaners are provided with test function info.  
+	 * Suite prepost functions are provided with info about themselves.  
+	 * Test prepost functions are provided with test function info.  
 	 "
 	shared formal TestInfo testInfo;
 }

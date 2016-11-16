@@ -31,12 +31,20 @@ import herd.asynctest.internal {
 }
 import java.util.concurrent {
 
+	CountDownLatch,
+	Executors,
 	ExecutorService,
-	Executors
+	ThreadFactory
 }
 import java.lang {
 
-	Runtime
+	Runtime,
+	Thread,
+	Runnable
+}
+import java.util.concurrent.locks {
+
+	ReentrantLock
 }
 
 
@@ -64,9 +72,14 @@ object asyncTestRunner {
 	"Cache async test executor declaration. See `function isAsyncExecutedTest`" 
 	ClassDeclaration asyncTestDeclaration = `class AsyncTestExecutor`;
 
-		
+	
 	"Executors of test groups - package or class level."
-	HashMap<String, TestGroupExecutor> executors = HashMap<String, TestGroupExecutor>(); 
+	HashMap<String, TestGroupExecutor> sequentialExecutors = HashMap<String, TestGroupExecutor>(); 
+	HashMap<String, TestGroupExecutor> concurrentExecutors = HashMap<String, TestGroupExecutor>(); 
+	
+	"Since `ceylon.test` uses socket to IDE which is not thread safe,
+	 this lock is neccessary in order to syncronize writing test results to test framework (i.e. socket)."
+	ReentrantLock resultWriteLock = ReentrantLock();
 	
 	
 	"total number of tests"
@@ -93,19 +106,52 @@ object asyncTestRunner {
 		"Group the executor is looked for." ClassDeclaration | Package container,
 		"Context the group executed on." TestExecutionContext groupContext
 	) {
-		if ( exists groupExecutor = executors.get( container.qualifiedName ) ) {
+		if ( exists groupExecutor = sequentialExecutors.get( container.qualifiedName ) ) {
+			return groupExecutor;
+		}
+		else if ( exists groupExecutor = concurrentExecutors.get( container.qualifiedName ) ) {
 			return groupExecutor;
 		}
 		else {
-			TestGroupExecutor groupExecutor = TestGroupExecutor (
-				container,
-				groupContext
-			);
-			executors.put( container.qualifiedName, groupExecutor );
+			// create new executor and push it to concurrent or sequential group depending on 'concurrent' annotation
+			TestGroupExecutor groupExecutor = TestGroupExecutor( container, groupContext, resultWriteLock );
+			if ( findFirstAnnotation<ConcurrentAnnotation>( container ) exists ) {
+				concurrentExecutors.put( container.qualifiedName, groupExecutor );
+			}
+			else {
+				sequentialExecutors.put( container.qualifiedName, groupExecutor );
+			}
 			return groupExecutor;
 		}
 	}
 
+
+	"Executes tests from 'concurrent' group using thread pool."
+	void executeConcurrentTest( Integer totalCores ) {
+		variable Integer threadIndex = 0;
+		// Thread pool used in concurrent mode
+		ExecutorService pool = Executors.newFixedThreadPool (
+			totalCores, // pool size
+			// factory just in order to see 'good' names of the used threads
+			object satisfies ThreadFactory {
+				shared actual Thread newThread( Runnable? runnable ) 
+					=> Thread( runnable, "async test pool - thread ``++threadIndex``" );
+			}
+		);
+		try {
+			// run concurrent executors
+			CountDownLatch latch = CountDownLatch( concurrentExecutors.size );
+			for ( executor in concurrentExecutors.items ) {
+				pool.execute( ConcurrentGroupExecutor( executor, latch ) );
+			}
+			// await completion
+			latch.await();
+		}
+		finally {
+			// always shutdown the pool!
+			pool.shutdown();
+		}
+	}
 	
 	"Adds test to be run lately. If this is last test the execution is started."
 	shared void addTest (
@@ -125,12 +171,25 @@ object asyncTestRunner {
 		addedTestNumber ++;
 		// if it is last test - execute all tests
 		if ( addedTestNumber == totalTestNumber ) {
-			// Thread pool used in concurrent mode
-			ExecutorService pool = Executors.newFixedThreadPool( Runtime.runtime.availableProcessors() );
-			for ( executor in executors.items ) {
-				executor.run( pool );
+			Integer totalCores = Runtime.runtime.availableProcessors();
+			if ( totalCores > 1 ) {
+				// run concurrent executors
+				executeConcurrentTest( totalCores );
+				// run sequential executors
+				for ( executor in sequentialExecutors.items ) {
+					executor.runTest();
+				}
 			}
-			pool.shutdown();
+			else {
+				// run concurrent executors sequentially since just a one core is available
+				for ( executor in concurrentExecutors.items ) {
+					executor.runTest();
+				}
+				// run sequential executors
+				for ( executor in sequentialExecutors.items ) {
+					executor.runTest();
+				}
+			}
 		}
 	}
 	

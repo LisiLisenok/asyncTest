@@ -13,7 +13,7 @@ import ceylon.test {
 "Collects all errors into a one `ceylon.test.engine::MultipleFailureException` exception.  
  Ignores success messages.  
  
- > Free of race conditions in concurrent mode (see, [[herd.asynctest::concurrent]]).
+ > Thread-safe.
  "
 tagged( "Runner" )
 since( "0.6.0" ) by( "Lis" )

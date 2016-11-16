@@ -17,7 +17,7 @@ import java.util.concurrent.locks {
 }
 
 
-"Provide in chain calls of initializers / cleaners."
+"Provides in chain calls of the given functions."
 since( "0.6.0" ) by( "Lis" )
 class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(AsyncPrePostContext)> functions )
 {

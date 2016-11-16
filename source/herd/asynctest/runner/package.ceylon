@@ -29,7 +29,15 @@
  
  #### Custom runners  
  
- Implement [[AsyncTestRunner]] interface and apply your runner using [[runWith]] annotation.
+ Implement [[AsyncTestRunner]] interface and apply your runner using [[runWith]] annotation.  
+ 
+ > Note that `AsyncMessageContext` sent by runner into the test function is always wrapped! It means that
+   calling `AsyncMessageContext.complete` always leads to test completion and
+   runner has no way to avoid the test completion.  
+   Reasons:  
+   1. Test may be interrupted by timeout.
+   2. Synchronized context method calling.
+ 
  "
 since( "0.6.0" ) by( "Lis" )
 shared package herd.asynctest.runner;

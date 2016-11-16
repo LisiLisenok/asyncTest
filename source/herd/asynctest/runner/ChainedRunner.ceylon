@@ -8,7 +8,7 @@ import herd.asynctest {
  the first runner executes the second one and so on,
  the last runner calls `testing` directly.  
  
- > Free of race conditions in concurrent mode (see, [[herd.asynctest::concurrent]]).
+ > Thread-safe.
  "
 tagged( "Runner" )
 since( "0.6.0" ) by( "Lis" )

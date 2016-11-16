@@ -12,7 +12,7 @@ import herd.asynctest.internal {
 }
 
 
-"Test info provided to initializer / cleaner and test runner."
+"Test info provided to prepost functions or test runners."
 see( `interface AsyncPrePostContext`, `interface AsyncTestRunner` )
 since( "0.6.0" ) by( "Lis" )
 shared final class TestInfo (

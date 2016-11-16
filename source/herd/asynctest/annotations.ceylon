@@ -67,7 +67,7 @@ shared final annotation class ArgumentsAnnotation (
 }
 
 
-"Indicates that test container class or test initializer or cleaner function have to be instantiated
+"Indicates that test container class or test prepost function have to be instantiated
  or called using arguments provided by this annotation, see [[ArgumentsAnnotation.argumentList]].  
  
  Example:
@@ -119,7 +119,8 @@ shared final annotation class ParameterizedAnnotation (
 }
 
 
-"Indicates that generic test function has to be executed with given test variants.  
+"Indicates that generic (with possibly empty generic parameter list) test function
+ has to be executed with given test variants.  
  
  The annotation provides parameterized testing based on collection of test variants.
  It takes two arguments:  
@@ -264,10 +265,13 @@ shared final annotation class ConcurrentAnnotation()
 {}
 
 
-"Indicates that all test functions of the marked container have to be run in concurrent mode.  
- The concurrentmode is not applied if test container (package or class) contains functions annotated with
- `ceylon.test::beforeTest` or `ceylon.test::afterTest`
- or contains values marked with [[herd.asynctest.rule::testRule]]."
+"Indicates that all test suites (each suite contains all top-level test functions in the given package
+ or all test methods of the given class) contained in the marked container have to be executed in concurrent mode.    
+ The functions within each suite are executed sequentially in a one thread while the suites are executed concurrently
+ using thread pool of number of available cores size.  
+ 
+ > Thread pool with fixed number of threads equals to number of available processors (cores)
+   is used to execute tests in concurrent mode."
 since( "0.6.0" ) by( "Lis" )
 shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
 
@@ -282,7 +286,7 @@ shared final annotation class TimeoutAnnotation( "Timeout in milliseconds." shar
 
 
 "Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted.  
- The annotation is applied to any function called using [[AsyncTestExecutor]]: initializers, cleaners, test rules,
+ The annotation is applied to any function called using [[AsyncTestExecutor]]: prepost functions, test rules,
  factory and test functions."
 since( "0.6.0" ) by( "Lis" )
 shared annotation TimeoutAnnotation timeout( "Timeout in milliseconds." Integer timeoutMilliseconds )
@@ -305,9 +309,6 @@ shared final annotation class RetryAnnotation (
  `RepeatStrategy` (extracted from `source`).  
  
  > Overall execution cycle including `before`, `after` and `testRule` callbacks are repeated!  
- 
- **Pay attention:** for [[concurrent]] mode or in another multithread environment factory function
- is preferable to value! In order to avoid race conditions.  
  
  If you need to repeat just test function execution, look on [[RepeatRunner]].
  "
