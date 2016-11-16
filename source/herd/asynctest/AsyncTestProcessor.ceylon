@@ -145,11 +145,11 @@ class AsyncTestProcessor(
 		variable TestState state = TestState.skipped;
 		ArrayList<VariantTestOutput> variants = ArrayList<VariantTestOutput>();
 		
-		// strategy for test repeating
-		RepeatStrategy repeat = getRepeatStrategy(); 
-		
 		// for each argument in collection results are stored as separated test variant
 		while ( is TestVariant variant = testParameters.current ) {
+			// strategy for test repeating, asking before each variant
+			// since factory function is preferable in multithread environment
+			RepeatStrategy repeat = getRepeatStrategy(); 
 		 	// execute current variant
 		 	variable VariantTestOutput executionResults = executeVariant( variant );
 		 	while ( !repeat.completeOrRepeat( executionResults.variantResult ) exists ) {

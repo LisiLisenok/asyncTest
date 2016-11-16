@@ -7,7 +7,11 @@ import ceylon.test {
 }
 
 
-"Identifies if test has to be repeated or completed."
+"Identifies if test has to be repeated or completed.  
+ 
+ Pay attention: when implementing new strategy it has to take care to understand
+ when it is started and when it is completed to be ready for the next repeating run.  
+ "
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared interface RepeatStrategy {
@@ -34,7 +38,7 @@ shared object repeatOnce satisfies RepeatStrategy {
  Reports result from the latest run."
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class RepeatUpToSuccessRun( Integer maxRepeats = 1 ) satisfies RepeatStrategy {
+shared class RepeatUpToSuccessRun( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
 	variable Integer? totalRuns = null;
 	
@@ -57,7 +61,7 @@ shared class RepeatUpToSuccessRun( Integer maxRepeats = 1 ) satisfies RepeatStra
  Reports result from the latest run."
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class RepeatUpToFailedRun( Integer maxRepeats = 1 ) satisfies RepeatStrategy {
+shared class RepeatUpToFailedRun( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
 	variable Integer? totalRuns = null;
 	
@@ -76,11 +80,11 @@ shared class RepeatUpToFailedRun( Integer maxRepeats = 1 ) satisfies RepeatStrat
 }
 
 
-"Repeats up to the first failed message but no more than `maxRepeats` times.  
+"Repeats up to the first failure message but no more than `maxRepeats` times.  
  Reports just this failed message."
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class RepeatUpToFailureMessage( Integer maxRepeats = 1 ) satisfies RepeatStrategy {
+shared class RepeatUpToFailureMessage( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
 	variable Integer? totalRuns = null;
 	

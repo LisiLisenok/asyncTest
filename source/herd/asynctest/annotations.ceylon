@@ -304,7 +304,10 @@ shared final annotation class RetryAnnotation (
 "Indicates that test function or all functions within test container have to be tested using the given
  `RepeatStrategy` (extracted from `source`).  
  
- > Overall execution cycle including `before`, `after` and `testRule` callbacks are repeated!
+ > Overall execution cycle including `before`, `after` and `testRule` callbacks are repeated!  
+ 
+ **Pay attention:** for [[concurrent]] mode or in another multithread environment factory function
+ is preferable to value! In order to avoid race conditions.  
  
  If you need to repeat just test function execution, look on [[RepeatRunner]].
  "
