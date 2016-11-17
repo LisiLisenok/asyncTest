@@ -128,12 +128,12 @@ object asyncTestRunner {
 
 	"Executes tests from 'concurrent' group using thread pool."
 	void executeConcurrentTest( Integer totalCores ) {
-		variable Integer threadIndex = 0;
 		// Thread pool used in concurrent mode
 		ExecutorService pool = Executors.newFixedThreadPool (
 			totalCores, // pool size
 			// factory just in order to see 'good' names of the used threads
 			object satisfies ThreadFactory {
+				variable Integer threadIndex = 0;
 				shared actual Thread newThread( Runnable? runnable ) 
 					=> Thread( runnable, "async test pool - thread ``++threadIndex``" );
 			}
