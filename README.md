@@ -17,16 +17,16 @@ Current version is 0.6.0.
 
 #### Ceylon compiler / platform  
 
-Compiled with Ceylon 1.3.0  
+Compiled with Ceylon 1.3.1  
 Available on JVM only  
 
 
 #### Dependencies  
 
-* ceylon.collection/1.3.0  
-* ceylon.file/1.3.0 shared  
-* ceylon.language/1.3.0  
-* ceylon.test/1.3.0 shared  
+* ceylon.collection/1.3.1  
+* ceylon.file/1.3.1 shared  
+* ceylon.language/1.3.1  
+* ceylon.test/1.3.1 shared  
 * java.base/8 JDK  
 
 

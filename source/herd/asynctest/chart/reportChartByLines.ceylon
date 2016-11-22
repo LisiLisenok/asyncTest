@@ -52,13 +52,13 @@ shared void reportChartByLines (
 				for ( plot in chart.plots ) {
 					if ( exists pt = plot.points[current] ) {
 						builder.append (
-							formatFloat (
+							Float.format (
 								pt.category, format.minCategoryDecimalPlaces, format.maxCategoryDecimalPlaces
 							)
 						);
 						builder.append( format.delimiter );
 						builder.append (
-							formatFloat (
+							Float.format (
 								pt.val, format.minValueDecimalPlaces, format.maxValueDecimalPlaces
 							)
 						);

@@ -26,8 +26,8 @@ shared class StatisticSummary (
 	 The variance is mean((x-mean(x))^2)."
 	shared Float variance => standardDeviation * standardDeviation;
 	
-	string => "mean=``formatFloat(mean, 0, 3)``, standard deviation=``formatFloat(standardDeviation, 0, 3)``, " +
-			  "max=``formatFloat(max, 0, 3)``, min=``formatFloat(min, 0, 3)``, total samples=``size``";
+	string => "mean=``Float.format(mean, 0, 3)``, standard deviation=``Float.format(standardDeviation, 0, 3)``, " +
+			  "max=``Float.format(max, 0, 3)``, min=``Float.format(min, 0, 3)``, total samples=``size``";
 }
 
 

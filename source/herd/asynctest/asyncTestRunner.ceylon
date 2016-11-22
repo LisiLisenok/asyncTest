@@ -33,8 +33,7 @@ import java.util.concurrent {
 
 	CountDownLatch,
 	Executors,
-	ExecutorService,
-	ThreadFactory
+	ExecutorService
 }
 import java.lang {
 
@@ -129,14 +128,11 @@ object asyncTestRunner {
 	"Executes tests from 'concurrent' group using thread pool."
 	void executeConcurrentTest( Integer totalCores ) {
 		// Thread pool used in concurrent mode
+		variable Integer threadIndex = 0;
 		ExecutorService pool = Executors.newFixedThreadPool (
 			totalCores, // pool size
 			// factory just in order to see 'good' names of the used threads
-			object satisfies ThreadFactory {
-				variable Integer threadIndex = 0;
-				shared actual Thread newThread( Runnable? runnable ) 
-					=> Thread( runnable, "async test pool - thread ``++threadIndex``" );
-			}
+			( Runnable? runnable ) => Thread( runnable, "async test pool - thread ``++threadIndex``" )
 		);
 		try {
 			// run concurrent executors

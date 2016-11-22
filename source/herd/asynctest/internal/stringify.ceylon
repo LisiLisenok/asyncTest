@@ -12,7 +12,7 @@ shared String stringify( Anything item ) {
 	//switch ( item )
 	if ( is Null item ) { return "<null>"; }
 	else if ( is Character item ) { return "'``item``'"; }
-	else if ( is Float item ) { return formatFloat( item, 0, 3 ); }
+	else if ( is Float item ) { return Float.format( item, 0, 3 ); }
 	else if ( is Entry<Object, Anything> item ) {
 		return "<``stringify( item.key )``->``stringify( item.item )``>";
 	}
