@@ -12,7 +12,7 @@ import herd.asynctest.internal {
 }
 
 
-"Test info provided to prepost functions or test runners."
+"Test info represents and information on currently running test variant."
 see( `interface AsyncPrePostContext`, `interface AsyncTestRunner` )
 since( "0.6.0" ) by( "Lis" )
 shared final class TestInfo (

@@ -374,7 +374,7 @@
  ### <a name=\"charts\"></a> Reporting test results using charts  
  
  Chart is simply a set of plots, where each plot is a sequence of 2D points.  
- Test results can be represented and reported with charts using staff provided by [[package herd.asynctest.chart]].  
+ Test results can be represented and reported with charts using stuff provided by [[package herd.asynctest.chart]].  
  
  
  --------------------------------------------
