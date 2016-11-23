@@ -45,7 +45,7 @@ import herd.asynctest.runner {
 "Processes test execution with the branch test generic parameters and function arguments."
 since( "0.2.0" ) by( "Lis" )
 class AsyncTestProcessor(
-	"Test function." FunctionDeclaration functionDeclaration,
+	"Test function." FunctionDeclaration testFunctionDeclaration,
 	"Object contained function or `null` if function is top level." Object? instance,
 	"Test execution context of this function." TestExecutionContext functionContext,
 	"Group to run test function, looks for timeout and uncaught exceptions." ContextThreadGroup group,
@@ -58,10 +58,10 @@ class AsyncTestProcessor(
 	Type<Object>? instanceType = if ( exists i = instance ) then type( i ) else null;
 	
 	"Time out for a one function run."
-	Integer timeOutMilliseconds = extractTimeout( functionDeclaration );
+	Integer timeOutMilliseconds = extractTimeout( testFunctionDeclaration );
 
 	"`true` if test function is run on async test context."
-	Boolean runOnAsyncContext = asyncTestRunner.isAsyncDeclaration( functionDeclaration );
+	Boolean runOnAsyncContext = asyncTestRunner.isAsyncDeclaration( testFunctionDeclaration );
 	
 	"Init context to perform test initialization."
 	PrePostContext prePostContext = PrePostContext( group );
@@ -72,18 +72,18 @@ class AsyncTestProcessor(
 	
 	"Extracts test runner from test function annotations."
 	AsyncTestRunner? getRunner() =>
-			if ( exists ann = findFirstAnnotation<RunWithAnnotation>( functionDeclaration ) )
+			if ( exists ann = findFirstAnnotation<RunWithAnnotation>( testFunctionDeclaration ) )
 			then extractSourceValue<AsyncTestRunner>( ann.runner, instance )
 			else null;
 	
 	"Applies function from declaration, container and a given type parameters."
 	Function<Anything, Nothing> applyFunction( Type<Anything>* typeParams ) {
 		if ( exists container = instance, exists containerType = instanceType ) {
-			return functionDeclaration.memberApply<Nothing, Anything, Nothing> (
+			return testFunctionDeclaration.memberApply<Nothing, Anything, Nothing> (
 				containerType, *typeParams ).bind( container );
 		}
 		else {
-			return functionDeclaration.apply<Anything, Nothing>( *typeParams );
+			return testFunctionDeclaration.apply<Anything, Nothing>( *typeParams );
 		}
 	}
 	
@@ -101,14 +101,14 @@ class AsyncTestProcessor(
 					context.complete();
 				}
 			},
-			timeOutMilliseconds, functionDeclaration.name
+			timeOutMilliseconds, testFunctionDeclaration.name
 		);
 	}
 	
 	
 	"Returns test repeat strategy from [[retry]] annotation."
 	RepeatStrategy getRepeatStrategy() =>
-			if ( exists ann = findFirstAnnotation<RetryAnnotation>( functionDeclaration ) )
+			if ( exists ann = findFirstAnnotation<RetryAnnotation>( testFunctionDeclaration ) )
 			then extractSourceValue<RepeatStrategy>( ann.source, instance )
 			else repeatOnce;
 	
@@ -117,7 +117,7 @@ class AsyncTestProcessor(
 	 Returns output from this variant."
 	VariantTestOutput executeVariant( TestVariant variant ) {
 		TestInfo testInfo = TestInfo (
-			functionDeclaration, variant.parameters, variant.arguments, variant.variantName, timeOutMilliseconds
+			testFunctionDeclaration, variant.parameters, variant.arguments, variant.variantName, timeOutMilliseconds
 		);
 		// run initializers firstly
 		if ( nonempty initErrs = prePostContext.run( intializers, testInfo ) ) {
@@ -178,7 +178,7 @@ class AsyncTestProcessor(
 	"Runs the test of a one function inlucding parameterization."
 	shared ExecutionTestOutput runTest() {
 		try {
-			if ( exists condition = evaluateAnnotatedConditions( functionDeclaration, functionContext ) ) {
+			if ( exists condition = evaluateAnnotatedConditions( testFunctionDeclaration, functionContext ) ) {
 				// test has been skipped due to unsatisfying some conditions
 				return ExecutionTestOutput (
 					functionContext,
@@ -188,7 +188,7 @@ class AsyncTestProcessor(
 			}
 			else {
 				// execute test with the given number of test variants
-				return executeVariants( functionContext, resolveParameterizedList( functionDeclaration, instance ) );
+				return executeVariants( functionContext, resolveParameterizedList( testFunctionDeclaration, instance ) );
 			}
 		}
 		catch ( TestSkippedException e ) {
