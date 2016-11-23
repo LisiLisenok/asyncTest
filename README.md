@@ -5,7 +5,8 @@ is an extension to SDK `ceylon.test` module with following capabilities:
 * executing tests concurrently or sequentially  
 * value- and type- parameterized testing  
 * organizing complex test conditions into a one flexible expression with matchers  
-* initialization and disposing  
+* initialization and disposing with either functions or test rules  
+* test execution control with test runners  
 * conditional test execution  
 * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
   each report is represented as test variant and might be marked with `String` title  

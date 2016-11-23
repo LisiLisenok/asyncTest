@@ -1,27 +1,29 @@
 "
  ## asyncTest
  
- is an extension to SDK `ceylon.test` module with following capabilities:
- * testing asynchronous multithread code
- * executing tests concurrently or sequentially
- * value- and type- parameterized testing
- * organizing complex test conditions into a one flexible expression with matchers
- * initialization and disposing
- * conditional test execution
+ is an extension to SDK `ceylon.test` module with following capabilities:  
+ * testing asynchronous multithread code  
+ * executing tests concurrently or sequentially  
+ * value- and type- parameterized testing  
+ * organizing complex test conditions into a one flexible expression with matchers  
+ * initialization and disposing with either functions or test rules  
+ * test execution control with test runners  
+ * conditional test execution  
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
-   each report is represented as test variant and might be marked with \`String\` title
- * reporting test results using charts (or plots)
+   each report is represented as test variant and might be marked with \`String\` title  
+ * reporting test results using charts (or plots)  
  
  
- The extension is based on:
+ The extension is based on:  
  * [[AsyncTestExecutor]] class which satisfies `ceylon.test.engine.spi::TestExecutor` and used by `ceylon.test` module
-   to execute test functions.
- * [[AsyncPrePostContext]] interface used for test initialization.
- * [[AsyncTestContext]] interface which test function has to operate with (basically, reports on fails to).
+   to execute test functions.  
+ * [[AsyncPrePostContext]] interface used for test initialization.  
+ * [[AsyncTestContext]] interface which test function has to operate with (basically, reports on fails to).  
  * [[package herd.asynctest.rule]] which contains rules used for test initialization / disposing
-   and for modification of the test behaviour.
- * [[package herd.asynctest.match]] which contains match API.
- * [[package herd.asynctest.chart]] which is intended to organize reporting with charts.
+   and for modification of the test behaviour.  
+ * [[package herd.asynctest.runner]] provides a control over a test function execution.  
+ * [[package herd.asynctest.match]] which contains match API.  
+ * [[package herd.asynctest.chart]] which is intended to organize reporting with charts.  
  
  It is recommended to read documentation on `module ceylon.test` before starting with **asyncTest**.
  
@@ -35,13 +37,14 @@
  2. [Test initialization and disposing.](#initialization)  
  3. [Instantiation the test container class.](#instantiation)  
  4. [Test suites and concurrent execution.](#suites)  
- 5. [Value- and type- parameterized testing.](#parameterized)  
- 6. [Test runners.](#runners)  
- 7. [Matchers.](#matchers)  
- 8. [Time out.](#timeout)
- 9. [Retry test.](#retry)    
- 10. [Conditional execution.](#conditions)  
- 11. [Reporting test results using charts.](#charts)  
+ 5. [Test execution cycle.](#cycle)  
+ 6. [Value- and type- parameterized testing.](#parameterized)  
+ 7. [Test runners.](#runners)  
+ 8. [Matchers.](#matchers)  
+ 9. [Time out.](#timeout)
+ 10. [Retry test.](#retry)    
+ 11. [Conditional execution.](#conditions)  
+ 12. [Reporting test results using charts.](#charts)  
 
  
  -------------------------------------------
@@ -188,10 +191,9 @@
  Test rules provide more flexible way for test initialization / disposing and for modification the test behaviour.
  See details in [[package herd.asynctest.rule]].  
  
- > Test rules are executed after functions marked with `ceylon.test::beforeTestRun`, `ceylon.test::afterTestRun`,
-   `ceylon.test::beforeTest` or `ceylon.test::afterTest` annotations.  
+ > Invoking order of prepost functions is shown in [Test execution cycle.](#cycle) section.  
  
- 
+   
  -------------------------------------------
  ### <a name=\"instantiation\"></a> Instantiation the test container class  
  
@@ -240,6 +242,27 @@
  * Two marked suites are executed via thread pool. Each suite in separated thread if number of
    available cores admits. But all test functions in the given suite are executed sequentially via a one thread.  
  * After completion the test of the first two suites the third one is executed.  
+ 
+ 
+ -------------------------------------------
+ ### <a name=\"cycle\"></a> Test execution cycle  
+ 
+ 1. Test suite initialization:  
+ 	* Functions marked with `ceylon.test::beforeTestRun`.  
+ 	* `SuiteRule.initialize` of each suite rule marked with `testRule`.  
+ 2. Execution of test function for each variant:  
+ 	* Test execution inititalization:  
+ 		* Functions marked with `ceylon.test::beforeTest`.  
+ 		* `TestRule.before` of each test rule marked with `testRule`.  
+ 	* Test function invoking:  
+ 		* Test function invoking with arguments provided by current test variant.  
+ 		* `TestStatement` application.  
+ 	* Test execution disposing:  
+ 		* `TestRule.after` of each test rule marked with `testRule`.  
+ 		* Functions marked with `ceylon.test::afterTest`.  
+ 3. Test suite disposing:  
+ 	* `SuiteRule.dispose` of each suite rule marked with `testRule`.  
+ 	* Functions marked with `ceylon.test::afterTestRun`.  
  
  
  -------------------------------------------
@@ -329,7 +352,8 @@
  If overall test runcycle (i.e. before callbacks - test function - test statements - after callbacks)
  has to be retryed for each given test variant
  (see section [Value- and type- parameterized testing](#parameterized)) the [[retry]] annotation may be applied
- to the test function.  
+ to the test function. The annotation forces test framework to retry the overall test execution cycle according to a given
+ repeat strategy.    
  
  
  -------------------------------------------

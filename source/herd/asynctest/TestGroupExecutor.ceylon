@@ -335,8 +335,8 @@ class TestGroupExecutor (
 		// overall test cleaners
 		value cleaners =
 				if ( exists inst = instance )
-				then getAnnotatedPrepost<AfterTestRunAnnotation>( instance, instanceType )
-					.append( getSuiteCleaners( instance, instanceType ) )
+				then getSuiteCleaners( instance, instanceType )
+					.append( getAnnotatedPrepost<AfterTestRunAnnotation>( instance, instanceType ) )
 				else getSuiteCleaners( null, null );
 		// context used for initialization / disposing
 		PrePostContext prePostContext = PrePostContext( group );
@@ -402,8 +402,8 @@ class TestGroupExecutor (
 					value testInitializers = getAnnotatedPrepost<BeforeTestAnnotation>( instance, instanceType )
 							.append( getTestInitializers( instance, instanceType ) );
 					// each test run cleaners
-					value testCleaners = getAnnotatedPrepost<AfterTestAnnotation>( instance, instanceType )
-							.append( getTestCleaners( instance, instanceType ) );
+					value testCleaners = getTestCleaners( instance, instanceType )
+							.append( getAnnotatedPrepost<AfterTestAnnotation>( instance, instanceType ) );
 					// test statements
 					value testStatements = getTestStatements( instance, instanceType );
 					
