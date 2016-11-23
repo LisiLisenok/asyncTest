@@ -16,8 +16,18 @@
     declaration of value / function made under item 1.  
  3. Run the test.   
  
+ Example:  
+ 		class MyRunner() satisfies AsyncTestRunner {
+ 			shared actual void run(AsyncMessageContext context, void testing(AsyncMessageContext context), TestInfo info) {
+ 				teting(context);
+ 			}
+ 		}
+ 		
+ 		test runWith(`class MyRunner`)
+ 		void myTest() {...}
+ 
  > Test runner executes only test function. All `before`, `after` and `testRule` (including `TestStatement`)
-   callbacks are executed outside the runner.  
+   callbacks are executed outside the runner. If overall execution cycle has to be repeated, see [[herd.asynctest::retry]].    
  
  
  #### Built-in runners  

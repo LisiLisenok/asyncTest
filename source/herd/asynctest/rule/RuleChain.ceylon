@@ -5,11 +5,11 @@ import herd.asynctest {
 
 "Chain of suite rules is indended to apply suite rules in specific order.
  Initialization (i.e. `initialize` methods) is performed with iterating of the `rules` in direct order,
- while diposing (i.e. `dispose` methods) is performed in reverse order. So the first initialized is
+ while diposing (i.e. `dispose` methods) is performed in reverse order. So, the first initialized is
  the last disposed."
 tagged( "SuiteRule" ) since( "0.6.0" ) by( "Lis" )
 shared class SuiteRuleChain (
-	SuiteRule* rules
+	"A list of the rules to be chained in order they are provided." SuiteRule* rules
 ) satisfies SuiteRule {
 	
 	Anything(AsyncPrePostContext)[] initializers = [for ( r in rules ) r.initialize ];
@@ -31,11 +31,11 @@ shared class SuiteRuleChain (
 
 "Chain of test rules is indended to apply test rules in specific order.
  Initialization (i.e. `before` methods) is performed with iterating of the `rules` in direct order,
- while diposing (i.e. `after` methods) is performed in reverse order. So the first initialized is
+ while diposing (i.e. `after` methods) is performed in reverse order. So, the first initialized is
  the last disposed."
 tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
 shared class TestRuleChain (
-	TestRule* rules
+	"A list of the rules to be chained in order they are provided." TestRule* rules
 ) satisfies TestRule {
 	
 	Anything(AsyncPrePostContext)[] initializers = [for ( r in rules ) r.before ];

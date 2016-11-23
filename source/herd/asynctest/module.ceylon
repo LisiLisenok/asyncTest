@@ -38,11 +38,11 @@
  3. [Instantiation the test container class.](#instantiation)  
  4. [Test suites and concurrent execution.](#suites)  
  5. [Test execution cycle.](#cycle)  
- 6. [Value- and type- parameterized testing.](#parameterized)  
+ 6. [Value- and type- parameterized testing.](#parameterized_section)  
  7. [Test runners.](#runners)  
  8. [Matchers.](#matchers)  
- 9. [Time out.](#timeout)
- 10. [Retry test.](#retry)    
+ 9. [Time out.](#timeout_section)
+ 10. [Retry test.](#retry_section)    
  11. [Conditional execution.](#conditions)  
  12. [Reporting test results using charts.](#charts)  
 
@@ -127,7 +127,7 @@
  * Every prepost function is always executed regardless failure reporting
    since a right to be disposed has to be provided for each.  
  * Top-level functions marked with `ceylon.test::beforeTestRun` or `ceylon.test::afterTestRun` have to take no arguments!
-   While methods may take (see [below](#initargs)).  
+   While methods may take (see, [below](#initargs)).  
  * Test executor blocks current thread until prepost function calls 
    [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]].  
  * Prepost methods have to be shared! Top-level prepost functions may not be shared.  
@@ -183,15 +183,15 @@
  > [[arguments]] annotation is applicable for test container class also.  
  
  > [[arguments]] annotation is not applicable to test functions. [[parameterized]] annotation is aimed
-   to perform parameterized testing, see section [Value- and type- parameterized testing](#parameterized) below.  
+   to perform parameterized testing, see, section [Value- and type- parameterized testing](#parameterized_section) below.  
  
  
  #### Test rules  
  
  Test rules provide more flexible way for test initialization / disposing and for modification the test behaviour.
- See details in [[package herd.asynctest.rule]].  
+ See, details in [[package herd.asynctest.rule]].  
  
- > Invoking order of prepost functions is shown in [Test execution cycle.](#cycle) section.  
+ > Order in which prepost functions are invoked is described in [Test execution cycle](#cycle) section.  
  
    
  -------------------------------------------
@@ -249,24 +249,24 @@
  
  1. Test suite initialization:  
  	* Functions marked with `ceylon.test::beforeTestRun`.  
- 	* `SuiteRule.initialize` of each suite rule marked with `testRule`.  
+ 	* [[herd.asynctest.rule::SuiteRule.initialize]] of each suite rule marked with [[herd.asynctest.rule::testRule]].  
  2. Execution of test function for each variant:  
  	* Test execution inititalization:  
  		* Functions marked with `ceylon.test::beforeTest`.  
- 		* `TestRule.before` of each test rule marked with `testRule`.  
+ 		* [[herd.asynctest.rule::TestRule.before]] of each test rule marked with [[herd.asynctest.rule::testRule]].  
  	* Test function invoking:  
  		* Test function invoking with arguments provided by current test variant.  
- 		* `TestStatement` application.  
+ 		* [[herd.asynctest.rule::TestStatement]] application.  
  	* Test execution disposing:  
- 		* `TestRule.after` of each test rule marked with `testRule`.  
+ 		* [[herd.asynctest.rule::TestRule.after]] of each test rule marked with [[herd.asynctest.rule::testRule]].  
  		* Functions marked with `ceylon.test::afterTest`.  
  3. Test suite disposing:  
- 	* `SuiteRule.dispose` of each suite rule marked with `testRule`.  
+ 	* [[herd.asynctest.rule::SuiteRule.dispose]] of each suite rule marked with [[herd.asynctest.rule::testRule]].  
  	* Functions marked with `ceylon.test::afterTestRun`.  
  
  
  -------------------------------------------
- ### <a name=\"parameterized\"></a> Value- and type- parameterized testing  
+ ### <a name=\"parameterized_section\"></a> Value- and type- parameterized testing  
  
  In order to perform parameterized testing the test function has to be marked with annotation which supports
  [[TestVariantProvider]] interface. The interface has just a one method - `variants()`
@@ -318,7 +318,7 @@
  Simply, test runner takes a test function and invokes it.
  But it may, for example, execute it several times or execute simultaneously in several threads,
  or modify the function report or something else.  
- For the details, see [[package herd.asynctest.runner]].   
+ For the details, see, [[package herd.asynctest.runner]].   
  
  
  -------------------------------------------
@@ -332,7 +332,7 @@
  
  
  -------------------------------------------
- ### <a name=\"timeout\"></a> Time out  
+ ### <a name=\"timeout_section\"></a> Time out  
  
  [[timeout]] annotation indicates that if test has not been completed during some time it has to be interrupted.  
  Annotation applied at class, package or module level acts for each function within the scope. Lower-level declaration
@@ -347,11 +347,10 @@
   
  
  -------------------------------------------
- ### <a name=\"retry\"></a> Retry test  
+ ### <a name=\"retry_section\"></a> Retry test  
  
  If overall test runcycle (i.e. before callbacks - test function - test statements - after callbacks)
- has to be retryed for each given test variant
- (see section [Value- and type- parameterized testing](#parameterized)) the [[retry]] annotation may be applied
+ has to be retryed for each given test variant the [[retry]] annotation may be applied
  to the test function. The annotation forces test framework to retry the overall test execution cycle according to a given
  repeat strategy.    
  
@@ -364,7 +363,7 @@
  All conditions at every level are evaluated before test execution started
  and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.  
  
- For an example, see `ceylon.test::ignore` annotation.
+ For an example, see, `ceylon.test::ignore` annotation.
  
  > Conditions are evaluation up to the first unsatisfied condition.
    So, there is no guarantee for a condition to be evaluated.  

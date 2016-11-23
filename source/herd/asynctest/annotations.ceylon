@@ -110,7 +110,7 @@ shared final annotation class ParameterizedAnnotation (
 {
 	
 	"Returns test variant enumerator based on test variants extracted from `source`."
-	shared actual TestVariantEnumerator variants( Object? instance )
+	shared actual TestVariantEnumerator variants( FunctionDeclaration testFunction, Object? instance)
 		=> TestVariantIterator (
 			extractSourceValue<{TestVariant*}>( source, instance ).iterator().next,
 			maxFailedVariants

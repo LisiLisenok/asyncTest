@@ -1,7 +1,6 @@
 "
- ### Test rules
+ Test rule provides a way to perform initialization / disposing before / after test execution and to modify test behaviour.  
  
- Provide a way to perform initialization / disposing before / after test execution and to modify test behaviour.
  
  Each rule is a top-level value or class attribute which satisfies some of the following interfaces:  
  1. [[SuiteRule]] performs initialization or disposing respectively before or after execution of _all_ tests in the scope

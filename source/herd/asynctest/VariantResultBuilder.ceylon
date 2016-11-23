@@ -41,6 +41,7 @@ shared class VariantResultBuilder() {
 	}
 	
 	
+	"Returns built test variant results."
 	shared TestVariantResult variantResult {
 		TestState state = if ( outs.empty ) then TestState.success else overallState;
 		return TestVariantResult( outs.sequence(), (system.nanoseconds - startTime)/1000000, state );

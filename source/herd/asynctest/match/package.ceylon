@@ -2,6 +2,7 @@
 "Matchers are intended to organize complex test conditions into a one flexible expression.  
  Each matcher is requirements specification and verification method
  which identifies if submitted test value satisfies matcher specification or not.  
+ 
  [[Matcher]] interface is base entry for each matcher.  
  Verification is performed using [[Matcher.match]] method. Result of verification
  is [[MatchResult]] which is simply satisfied / unsatisfied `Boolean` and `String` message describing
