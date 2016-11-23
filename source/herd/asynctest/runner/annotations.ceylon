@@ -25,7 +25,7 @@ since( "0.6.0" ) by( "Lis" )
 see( `package herd.asynctest.runner`, `interface AsyncTestRunner` )
 shared annotation RunWithAnnotation runWith (
 	"Runner source. Top-level function or value or test function container method or attribute.
-	 Which hasto return an intance of [[AsyncTestRunner]] interface."
+	 Which has to return an instance of [[AsyncTestRunner]] interface."
 	FunctionOrValueDeclaration runner
 )
 		=> RunWithAnnotation( runner );
