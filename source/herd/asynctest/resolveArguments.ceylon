@@ -13,7 +13,7 @@ import ceylon.language.meta {
  Returns a list of parameters list."
 since( "0.3.0" ) by( "Lis" )
 TestVariantEnumerator resolveParameterizedList (
-	"Function to resolve arguments from." FunctionDeclaration declaration,
+	"Function to resolve arguments for." FunctionDeclaration declaration,
 	"Instance of the test class or `null` if test is performed using top-level function." Object? instance
 ) {
 	value providers = declaration.annotations<Annotation>().narrow<TestVariantProvider>();

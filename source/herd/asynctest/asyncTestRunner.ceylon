@@ -33,7 +33,8 @@ import java.util.concurrent {
 
 	CountDownLatch,
 	Executors,
-	ExecutorService
+	ExecutorService,
+	ThreadFactory
 }
 import java.lang {
 
@@ -132,11 +133,12 @@ object asyncTestRunner {
 		ExecutorService pool = Executors.newFixedThreadPool (
 			totalCores, // pool size
 			// factory just in order to see 'good' names of the used threads
-			( Runnable runnable ) => Thread( runnable, "async test pool - thread ``++threadIndex``" )
+			//( Runnable runnable ) => Thread( runnable, "async test pool - thread ``++threadIndex``" )
 			//old style - for doc tool while #6749 issue not solved
-			/*object satisfies ThreadFactory {
-				shared actual Thread newThread(Runnable runnable) => Thread( runnable, "async test pool - thread ``++threadIndex``" );
-			}*/
+			object satisfies ThreadFactory {
+				shared actual Thread newThread( Runnable runnable )
+						=> Thread( runnable, "async test pool - thread ``++threadIndex``" );
+			}
 		);
 		try {
 			// run concurrent executors
