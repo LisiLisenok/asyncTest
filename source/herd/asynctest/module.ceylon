@@ -67,7 +67,7 @@
  > Test executor blocks the thread until [[AsyncTestContext.complete]] is called. It means test function
    has to notify completion to continue with other testing and to report results.  
    
- > [[async]] annotation is almost the same as `\`testExecutor(`class AsyncTestExecutor`)`\` annotation.  
+ > [[async]] annotation is exactly the same as `\`testExecutor(`class AsyncTestExecutor`)`\` annotation.  
  
  
  #### Test functions  
@@ -77,12 +77,14 @@
  > If function (or upper-level container) is not marked with `async` annotation
    it is executed with default `ceylon.test` executor.  
  
- The function arguments:
- * If no arguments or function takes arguments according to [[parameterized]] annotation
-   then the function is executed in synchronous mode and may report on failures using assertions or throwing some exception.
+ The test function arguments:  
+ * If no arguments or function takes arguments according to a given test variant provider
+   (see, [Value- and type- parameterized testing](#parameterized_section) below)
+   then the tet function is executed in synchronous mode and may report on failures
+   using assertions or throwing some exception.  
  * If function takes the first argument of [[AsyncTestContext]] type and the other arguments according
-   to [[parameterized]] annotation then it is executed asynchronously and may report failures, successes and completion
-   using [[AsyncTestContext]].
+   to a given test variant provider (see, [Value- and type- parameterized testing](#parameterized_section) below)
+   then it is executed asynchronously and may report failures, successes and completion using [[AsyncTestContext]].  
    
  > If a number of test functions are declared within some class just a one instance of the class
    is used for the overall test runcycle. This opens way to have some test interrelations. Please, remember
@@ -92,17 +94,14 @@
  -------------------------------------------
  ### <a name=\"initialization\"></a> Test initialization and disposing  
  
- Top-level functions or methods marked with `ceylon.test::beforeTestRun` are executed _once_
- before starting all tests in its scope (package for top-level and class for methods).  
- 
- Top-level functions or methods marked with `ceylon.test::beforeTest` are executed _each_ time
- before executing _each_ test in its scope (package for top-level and class for methods).  
- 
- Top-level functions or methods marked with `ceylon.test::afterTestRun` are executed _once_
- after completing all tests in its scope (package for top-level and class for methods).  
- 
- Top-level functions or methods marked with `ceylon.test::afterTest` are executed _each_ time
- after _each_ test in its scope is completed.   
+ * Top-level functions or methods marked with `ceylon.test::beforeTestRun` are executed _once_
+   before starting all tests in its scope (package for top-level and class for methods).  
+ * Top-level functions or methods marked with `ceylon.test::beforeTest` are executed _each_ time
+   before executing _each_ test in its scope (package for top-level and class for methods).  
+ * Top-level functions or methods marked with `ceylon.test::afterTestRun` are executed _once_
+   after completing all tests in its scope (package for top-level and class for methods).  
+ * Top-level functions or methods marked with `ceylon.test::afterTest` are executed _each_ time
+   after _each_ test in its scope (package for top-level and class for methods) is completed.   
  
  > All `before` and `after` callbacks are called prepost functions below.
 
@@ -132,6 +131,7 @@
    [[AsyncPrePostContext.proceed]] or [[AsyncPrePostContext.abort]].  
  * Prepost methods have to be shared! Top-level prepost functions may not be shared.  
  * Inherited prepost methods are executed also.  
+ * Top-level prepost functions are not applicable to methods!  
  
  
  #### Test initialization and disposing example  
@@ -179,8 +179,6 @@
  will be called with argument provided by `testUniverseSize`. So, for both sync and async versions arguments
  provider has to return the same arguments list. But async version will additionally be provided
  with `AsyncPrePostContext` which has to be the first argument.  
- 
- > [[arguments]] annotation is applicable for test container class also.  
  
  > [[arguments]] annotation is not applicable to test functions. [[parameterized]] annotation is aimed
    to perform parameterized testing, see, section [Value- and type- parameterized testing](#parameterized_section) below.  
@@ -243,6 +241,8 @@
    available cores admits. But all test functions in the given suite are executed sequentially via a one thread.  
  * After completion the test of the first two suites the third one is executed.  
  
+ > Top-level prepost functions are not applicable to methods!  
+ 
  
  -------------------------------------------
  ### <a name=\"cycle\"></a> Test execution cycle  
@@ -250,7 +250,7 @@
  1. Test suite initialization:  
  	* Functions marked with `ceylon.test::beforeTestRun`.  
  	* [[herd.asynctest.rule::SuiteRule.initialize]] of each suite rule marked with [[herd.asynctest.rule::testRule]].  
- 2. Execution of test function for each variant:  
+ 2. Execution of the each test function in the scope for each given variant:  
  	* Test execution inititalization:  
  		* Functions marked with `ceylon.test::beforeTest`.  
  		* [[herd.asynctest.rule::TestRule.before]] of each test rule marked with [[herd.asynctest.rule::testRule]].  
@@ -260,6 +260,7 @@
  	* Test execution disposing:  
  		* [[herd.asynctest.rule::TestRule.after]] of each test rule marked with [[herd.asynctest.rule::testRule]].  
  		* Functions marked with `ceylon.test::afterTest`.  
+ 	* Repeat 2 for the next test function in the scope (package for top-level functions or cla for the methods)
  3. Test suite disposing:  
  	* [[herd.asynctest.rule::SuiteRule.dispose]] of each suite rule marked with [[herd.asynctest.rule::testRule]].  
  	* Functions marked with `ceylon.test::afterTestRun`.  
@@ -290,9 +291,9 @@
  
  			shared actual void moveNext(TestVariantResult result) {
  				if (testToBeCompleted) {
- 					// set `current` to test variant to be tested next
- 				} else {
  					// set `current` to `finished`
+ 				} else {
+ 					// set `current` to test variant to be tested next
  				}
  			}
  		}
