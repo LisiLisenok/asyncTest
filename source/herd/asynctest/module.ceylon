@@ -403,7 +403,7 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.asynctest "0.6.0" {
+module herd.asynctest "0.6.1" {
 	import java.base "8";
 	shared import ceylon.test "1.3.1";
 	import ceylon.collection "1.3.1";
