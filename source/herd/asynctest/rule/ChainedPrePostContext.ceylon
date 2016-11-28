@@ -13,6 +13,9 @@ import java.util.concurrent.locks {
 	Condition,
 	ReentrantLock
 }
+import herd.asynctest.internal {
+	CurrentThread
+}
 
 
 "Provides in chain calls of the given functions."
@@ -54,7 +57,7 @@ class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(Asyn
 	
 	
 	void processPrepost() {
-		while ( is Anything(AsyncPrePostContext) f = functions.next() ) {
+		while ( is Anything(AsyncPrePostContext) f = functions.next(), CurrentThread.works ) {
 			// execute next chained function
 			value box = AsyncPrePostContextBox();
 			try { f( box ); }
