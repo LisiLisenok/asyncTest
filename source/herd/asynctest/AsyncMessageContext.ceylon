@@ -1,7 +1,7 @@
 
 
 "Base interface to push test messages to.  
- The interface is mainly used by test runners [[herd.asynctest.runner::AsyncTestRunner]].  
+ The interface is mainly used by test runners, see package [[package herd.asynctest.runner]] for details.  
  Test function receives derived interface [[AsyncTestContext]]."
 since( "0.6.0" ) by( "Lis" )
 shared interface AsyncMessageContext {
