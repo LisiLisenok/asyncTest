@@ -1,12 +1,10 @@
 import herd.asynctest {
 	AsyncPrePostContext,
-	TestInfo
+	TestInfo,
+	MultipleAbortException
 }
 import ceylon.collection {
 	ArrayList
-}
-import ceylon.test.engine {
-	MultipleFailureException
 }
 import java.util.concurrent.atomic {
 	AtomicBoolean
@@ -83,8 +81,8 @@ class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(Asyn
 			context.abort( first[0], first[1] );
 		}
 		else {
-			String title = "multiple abort reasons (``abortReasons.size``)";
-			context.abort( MultipleFailureException( [for ( r in abortReasons ) r[0]], title ), title );
+			value reason = MultipleAbortException( [for ( r in abortReasons ) r[0]] );
+			context.abort( reason, reason.description );
 		}		
 	}
 	
