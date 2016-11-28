@@ -344,7 +344,7 @@
  test rule or factory.  
  
  Example, function `doMyTest` will be interrupted if not completed during 1 second:
- 		timeout( 1K ) test async void doMyTest(...) {...}
+ 		timeout(1K) test async void doMyTest(...) {...}
   
  
  -------------------------------------------

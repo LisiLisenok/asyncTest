@@ -5,6 +5,7 @@ import java.util.concurrent.locks {
 	ReentrantLock
 }
 
+
 "Tool for controlling access to a shared resource of `Element` type by multiple threads.  
  
  The resource value is re-initialized to `initial` _before_ each test.  
