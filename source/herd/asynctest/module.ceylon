@@ -15,15 +15,15 @@
  
  
  The extension is based on:  
- * [[AsyncTestExecutor]] class which satisfies `ceylon.test.engine.spi::TestExecutor` and used by `ceylon.test` module
-   to execute test functions.  
- * [[AsyncPrePostContext]] interface used for test initialization.  
- * [[AsyncTestContext]] interface which test function has to operate with (basically, reports on fails to).  
- * [[package herd.asynctest.rule]] which contains rules used for test initialization / disposing
+ * [[AsyncTestExecutor]] - the test executor which satisfies `ceylon.test.engine.spi::TestExecutor`
+   and provides an interaction with `ceylon.test` module.  
+ * [[AsyncTestContext]] which provides an interaction of the test function with the test framework.  
+ * [[AsyncPrePostContext]] which provides an interaction of initialization / disposing logic with the test framework.  
+ * [[package herd.asynctest.rule]] package which contains rules used for test initialization / disposing
    and for modification of the test behaviour.  
- * [[package herd.asynctest.runner]] provides a control over a test function execution.  
- * [[package herd.asynctest.match]] which contains match API.  
- * [[package herd.asynctest.chart]] which is intended to organize reporting with charts.  
+ * [[package herd.asynctest.runner]] package which provides a control over a test function execution.  
+ * [[package herd.asynctest.match]] package which contains matching API.  
+ * [[package herd.asynctest.chart]] package which is intended to organize reporting with charts.  
  
  It is recommended to read documentation on `module ceylon.test` before starting with **asyncTest**.
  
@@ -187,7 +187,7 @@
  #### Test rules  
  
  Test rules provide more flexible way for test initialization / disposing and for modification the test behaviour.
- See, details in [[package herd.asynctest.rule]].  
+ See, details in [[package herd.asynctest.rule]] package.  
  
  > Order in which prepost functions are invoked is described in [Test execution cycle](#cycle) section.  
  
@@ -319,7 +319,7 @@
  Simply, test runner takes a test function and invokes it.
  But it may, for example, execute it several times or execute simultaneously in several threads,
  or modify the function report or something else.  
- For the details, see, [[package herd.asynctest.runner]].   
+ For the details, see, [[package herd.asynctest.runner]] package.   
  
  
  -------------------------------------------
@@ -329,7 +329,7 @@
  Each matcher is represented as requirements specification and verification method which identifies
  if submitted test value satisfies this specification or not. Matchers may be combined using logical operators.  
  
- Details of matching API are described in [[package herd.asynctest.match]].
+ Details of matching API are described in [[package herd.asynctest.match]] package.
  
  
  -------------------------------------------
@@ -374,7 +374,7 @@
  ### <a name=\"charts\"></a> Reporting test results using charts  
  
  Chart is simply a set of plots, where each plot is a sequence of 2D points.  
- Test results can be represented and reported with charts using stuff provided by [[package herd.asynctest.chart]].  
+ Test results can be represented and reported with charts using stuff provided by [[package herd.asynctest.chart]] package.  
  
  
  --------------------------------------------
