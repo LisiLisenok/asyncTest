@@ -46,8 +46,8 @@ shared class Identical<Value> (
  * trasitivity, if x==y and y==z then x==z  
  * \'hashivity\', if x==y then x.hash==y.hash
  
- In order to have value to compare to `clone` function is used which has to return new object
- which has to be equal to the given one.
+ In order to have value to compare to `clone` function is used. The function has to return new object
+ which has to be equal to the passed to.
  "
 tagged( "Checkers" ) since( "0.6.0" ) by( "Lis" )
 shared class ValueEquality<Value> (
