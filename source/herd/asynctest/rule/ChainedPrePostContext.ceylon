@@ -18,7 +18,7 @@ import herd.asynctest.internal {
 }
 
 
-"Provides in chain calls of the given functions."
+"Provides in chain calls of the given prepost functions."
 since( "0.6.0" ) by( "Lis" )
 class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(AsyncPrePostContext)> functions )
 {
