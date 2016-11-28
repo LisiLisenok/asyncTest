@@ -30,6 +30,7 @@ shared interface RepeatStrategy {
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared object repeatOnce satisfies RepeatStrategy {
+	"Always returns passed variant."
 	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) => variant;
 }
 
