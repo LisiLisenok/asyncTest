@@ -65,9 +65,10 @@ class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(Asyn
 			}
 			if ( box.running ) {
 				// await completion
-				locker.lock();
-				try { completed.await(); }
-				finally { locker.unlock(); }
+				if ( locker.tryLock() ) {
+					try { completed.await(); }
+					finally { locker.unlock(); }
+				}
 			}
 		}
 	}

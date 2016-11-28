@@ -28,10 +28,9 @@ class ContextBase() {
 	
 	"Await signaling."
 	shared void await() {
-		if ( running.get() ) {
-			locker.lock();
+		if ( running.get() && locker.tryLock() ) {
 			try { condition.await(); }
 			finally { locker.unlock(); }
 		}
-	}	
+	}
 }
