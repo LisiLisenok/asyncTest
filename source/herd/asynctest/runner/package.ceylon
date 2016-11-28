@@ -29,6 +29,8 @@
  > Test runner executes only test function. All `before`, `after` and `testRule` (including `TestStatement`)
    callbacks are executed outside the runner. If overall execution cycle has to be repeated, see [[herd.asynctest::retry]].    
  
+ > The test function submitted to the runner blocks current thread until `context.complete` called.  
+ 
  
  #### Built-in runners  
  

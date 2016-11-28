@@ -79,23 +79,8 @@
  
  
  ### Build-in test rules:  
- * [[AtomicValueRule]] provides atomic operations with some value.
-   The value is re-initialized before _each_ test.  
- * [[ContextualRule]] stores values local to the current thread.
-   This means each thread get its own copy of the value. The value is re-initialized before _each_ test.
- * [[CounterRule]] provides an atomic counter reseted to initial value before _each_ test.  
- * [[GaugeStatement]] verifies an element against given `matcher` each time when gauged.  
- * [[LockAccessRule]] tool for controlling access to a shared resource by multiple threads.  
- * [[MeterRule]] collects statistic data on an execution time and on a rate (per second) at which a set of events occur.  
- * [[ResourceRule]] represents a file packaged within a module and loaded before _all_ tests started.  
- * [[StatisticRule]] provides statistics data for some variate values.
- * [[SuiteRuleChain]] and [[TestRuleChain]] are intended to execute rules in the given order.  
- * [[TemporaryDirectoryRule]] represents a temporary directory which is created before _each_ test and destroyed after.  
- * [[TemporaryFileRule]] represents a temporary file which is created before _each_ test and destroyed after.
- * [[Verifier]] extracts value from source function after _each_ test and verifies it with given matcher.    
- * [[VerifyRule]] extends [[AtomicValueRule]] and additionally verifies the stored value against a given matcher
-   after _each_ test.  
-   
+ see, the package members.  
+ 
  Why every build-in test rule implements `non-default` rule methods? Since each method calls
  [[herd.asynctest::AsyncPrePostContext.proceed]] or [[herd.asynctest::AsyncPrePostContext.abort]]
  which complete initialization / disposing. Delegation should be used instead of extending.  
