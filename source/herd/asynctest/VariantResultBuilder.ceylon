@@ -4,6 +4,10 @@ import ceylon.test {
 import ceylon.collection {
 	ArrayList
 }
+import ceylon.test.engine {
+	TestSkippedException,
+	TestAbortedException
+}
 
 
 "Builds test variant result from several test outputs."
@@ -31,19 +35,31 @@ shared class VariantResultBuilder() {
 	
 	"Adds test failure report to the test results."
 	shared void addFailure( Throwable reason, String title = "" ) {
-		TestState state = if ( is AssertionError reason ) then TestState.failure else TestState.error; 
-		addOutput( TestOutput( state, reason, (system.nanoseconds - startTime)/1000000, title ) );
+		TestState state;
+		if ( is AssertionError reason ) {
+			state = TestState.failure;
+		}
+		else if ( is TestSkippedException reason ) {
+			state = TestState.skipped;
+		}
+		else if ( is TestAbortedException reason ) {
+			state = TestState.aborted;
+		}
+		else {
+			state = TestState.error;
+		}
+		addOutput( TestOutput( state, reason, ( system.nanoseconds - startTime ) / 1000000, title ) );
 	}
 	
 	"Adds test success report to the test results."
 	shared void addSuccess( String title ) {
-		addOutput( TestOutput( TestState.success, null, (system.nanoseconds - startTime)/1000000, title ) );
+		addOutput( TestOutput( TestState.success, null, ( system.nanoseconds - startTime ) / 1000000, title ) );
 	}
 	
 	
 	"Returns built test variant results."
 	shared TestVariantResult variantResult {
 		TestState state = if ( outs.empty ) then TestState.success else overallState;
-		return TestVariantResult( outs.sequence(), (system.nanoseconds - startTime)/1000000, state );
+		return TestVariantResult( outs.sequence(), ( system.nanoseconds - startTime ) / 1000000, state );
 	}
 }
