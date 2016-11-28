@@ -18,6 +18,9 @@ import herd.asynctest {
  
  The runner repeats only test function execution! All `before`, `after` and `testRule` callbacks
  are executed _once_. In order to repeat overal test execution cycle see [[retry]].  
+ 
+ > Thread-safe.  
+ 
  "
 see( `function retry` )
 tagged( "Runner", "Repeat" )
