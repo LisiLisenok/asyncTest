@@ -26,9 +26,10 @@ import herd.asynctest.runner {
 }
 
 
-"The same as `testExecutor(`\`class AsyncTestExecutor\``)`"
+"The same as `testExecutor(`\`class AsyncTestExecutor\``)`."
+see( `class AsyncTestExecutor` )
 since( "0.6.0" ) by( "Lis" )
-shared annotation TestExecutorAnnotation async() => testExecutor(`class AsyncTestExecutor`);
+shared annotation TestExecutorAnnotation async() => testExecutor( `class AsyncTestExecutor` );
 
 
 "Calls [[source]] to get source value."
@@ -45,25 +46,6 @@ Result extractSourceValue<Result>( FunctionOrValueDeclaration source, Object? in
 			then source.memberApply<Nothing, Result>( type( instance ) ).bind( instance ).get()
 			else source.apply<Result>().get();
 	}
-}
-
-
-"Annotation class for [[arguments]]."
-see( `function arguments` )
-since( "0.5.0" ) by( "Lis" )
-shared final annotation class ArgumentsAnnotation (
-	"The source function or value declaration which has to take no arguments and has to return a stream of values.
-	 The source may be either top-level or tested class shared member."
-	shared FunctionOrValueDeclaration source
-)
-		satisfies OptionalAnnotation<ArgumentsAnnotation, ClassDeclaration|FunctionDeclaration>
-{
-	
-	"Calls [[source]] to get argument stream."
-	shared Anything[] argumentList (
-		"Instance of the test class or `null` if test is performed using top-level function." Object? instance
-	) => extractSourceValue<Anything[]>( source, instance );
-	
 }
 
 
@@ -85,6 +67,25 @@ shared final annotation class ArgumentsAnnotation (
  		}
  
  "
+see( `function arguments` )
+since( "0.5.0" ) by( "Lis" )
+shared final annotation class ArgumentsAnnotation (
+	"The source function or value declaration which has to take no arguments and has to return a stream of values.
+	 The source may be either top-level or tested class shared member."
+	shared FunctionOrValueDeclaration source
+)
+		satisfies OptionalAnnotation<ArgumentsAnnotation, ClassDeclaration|FunctionDeclaration>
+{
+	
+	"Calls [[source]] to get argument stream."
+	shared Anything[] argumentList (
+		"Instance of the test class or `null` if test is performed using top-level function." Object? instance
+	) => extractSourceValue<Anything[]>( source, instance );
+	
+}
+
+
+"Provides arguments for a one-shot functions. See [[ArgumentsAnnotation]] for details."
 since( "0.5.0" ) by( "Lis" )
 shared annotation ArgumentsAnnotation arguments (
 	"The source function or value declaration which has to take no arguments and has to return a stream of values.
@@ -93,30 +94,6 @@ shared annotation ArgumentsAnnotation arguments (
 )
 		=> ArgumentsAnnotation( source );
 
-
-
-"Annotation class for [[parameterized]]."
-since( "0.6.0" ) by( "Lis" )
-see( `function parameterized`, `class TestVariant` )
-shared final annotation class ParameterizedAnnotation (
-	"The source function or value declaration which has to take no arguments and has to return a stream
-	 of test variants: `{TestVariant*}`.  
-	 The source may be either top-level or tested class shared member."
-	shared FunctionOrValueDeclaration source,
-	"Maximum number of failed variants before stop. Unlimited if <= 0."
-	shared Integer maxFailedVariants
-)
-		satisfies SequencedAnnotation<ParameterizedAnnotation, FunctionDeclaration> & TestVariantProvider
-{
-	
-	"Returns test variant enumerator based on test variants extracted from `source`."
-	shared actual TestVariantEnumerator variants( FunctionDeclaration testFunction, Object? instance)
-		=> TestVariantIterator (
-			extractSourceValue<{TestVariant*}>( source, instance ).iterator().next,
-			maxFailedVariants
-		);
-	
-}
 
 
 "Indicates that generic (with possibly empty generic parameter list) test function
@@ -183,6 +160,30 @@ shared final annotation class ParameterizedAnnotation (
  According to second argument of `parameterized` annotation the test will be stopped
  if two different invoking of `thereAndBackAgain` with two different arguments report failure.  
  "
+since( "0.6.0" ) by( "Lis" )
+see( `function parameterized`, `class TestVariant` )
+shared final annotation class ParameterizedAnnotation (
+	"The source function or value declaration which has to take no arguments and has to return a stream
+	 of test variants: `{TestVariant*}`.  
+	 The source may be either top-level or tested class shared member."
+	shared FunctionOrValueDeclaration source,
+	"Maximum number of failed variants before stop. Unlimited if <= 0."
+	shared Integer maxFailedVariants
+)
+		satisfies SequencedAnnotation<ParameterizedAnnotation, FunctionDeclaration> & TestVariantProvider
+{
+	
+	"Returns test variant enumerator based on test variants extracted from `source`."
+	shared actual TestVariantEnumerator variants( FunctionDeclaration testFunction, Object? instance)
+		=> TestVariantIterator (
+			extractSourceValue<{TestVariant*}>( source, instance ).iterator().next,
+			maxFailedVariants
+		);
+	
+}
+
+
+"Provides parameters for the parameterized testing. See [[ParameterizedAnnotation]] for the details."
 see( `class TestVariant` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation ParameterizedAnnotation parameterized (
@@ -194,19 +195,6 @@ shared annotation ParameterizedAnnotation parameterized (
 	Integer maxFailedVariants = -1
 )
 		=> ParameterizedAnnotation( source, maxFailedVariants );
-
-
-"Annotation class for [[factory]]."
-see( `function factory`, `interface AsyncFactoryContext` )
-since( "0.6.0" ) by( "Lis" )
-shared final annotation class FactoryAnnotation (
-	"Function used to instantiate anotated class.  
-	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.  
-	 Has to return an instance of the looking class."
-	shared FunctionDeclaration factoryFunction
-)
-		satisfies OptionalAnnotation<FactoryAnnotation, ClassDeclaration>
-{}
 
 
 "Indicates that class has to be instantiated using a given factory function.  
@@ -246,6 +234,19 @@ shared final annotation class FactoryAnnotation (
  > Asynchronous version has to call [[AsyncFactoryContext.fill]] or [[AsyncFactoryContext.abort]].  
  > Synchronous version has to return non-optional object or throw.  
  "
+see( `function factory`, `interface AsyncFactoryContext` )
+since( "0.6.0" ) by( "Lis" )
+shared final annotation class FactoryAnnotation (
+	"Function used to instantiate anotated class.  
+	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.  
+	 Has to return an instance of the looking class."
+	shared FunctionDeclaration factoryFunction
+)
+		satisfies OptionalAnnotation<FactoryAnnotation, ClassDeclaration>
+{}
+
+
+"Provides factory function for an object instantiation. See [[FactoryAnnotation]] for the details."
 see( `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation FactoryAnnotation factory (
@@ -257,14 +258,6 @@ shared annotation FactoryAnnotation factory (
 ) => FactoryAnnotation( factoryFunction );
 
 
-"Annotation class for [[concurrent]]."
-see( `function concurrent` )
-since( "0.6.0" ) by( "Lis" )
-shared final annotation class ConcurrentAnnotation()
-	satisfies OptionalAnnotation<ConcurrentAnnotation, ClassDeclaration | Package | Module>
-{}
-
-
 "Indicates that all test suites (each suite contains all top-level test functions in the given package
  or all test methods of the given class) contained in the marked container have to be executed in concurrent mode.    
  The functions within each suite are executed sequentially in a one thread while the suites are executed concurrently
@@ -272,11 +265,21 @@ shared final annotation class ConcurrentAnnotation()
  
  > Thread pool with fixed number of threads equals to number of available processors (cores)
    is used to execute tests in concurrent mode."
+see( `function concurrent` )
+since( "0.6.0" ) by( "Lis" )
+shared final annotation class ConcurrentAnnotation()
+	satisfies OptionalAnnotation<ConcurrentAnnotation, ClassDeclaration | Package | Module>
+{}
+
+
+"Indicates that all test suites contained in the marked container have to be executed in concurrent mode."
 since( "0.6.0" ) by( "Lis" )
 shared annotation ConcurrentAnnotation concurrent() => ConcurrentAnnotation();
 
 
-"Annotation class for [[timeout]]."
+"Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted.  
+ The annotation is applied to any function called using [[AsyncTestExecutor]]: prepost functions, test rules,
+ factory and test functions."
 see( `function timeout` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class TimeoutAnnotation( "Timeout in milliseconds." shared Integer timeoutMilliseconds )
@@ -285,16 +288,20 @@ shared final annotation class TimeoutAnnotation( "Timeout in milliseconds." shar
 {}
 
 
-"Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted.  
- The annotation is applied to any function called using [[AsyncTestExecutor]]: prepost functions, test rules,
- factory and test functions."
+"Indicates that if test function execution takes more than `timeoutMilliseconds` the test has to be interrupted."
 since( "0.6.0" ) by( "Lis" )
 shared annotation TimeoutAnnotation timeout( "Timeout in milliseconds." Integer timeoutMilliseconds )
 		=> TimeoutAnnotation( timeoutMilliseconds );
 
 
-"Annotation class for [[retry]]."
-see( `function retry` )
+"Indicates that execution of a test function or all test functions within annotated test container
+ have to be retryed using the given `RepeatStrategy` (extracted from `source`).  
+ 
+ > Overall execution cycle including `before`, `after` and `testRule` callbacks are repeated!  
+ 
+ If you need to repeat just test function execution, look on [[RepeatRunner]].
+ "
+see( `function retry`, `class RepeatRunner`, `interface RepeatStrategy` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class RetryAnnotation (
 	"Repeat strategy source which has to take no arguments and has to return instance of [[RepeatStrategy]] type.
@@ -305,13 +312,7 @@ shared final annotation class RetryAnnotation (
 {}
 
 
-"Indicates that test function or all functions within test container have to be tested using the given
- `RepeatStrategy` (extracted from `source`).  
- 
- > Overall execution cycle including `before`, `after` and `testRule` callbacks are repeated!  
- 
- If you need to repeat just test function execution, look on [[RepeatRunner]].
- "
+"Provides retry trategy for the tet function execution. See details in [[RetryAnnotation]]."
 see( `class RepeatRunner`, `interface RepeatStrategy` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation RetryAnnotation retry (
