@@ -9,7 +9,7 @@ import java.util.concurrent {
 	TimeUnit
 }
 import java.util.concurrent.atomic {
-	AtomicInteger
+	AtomicLong
 }
 
 
@@ -49,9 +49,9 @@ shared class SignalRule() satisfies TestRule {
 	variable Condition condition = lock.newCondition();
 	
 	// counting of await, signal and signal all operations
-	AtomicInteger awaitCounts = AtomicInteger( 0 );
-	AtomicInteger signalCounts = AtomicInteger( 0 );
-	AtomicInteger signalAllCounts = AtomicInteger( 0 );
+	AtomicLong awaitCounts = AtomicLong( 0 );
+	AtomicLong signalCounts = AtomicLong( 0 );
+	AtomicLong signalAllCounts = AtomicLong( 0 );
 	
 	
 	"Number of times the `await` has been called.  

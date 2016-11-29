@@ -5,7 +5,7 @@ import java.util.concurrent.locks {
 	ReentrantLock
 }
 import java.util.concurrent.atomic {
-	AtomicInteger
+	AtomicLong
 }
 
 
@@ -41,8 +41,8 @@ shared class LockAccessRule<Element> (
 {
 	
 	class Box( shared variable Element elem ) {
-		shared AtomicInteger lockCountAtomic = AtomicInteger( 0 );
-		shared AtomicInteger unlockCountAtomic = AtomicInteger( 0 );
+		shared AtomicLong lockCountAtomic = AtomicLong( 0 );
+		shared AtomicLong unlockCountAtomic = AtomicLong( 0 );
 		ReentrantLock locker = ReentrantLock();
 		shared void lock() {
 			locker.lock();
