@@ -1,8 +1,10 @@
 import java.lang {
 	Thread,
 	ThreadDeath,
-	ThreadGroup,
 	SecurityException
+}
+import java.util.concurrent.atomic {
+	JAtomicLong = AtomicLong
 }
 
 
@@ -12,7 +14,9 @@ shared class ContextThreadGroup( String title )
 {
 	
 	"Thread group."
-	class InternalThreadGroup() extends ThreadGroup( title ) {
+	class InternalThreadGroup( Integer initialTestID ) extends MarkerThreadGroup( title ) {
+		
+		shared JAtomicLong atomicTestID = JAtomicLong( initialTestID );
 		
 		variable Anything( Thread, Throwable )? uncaughtExceptionListener = null;
 	
@@ -23,7 +27,9 @@ shared class ContextThreadGroup( String title )
 		"The group has been interrupted."
 		shared Boolean groupInterrupted => hasBeenInterrupted;
 		
-	
+		shared actual Integer testID => atomicTestID.get();
+		
+		
 		"Creates new thread or returns reused one."
 		ReusableThread getThread() {
 			if ( exists ret = reusedThread ) {
@@ -99,11 +105,16 @@ shared class ContextThreadGroup( String title )
 	
 	
 	"Thread group."
-	variable InternalThreadGroup currentGroup = InternalThreadGroup();
+	variable InternalThreadGroup currentGroup = InternalThreadGroup( 1 );
 	
 	
 	"Stops the current thread."
 	shared void completeCurrent() => currentGroup.completeCurrent();
+	
+	"Increments currently run test ID.
+	 The ID is to be a marker of the test run."
+	shared void incrementTestID() => currentGroup.atomicTestID.incrementAndGet();
+	
 	
 	"Executes `run` on separated thread belongs to this group.
 	 Awaits completion no more then `timeoutMilliseconds` or unlimited if it is <= 0."
@@ -113,7 +124,7 @@ shared class ContextThreadGroup( String title )
 		"Function to be executed on separated thread." Anything() run
 	) {
 		if ( currentGroup.groupInterrupted ) {
-			currentGroup = InternalThreadGroup();
+			currentGroup = InternalThreadGroup( currentGroup.testID );
 		}
 		return currentGroup.execute( uncaughtExceptionListener, timeoutMilliseconds, run );
 	}

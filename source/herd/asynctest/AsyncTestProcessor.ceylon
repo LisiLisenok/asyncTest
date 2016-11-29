@@ -119,6 +119,8 @@ class AsyncTestProcessor(
 		TestInfo testInfo = TestInfo (
 			testFunctionDeclaration, variant.parameters, variant.arguments, variant.variantName, timeOutMilliseconds
 		);
+		// test with next ID is started
+		group.incrementTestID();
 		// run initializers firstly
 		if ( nonempty initErrs = prePostContext.run( intializers, testInfo ) ) {
 			// initialization has been failed
