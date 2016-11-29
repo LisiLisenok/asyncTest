@@ -11,23 +11,20 @@ shared class StatisticRule() satisfies TestRule
 {
 
 	"Calculations of the statistic data."
-	StatisticCalculator calculator = StatisticCalculator();
+	CurrentTestStore<StatisticCalculator> calculator = CurrentTestStore<StatisticCalculator>( StatisticCalculator );
 	
 	
 	"Statistic summary accumulated up to the query moment."
 	see( `function sample` )
-	shared StatisticSummary statisticSummary => calculator.statisticSummary;
+	shared StatisticSummary statisticSummary => calculator.element.statisticSummary;
 	
 	"Thread-safely adds samples to the statistic."
 	see( `value statisticSummary` )
-	shared void sample( Float* values ) => calculator.sample( *values );
+	shared void sample( Float* values ) => calculator.element.sample( *values );
 	
 	
-	shared actual void after( AsyncPrePostContext context ) => context.proceed();
+	shared actual void after( AsyncPrePostContext context ) => calculator.after( context );
 	
-	shared actual void before( AsyncPrePostContext context ) {
-		calculator.reset();
-		context.proceed();
-	}
+	shared actual void before( AsyncPrePostContext context ) => calculator.before( context );
 	
 }

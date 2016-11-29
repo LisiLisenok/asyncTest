@@ -14,21 +14,19 @@ shared class TemporaryDirectoryRule()
 		satisfies TestRule
 {
 	
-	variable Directory.TemporaryDirectory tempDir = temporaryDirectory.TemporaryDirectory( null );
+	CurrentTestStore<Directory.TemporaryDirectory> tempDir
+			= CurrentTestStore<Directory.TemporaryDirectory>( () => temporaryDirectory.TemporaryDirectory( null ) );
 	
 	
 	"The directory behinds this rule."
-	shared Directory directory => tempDir;
+	shared Directory directory => tempDir.element;
 	
 	shared actual void after( AsyncPrePostContext context ) {
-		tempDir.destroy( null );
-		context.proceed();
+		tempDir.element.destroy( null );
+		tempDir.after( context );
 	}
 	
-	shared actual void before( AsyncPrePostContext context ) {
-		tempDir = temporaryDirectory.TemporaryDirectory( null );
-		context.proceed();
-	}
+	shared actual void before( AsyncPrePostContext context ) => tempDir.before( context );
 	
 }
 
@@ -39,20 +37,18 @@ shared class TemporaryFileRule()
 	satisfies TestRule
 {
 	
-	variable Directory.TemporaryFile tempFile = temporaryDirectory.TemporaryFile( null, null );
+	CurrentTestStore<Directory.TemporaryFile> tempFile
+			= CurrentTestStore<Directory.TemporaryFile>( () => temporaryDirectory.TemporaryFile( null, null ) );
 	
 	
 	"The file behinds this rule."
-	shared File file => tempFile; 
+	shared File file => tempFile.element; 
 	
 	shared actual void after( AsyncPrePostContext context ) {
-		tempFile.destroy( null );
-		context.proceed();
+		tempFile.element.destroy( null );
+		tempFile.after( context );
 	}
 	
-	shared actual void before( AsyncPrePostContext context ) {
-		tempFile = temporaryDirectory.TemporaryFile( null, null );
-		context.proceed();
-	}
+	shared actual void before( AsyncPrePostContext context ) => tempFile.before( context );
 	
 }

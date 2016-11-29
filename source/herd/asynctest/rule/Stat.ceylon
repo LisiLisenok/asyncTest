@@ -113,5 +113,7 @@ class StatisticCalculator() {
 		finally {
 			wLock.unlock();	
 		}
-	}	
+	}
+	
+	string => "statistic stream calculation";	
 }

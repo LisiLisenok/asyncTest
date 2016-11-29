@@ -45,38 +45,34 @@ import java.util.concurrent.atomic {
 tagged( "TestRule" ) since( "0.6.1" ) by( "Lis" )
 shared class SignalRule() satisfies TestRule {
 	
-	variable ReentrantLock lock = ReentrantLock();
-	variable Condition condition = lock.newCondition();
+	class Box() {
+		shared ReentrantLock lock = ReentrantLock();
+		shared Condition condition = lock.newCondition();
+		// counting of await, signal and signal all operations
+		shared AtomicLong awaitCounts = AtomicLong( 0 );
+		shared AtomicLong signalCounts = AtomicLong( 0 );
+		shared AtomicLong signalAllCounts = AtomicLong( 0 );
+		
+		string => "signal rule";
+	}
 	
-	// counting of await, signal and signal all operations
-	AtomicLong awaitCounts = AtomicLong( 0 );
-	AtomicLong signalCounts = AtomicLong( 0 );
-	AtomicLong signalAllCounts = AtomicLong( 0 );
+	CurrentTestStore<Box> stored = CurrentTestStore<Box>( Box );
 	
 	
 	"Number of times the `await` has been called.  
 	 Rested to zero _before each_ test."
-	shared Integer numberOfAwaits => awaitCounts.get();
+	shared Integer numberOfAwaits => stored.element.awaitCounts.get();
 	"Number of times the `signal` has been called.  
 	 Rested to zero _before each_ test."
-	shared Integer numberOfSignal => signalCounts.get();
+	shared Integer numberOfSignal => stored.element.signalCounts.get();
 	"Number of times the `signalAll` has been called.  
 	 Rested to zero _before each_ test."
-	shared Integer numberOfSignalAll => signalAllCounts.get();
+	shared Integer numberOfSignalAll => stored.element.signalAllCounts.get();
 	
 	
-	shared actual void after( AsyncPrePostContext context ) {
-		context.proceed();
-	}
+	shared actual void after( AsyncPrePostContext context ) => stored.after( context );
 	
-	shared actual void before( AsyncPrePostContext context ) {
-		awaitCounts.set( 0 );
-		signalCounts.set( 0 );
-		signalAllCounts.set( 0 );
-		lock = ReentrantLock();
-		condition = lock.newCondition();
-		context.proceed();
-	}
+	shared actual void before( AsyncPrePostContext context ) => stored.before( context );
 	
 	
 	"Causes the current thread to wait until it is signalled or interrupted, or the specified waiting time elapses.    
@@ -85,40 +81,43 @@ shared class SignalRule() satisfies TestRule {
 	 otherwise returns `true`.  
 	 Note: always returns `true` if `timeMilliseconds` is less or equal to zero.  "
 	shared Boolean await( "The maximum time to wait in milliseconds." Integer timeMilliseconds = -1 ) {
-		lock.lock();
+		Box box = stored.element;
+		box.lock.lock();
 		try {
-			awaitCounts.incrementAndGet();
+			box.awaitCounts.incrementAndGet();
 			if ( timeMilliseconds > 0 ) {
-				return condition.await( timeMilliseconds, TimeUnit.milliseconds );
+				return box.condition.await( timeMilliseconds, TimeUnit.milliseconds );
 			}
 			else {
-				condition.await();
+				box.condition.await();
 				return true;
 			}
 		}
 		finally {
-			lock.unlock();
+			box.lock.unlock();
 		}
 	}
 	
 	"Wakes up a one awaiter."
 	shared void signal() {
-		lock.lock();
+		Box box = stored.element;
+		box.lock.lock();
 		try {
-			signalCounts.incrementAndGet();
-			condition.signal();
+			box.signalCounts.incrementAndGet();
+			box.condition.signal();
 		}
-		finally { lock.unlock(); }
+		finally { box.lock.unlock(); }
 	}
 	
 	"Wakes up all awaiters."
 	shared void signalAll() {
-		lock.lock();
+		Box box = stored.element;
+		box.lock.lock();
 		try {
-			signalAllCounts.incrementAndGet();
-			condition.signalAll();
+			box.signalAllCounts.incrementAndGet();
+			box.condition.signalAll();
 		}
-		finally { lock.unlock(); }
+		finally { box.lock.unlock(); }
 	}
 }
 

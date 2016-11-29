@@ -28,27 +28,31 @@ by( "Lis" ) since( "0.6.0" )
 tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 {
 	
-	"Calculations of the time statistic data."
-	StatisticCalculator timeCalculator = StatisticCalculator();
+	class Box() {
+		"Calculations of the time statistic data."
+		shared StatisticCalculator timeCalculator = StatisticCalculator();
+		"Calculations of the rate of operations per second statistic data."
+		shared StatisticCalculator rateCalculator = StatisticCalculator();
+		"Time from previous tick."
+		shared variable Integer previousTime = -1;
+		
+		string => "meter rule";
+	}
 	
-	"Calculations of the rate of operations per second statistic data."
-	StatisticCalculator rateCalculator = StatisticCalculator();
+	CurrentTestStore<Box> store = CurrentTestStore<Box>( Box ); 
 	
-	"Time from previous tick."
-	variable Integer previousTime = -1;
-
 
 	"Statistic summary for execution time."
-	shared StatisticSummary timeStatistic => timeCalculator.statisticSummary;
+	shared StatisticSummary timeStatistic => store.element.timeCalculator.statisticSummary;
 	
 	"Statistic summary for rate (operations per second)."
-	shared StatisticSummary rateStatistic => rateCalculator.statisticSummary;
+	shared StatisticSummary rateStatistic => store.element.rateCalculator.statisticSummary;
 	
 	
 	"Starts benchmarking from now and memoizes current system time.  
 	 To add sample to the statistics data - call [[tick]]."
 	see( `function tick` )
-	shared void start() => previousTime = system.nanoseconds;
+	shared void start() => store.element.previousTime = system.nanoseconds;
 	
 	"Adds clock sample from previous `tick` or from `start`.  
 	 [[start]] has to be called before the first call of `tick`.  
@@ -57,23 +61,19 @@ tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 	see( `function start` )
 	shared void tick() {
 		"BenchmarkRule: calling `tick` before `start`."
-		assert ( previousTime >= 0 );
+		assert ( store.element.previousTime >= 0 );
 		
+		Box box = store.element;
 		Integer now = system.nanoseconds;
-		Integer delta = now - previousTime;
-		previousTime = now;
-		timeCalculator.sample( delta / 1000000.0 );
-		rateCalculator.sample( 1000000000.0 / delta );
+		Integer delta = now - box.previousTime;
+		box.previousTime = now;
+		box.timeCalculator.sample( delta / 1000000.0 );
+		box.rateCalculator.sample( 1000000000.0 / delta );
 	}
 	
 	
-	shared actual void after( AsyncPrePostContext context ) => context.proceed();
+	shared actual void after( AsyncPrePostContext context ) => store.after( context );
 	
-	shared actual void before( AsyncPrePostContext context ) {
-		previousTime = -1;
-		timeCalculator.reset();
-		rateCalculator.reset();
-		context.proceed();
-	}
+	shared actual void before( AsyncPrePostContext context ) => store.before( context );
 	
 }
