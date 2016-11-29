@@ -8,8 +8,7 @@ import herd.asynctest {
 import ceylon.test {
 
 	test,
-	afterTestRun,
-	beforeTestRun
+	afterTestRun
 }
 import ceylon.collection {
 
@@ -122,7 +121,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 	shared testRule MeterRule removeCeylon = MeterRule();
 	shared testRule MeterRule removeJava = MeterRule();
 	
-	//black hole inorder to eliminate dead-code of `get` method return
+	//black hole in order to eliminate dead-code of `get` method return
 	shared testRule AtomicValueRule<Integer> blackHole = AtomicValueRule<Integer>( 0 );
 	
 
@@ -139,7 +138,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 		() => removeCeylon.timeStatistic.mean / removeJava.timeStatistic.mean,
 		LessOrEqual( 1.0 + tolerance ), "'remove' Ceylon / Java ratio", true
 	);
-	
+
 
 	afterTestRun shared void dispose() {
 		plotReporter.report (
@@ -147,37 +146,7 @@ class CeylonJavaMapMicrobenchmark( Float tolerance )
 			hashMapRatioChart.build(), treeMapRatioChart.build()
 		);
 	}
-	
-	beforeTestRun shared void warmUp() {
-		// Ceylon HashMap
-		chartMapTest (
-			1000, 10, 0.2,
-			CeylonMapWrapper( HashMap<String, Integer>() ),
-			ceylonHashPutPlotter, ceylonHashGetPlotter, ceylonHashRemovePlotter,
-			putCeylon, getCeylon, removeCeylon
-		);
-		// Java HashMap
-		chartMapTest (
-			1000, 10, 0.2,
-			JavaMapWrapper( JHashMap<String, Integer>() ),
-			javaHashPutPlotter, javaHashGetPlotter, javaHashRemovePlotter,
-			putJava, getJava, removeJava
-		);
-		// Ceylon TreeMap
-		chartMapTest (
-			1000, 10, 0.2,
-			CeylonMapWrapper( TreeMap<String, Integer>( increasing<String> ) ),
-			ceylonTreePutPlotter, ceylonTreeGetPlotter, ceylonTreeRemovePlotter,
-			putCeylon, getCeylon, removeCeylon
-		);
-		// Java TreeMap
-		chartMapTest (
-			1000, 10, 0.2,
-			JavaMapWrapper( JTreeMap<String, Integer>( stringComparator ) ),
-			javaTreePutPlotter, javaTreeGetPlotter, javaTreeRemovePlotter,
-			putJava, getJava, removeJava
-		);
-	}
+
 
 	"Runs `HashMap` test. Compares performance Ceylon `HashMap` to Java one.  
 	 Test is performed using `chartMapTest`.  
