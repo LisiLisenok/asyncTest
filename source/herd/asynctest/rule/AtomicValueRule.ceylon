@@ -16,7 +16,7 @@ shared class AtomicValueRule<Element>( "Initial value source." Element|Element()
 		satisfies TestRule
 {
 	
-	variable Atomic<Element> storage = if ( is Element() initial )
+	 Atomic<Element> storage = if ( is Element() initial )
 			then instantiateAtomic( initial() ) else instantiateAtomic( initial );
 
 	
@@ -38,9 +38,7 @@ shared class AtomicValueRule<Element>( "Initial value source." Element|Element()
 	shared actual void after( AsyncPrePostContext context ) => context.proceed();
 	
 	shared actual void before( AsyncPrePostContext context ) {
-		storage = if ( is Element() initial )
-			then instantiateAtomic( initial() )
-			else instantiateAtomic( initial );
+		sense = if ( is Element() initial ) then initial() else initial;
 		context.proceed();
 	}
 	

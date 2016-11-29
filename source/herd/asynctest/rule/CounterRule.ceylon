@@ -10,7 +10,7 @@ import java.util.concurrent.atomic {
 tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
 shared class CounterRule( "Initial value of the counter." Integer initial = 0 ) satisfies TestRule {
 	
-	variable AtomicLong atomicCounter = AtomicLong( initial );
+	AtomicLong atomicCounter = AtomicLong( initial );
 	
 	
 	"The current value of the counter."
@@ -33,7 +33,7 @@ shared class CounterRule( "Initial value of the counter." Integer initial = 0 ) 
 	shared actual void after( AsyncPrePostContext context ) => context.proceed();
 	
 	shared actual void before( AsyncPrePostContext context ) {
-		atomicCounter = AtomicLong( initial );
+		atomicCounter.set( initial );
 		context.proceed();
 	}
 	

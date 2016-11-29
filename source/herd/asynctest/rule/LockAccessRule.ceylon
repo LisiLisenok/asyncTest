@@ -4,6 +4,9 @@ import herd.asynctest {
 import java.util.concurrent.locks {
 	ReentrantLock
 }
+import java.util.concurrent.atomic {
+	AtomicInteger
+}
 
 
 "Tool for controlling access to a shared resource of `Element` type by multiple threads.  
@@ -38,12 +41,26 @@ shared class LockAccessRule<Element> (
 {
 	
 	class Box( shared variable Element elem ) {
+		shared AtomicInteger lockCountAtomic = AtomicInteger( 0 );
+		shared AtomicInteger unlockCountAtomic = AtomicInteger( 0 );
 		ReentrantLock locker = ReentrantLock();
-		shared void lock() => locker.lock();
-		shared void unlock() => locker.unlock();
+		shared void lock() {
+			locker.lock();
+			lockCountAtomic.incrementAndGet();
+		}
+		shared void unlock() {
+			unlockCountAtomic.incrementAndGet();
+			locker.unlock();
+		}
 	}
 	
 	variable Box stored = Box( if ( is Element() initial ) then initial() else initial );
+	
+	"Total number of times the lock has been obtained."
+	shared Integer lockCount => stored.lockCountAtomic.get();
+	
+	"Total number of times the lock has been released."
+	shared Integer unlockCount => stored.unlockCountAtomic.get();
 	
 	
 	"Locks the resource and provides access to.  

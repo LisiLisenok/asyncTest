@@ -49,9 +49,9 @@ shared class SignalRule() satisfies TestRule {
 	variable Condition condition = lock.newCondition();
 	
 	// counting of await, signal and signal all operations
-	variable AtomicInteger awaitCounts = AtomicInteger( 0 );
-	variable AtomicInteger signalCounts = AtomicInteger( 0 );
-	variable AtomicInteger signalAllCounts = AtomicInteger( 0 );
+	AtomicInteger awaitCounts = AtomicInteger( 0 );
+	AtomicInteger signalCounts = AtomicInteger( 0 );
+	AtomicInteger signalAllCounts = AtomicInteger( 0 );
 	
 	
 	"Number of times the `await` has been called.  
@@ -70,9 +70,9 @@ shared class SignalRule() satisfies TestRule {
 	}
 	
 	shared actual void before( AsyncPrePostContext context ) {
-		awaitCounts = AtomicInteger( 0 );
-		signalCounts = AtomicInteger( 0 );
-		signalAllCounts = AtomicInteger( 0 );
+		awaitCounts.set( 0 );
+		signalCounts.set( 0 );
+		signalAllCounts.set( 0 );
 		lock = ReentrantLock();
 		condition = lock.newCondition();
 		context.proceed();
