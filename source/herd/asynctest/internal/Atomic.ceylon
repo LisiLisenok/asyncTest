@@ -71,6 +71,8 @@ class AtomicBoolean( Boolean initial ) satisfies Atomic<Boolean>
 	shared actual Boolean getAndSet( Boolean newValue ) => storage.getAndSet( newValue );
 	
 	shared actual void set( Boolean v ) => storage.set( v );
+	
+	string => "atomic boolean of '``get()``'";
 }
 
 
@@ -87,6 +89,8 @@ class AtomicInteger( Integer initial ) satisfies Atomic<Integer>
 	shared actual Integer getAndSet( Integer newValue ) => storage.getAndSet( newValue );
 	
 	shared actual void set( Integer v ) => storage.set( v );
+	
+	string => "atomic integer of '``get()``'";
 }
 
 
@@ -105,6 +109,8 @@ class AtomicFloat( Float initial ) satisfies Atomic<Float>
 			=> Double.longBitsToDouble( storage.getAndSet( Double.doubleToRawLongBits( newValue ) ) );
 	
 	shared actual void set( Float v ) => storage.set( Double.doubleToRawLongBits( v ) );
+	
+	string => "atomic float of '``get()``'";
 }
 
 
@@ -121,5 +127,7 @@ class AtomicReference<Element>( Element initial ) satisfies Atomic<Element>
 	shared actual Element getAndSet( Element newValue ) => storage.getAndSet( newValue );
 	
 	shared actual void set( Element v ) => storage.set( v );
+	
+	string => "atomic reference of '``stringify( get() )``'";
 }
 
