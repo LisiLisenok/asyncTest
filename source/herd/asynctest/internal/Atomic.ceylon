@@ -110,7 +110,7 @@ class AtomicFloat( Float initial ) satisfies Atomic<Float>
 	
 	shared actual void set( Float v ) => storage.set( Double.doubleToRawLongBits( v ) );
 	
-	string => "atomic float of '``get()``'";
+	string => "atomic float of '``stringify( get() )``'";
 }
 
 
