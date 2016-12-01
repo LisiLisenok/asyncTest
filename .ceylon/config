@@ -7,5 +7,3 @@ source=examples
 [defaults]
 encoding=UTF-8
 
-[formattool]
-profile=my
