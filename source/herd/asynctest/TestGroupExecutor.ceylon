@@ -34,14 +34,16 @@ import ceylon.language.meta.model {
 import ceylon.language.meta {
 
 	type,
-	optionalAnnotation
+	optionalAnnotation,
+	sequencedAnnotations
 }
 import herd.asynctest.rule {
 
 	SuiteRule,
 	TestRule,
 	TestRuleAnnotation,
-	TestStatement
+	TestStatement,
+	ApplyStatementAnnotation
 }
 import ceylon.test.event {
 
@@ -302,6 +304,19 @@ class TestGroupExecutor (
 	}
 	
 	
+	"Returns test statements applied to the given test function only."
+	TestFunction[] getAppliedStatements( FunctionDeclaration testFunctionDeclaration, Object? instance ) {
+		value annotations = sequencedAnnotations( `ApplyStatementAnnotation`, testFunctionDeclaration );
+		return [
+			for ( ann in annotations ) for ( decl in ann.statements )
+			TestFunction (
+				extractSourceValue<TestStatement>( decl, instance ).apply,
+				extractTimeoutFromObject( decl, "apply" ), decl.name
+			)
+		];
+	}
+	
+	
 	"Runs test initializers. Returns `true` if successfull and `false` if errored.
 	 if errored fils test report with skipping."
 	Boolean runInitializers( Object? instance, ClassOrInterface<>? instanceType ) {
@@ -411,8 +426,10 @@ class TestGroupExecutor (
 					ExecutionTestOutput[] testReport = [ for ( test in executions )
 						if ( exists decl = test.functionDeclaration )
 							AsyncTestProcessor (
-								decl, instance, groupContext.childContext( test ),
-								group, testInitializers, testStatements, testCleaners
+								decl, instance, groupContext.childContext( test ), group,
+								testInitializers,
+								testStatements.append( getAppliedStatements( decl, instance ) ),
+								testCleaners
 							).runTest()
 					];
 					

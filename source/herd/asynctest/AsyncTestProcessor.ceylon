@@ -112,7 +112,7 @@ class AsyncTestProcessor(
 			then extractSourceValue<RepeatStrategy>( ann.source, instance )
 			else repeatOnce;
 	
-	
+		
 	"Executes one variant and performs initialization and dispose.
 	 Returns output from this variant."
 	VariantTestOutput executeVariant( TestVariant variant ) {

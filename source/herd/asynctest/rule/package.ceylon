@@ -86,7 +86,10 @@
  which complete initialization / disposing. Delegation should be used instead of extending.  
  
  
- > Reminding: annotate the rule top-level value or attribute with [[testRule]]!
+ > Reminding: annotate the rule top-level value or attribute with [[testRule]]!  
+ > Test statement may be applied to a given test function only (and not applied to the rest test functions in the scope):  
+   1. The statement top-level value or attribute should not be annotated with [[testRule]].  
+   2. Test function should be annotated with [[applyStatement]].  
  
  "
 since( "0.6.0" ) by( "Lis" )
