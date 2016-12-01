@@ -23,7 +23,7 @@ shared String stringify( Anything item ) {
 		else {
 			Integer size = item.size - 1;
 			if ( size > 2 ) {
-				return "{...}";
+				return "{size=``size``}";
 			}
 			else {
 				StringBuilder builder = StringBuilder();
