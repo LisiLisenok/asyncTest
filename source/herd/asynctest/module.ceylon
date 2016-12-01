@@ -201,7 +201,7 @@
  a given factory function is used to instantiate the class.  
   
  If no factory function is provided instantiation is done using metamodel staff calling class initializer with arguments
- provided with [[arguments]] annotation or without arguments if the annotation is missed.  
+ provided with [[arguments]] annotation or without arguments if the annotation is omitted.  
  
  > Just a one instance of the test class is used for the overall test runcycle it may cause several misalignments:
    1. Test interrelation. Please, remember best-practices say the tests have to be independent.  

@@ -15,10 +15,6 @@ import ceylon.test {
 
 	testExecutor
 }
-import ceylon.language.meta {
-
-	type
-}
 import herd.asynctest.runner {
 
 	RepeatStrategy,
@@ -32,25 +28,8 @@ since( "0.6.0" ) by( "Lis" )
 shared annotation TestExecutorAnnotation async() => testExecutor( `class AsyncTestExecutor` );
 
 
-"Calls [[source]] to get source value."
-since( "0.6.0" ) by( "Lis" )
-Result extractSourceValue<Result>( FunctionOrValueDeclaration source, Object? instance ) {
-	switch ( source )
-	case ( is FunctionDeclaration ) {
-		return if ( !source.toplevel, exists instance ) 
-			then source.memberApply<Nothing, Result, []>( type( instance ) ).bind( instance )()
-			else source.apply<Result, []>()();
-	}
-	case ( is ValueDeclaration ) {
-		return if ( !source.toplevel, exists instance ) 
-			then source.memberApply<Nothing, Result>( type( instance ) ).bind( instance ).get()
-			else source.apply<Result>().get();
-	}
-}
-
-
 "Indicates that test container class or test prepost function have to be instantiated
- or called using arguments provided by this annotation, see [[ArgumentsAnnotation.argumentList]].  
+ or called using arguments provided by this annotation, see [[ArgumentsAnnotation]].  
  
  Example:
  		[Hobbit] who => [bilbo];
@@ -66,6 +45,8 @@ Result extractSourceValue<Result>( FunctionOrValueDeclaration source, Object? in
  			}
  		}
  
+ > Source function may also be marked with `arguments` annotation.  
+ 
  "
 see( `function arguments` )
 since( "0.5.0" ) by( "Lis" )
@@ -75,14 +56,7 @@ shared final annotation class ArgumentsAnnotation (
 	shared FunctionOrValueDeclaration source
 )
 		satisfies OptionalAnnotation<ArgumentsAnnotation, ClassDeclaration|FunctionDeclaration>
-{
-	
-	"Calls [[source]] to get argument stream."
-	shared Anything[] argumentList (
-		"Instance of the test class or `null` if test is performed using top-level function." Object? instance
-	) => extractSourceValue<Anything[]>( source, instance );
-	
-}
+{}
 
 
 "Provides arguments for a one-shot functions. See [[ArgumentsAnnotation]] for details."
@@ -101,11 +75,11 @@ shared annotation ArgumentsAnnotation arguments (
  
  The annotation provides parameterized testing based on collection of test variants.
  It takes two arguments:  
- 1. Declaration of function or value which returns a collection of test variants `{TestVariant*}`.
+ 1. Declaration of function or value which returns a collection of test variants `{TestVariant*}`.  
  2. Number of failed variants to stop testing. Default is -1 which means no limit.  
  
  The test will be performed using all test variants returned by the given stream
- or while total number of failed variants not exceeds specified limit. 
+ or while total number of failed variants not exceeds specified limit.  
  
  > [[parameterized]] annotation may occur multiple times at a given test function.  
  > The variants source may be either top-level or tested class shared member.  
@@ -130,12 +104,12 @@ shared annotation ArgumentsAnnotation arguments (
  			context.complete();
  		}
  
- In the above example the function `testIdentity` will be called 3 times:
- *		testIdentity<String>(context, \"stringIdentity\");
- *		testIdentity<Integer>(context, 1);
- *		testIdentity<Float>(context, 1.0);
+ In the above example the function `testIdentity` will be called 3 times:  
+ *		testIdentity<String>(context, \"stringIdentity\");  
+ *		testIdentity<Integer>(context, 1);  
+ *		testIdentity<Float>(context, 1.0);  
  
- In order to run test with conventional (non-generic function) type parameters list has to be empty:
+ In order to run test with conventional (non-generic function) type parameters list has to be empty:  
   		[Hobbit] who => [bilbo];
  		{TestVariant*} dwarves => {
  			TestVariant([], [fili]),
@@ -156,7 +130,7 @@ shared annotation ArgumentsAnnotation arguments (
  		}
  		
  In this example class `HobbitTester` is instantiated once with argument provided by value `who` and
- method `thereAndBackAgain` is called multiply times according to size of `dwarves` stream.
+ method `thereAndBackAgain` is called multiply times according to size of `dwarves` stream.  
  According to second argument of `parameterized` annotation the test will be stopped
  if two different invoking of `thereAndBackAgain` with two different arguments report failure.  
  "
@@ -200,13 +174,14 @@ shared annotation ParameterizedAnnotation parameterized (
 "Indicates that class has to be instantiated using a given factory function.  
  [[factory]] annotation takes declaration of top-level factory function.  
  
- Factory function has to take no arguments or take first argument of [[AsyncFactoryContext]] type.  
- If factory function takes [[AsyncFactoryContext]] as first argument it is executed asynchronously and may
- fill the context with instantiated object using [[AsyncFactoryContext.fill]]
- or may report on error using [[AsyncFactoryContext.abort]]. Test executor blocks the current thread until
- one of [[AsyncFactoryContext.fill]] or [[AsyncFactoryContext.abort]] is called.  
- Otherwise factory function doesn't take [[AsyncFactoryContext]] as first argument. It is executed synchronously
- and has to return instantiated non-optional object or throw an error.  
+ #### Factory function arguments    
+ * The first argument of [[AsyncFactoryContext]] type and the other arguments according to [[arguments]] annotation
+   (or no more arguments if [[arguments]] annotation is omitted):  
+   The function is executed asynchronously and may fill the context with instantiated object using [[AsyncFactoryContext.fill]]
+   or may report on error using [[AsyncFactoryContext.abort]]. Test executor blocks the current thread until
+   one of [[AsyncFactoryContext.fill]] or [[AsyncFactoryContext.abort]] is called.  
+ * If no arguments or function takes arguments according to [[arguments]] annotation:  
+   The function is executed synchronously and has to return instantiated non-optional object or throw an error.  
  
  
  #### Example of synchronous instantiation:

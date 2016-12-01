@@ -88,10 +88,11 @@ class TestGroupExecutor (
 			else {
 				if ( exists factory = optionalAnnotation( `FactoryAnnotation`, declaration ) ) {
 					// factory exists - use this to instantiate object
+					value args = resolveArgumentList( factory.factoryFunction, null );
 					if ( asyncTestRunner.isAsyncFactoryDeclaration( factory.factoryFunction ) ) {
 						return FactoryContext( "``factory.factoryFunction.name``", group ).run (
 							( AsyncFactoryContext context ) {
-								factory.factoryFunction.apply<>().apply( context );
+								factory.factoryFunction.apply<>().apply( context, *args );
 							},
 							extractTimeout( factory.factoryFunction )
 						);
@@ -99,7 +100,7 @@ class TestGroupExecutor (
 					else {
 						return FactoryContext( "``factory.factoryFunction.name``", group ).run (
 							( AsyncFactoryContext context ) {
-								if ( exists ret = factory.factoryFunction.apply<>().apply() ) {
+								if ( exists ret = factory.factoryFunction.apply<>().apply( *args ) ) {
 									context.fill( ret );
 								}
 								else {

@@ -34,5 +34,10 @@ Anything[] resolveArgumentList (
 	"Declaration to resolve list" FunctionDeclaration|ClassDeclaration declaration,
 	"Instance of the test class or `null` if not available." Object? instance
 ) {
-	return optionalAnnotation( `ArgumentsAnnotation`, declaration )?.argumentList( instance ) else [];
+	if ( exists argProvider = optionalAnnotation( `ArgumentsAnnotation`, declaration )?.source ) {
+		return extractSourceValue<Anything[]>( argProvider, instance );
+	}
+	else {
+		return [];
+	}
 }
