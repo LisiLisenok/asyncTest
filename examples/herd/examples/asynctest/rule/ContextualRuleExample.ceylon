@@ -14,7 +14,6 @@ import herd.asynctest.match {
 }
 
 
-"Example of contextual rule usage."
 async class ContextualRuleExample() {
 	
 	shared testRule ContextualRule<Integer> intValue = ContextualRule<Integer>(0);
