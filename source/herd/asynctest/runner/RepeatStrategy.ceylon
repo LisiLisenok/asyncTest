@@ -41,12 +41,12 @@ tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared class RepeatUpToSuccessRun( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
-	variable Integer? totalRuns = null;
+	variable Integer totalRuns = 0;
 	
 	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) {
-		Integer count = ( totalRuns else 1 ) + 1;
+		Integer count = ( totalRuns > 0 then totalRuns else 1 ) + 1;
 		if ( variant.overallState == TestState.success || count > maxRepeats ) {
-			totalRuns = null;
+			totalRuns = 0;
 			return variant;
 		}
 		else {
@@ -64,12 +64,12 @@ tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared class RepeatUpToFailedRun( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
-	variable Integer? totalRuns = null;
+	variable Integer totalRuns = 0;
 	
 	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) {
-		Integer count = ( totalRuns else 1 ) + 1;
+		Integer count = ( totalRuns > 0 then totalRuns else 1 ) + 1;
 		if ( variant.overallState > TestState.success || count > maxRepeats ) {
-			totalRuns = null;
+			totalRuns = 0;
 			return variant;
 		}
 		else {
@@ -87,12 +87,12 @@ tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
 shared class RepeatUpToFailureMessage( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
-	variable Integer? totalRuns = null;
+	variable Integer totalRuns = 0;
 	
 	shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) {
-		Integer count = ( totalRuns else 1 ) + 1;
+		Integer count = ( totalRuns > 0 then totalRuns else 1 ) + 1;
 		if ( variant.overallState > TestState.success || count > maxRepeats ) {
-			totalRuns = null;
+			totalRuns = 0;
 			for ( item in variant.testOutput ) {
 				if ( exists reason = item.error ) {
 					return TestVariantResult (
