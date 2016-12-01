@@ -26,10 +26,12 @@ shared class VariantResultBuilder() {
 	}
 	
 	"Adds test output to the variant result."
-	shared void addOutput( TestOutput output ) {
-		outs.add( output );
-		if ( overallState < output.state ) {
-			overallState = output.state;
+	shared void addOutput( TestOutput* outputs ) {
+		for ( output in outputs ) {
+			outs.add( output );
+			if ( overallState < output.state ) {
+				overallState = output.state;
+			}
 		}
 	}
 	
