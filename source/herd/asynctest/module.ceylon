@@ -199,7 +199,7 @@
  some complex logic or some asynchronous operations.
  If the class declaration is marked with [[factory]] annotation
  a given factory function is used to instantiate the class.  
-  
+ 
  If no factory function is provided instantiation is done using metamodel staff calling class initializer with arguments
  provided with [[arguments]] annotation or without arguments if the annotation is omitted.  
  

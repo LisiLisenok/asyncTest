@@ -213,7 +213,6 @@ see( `function factory`, `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class FactoryAnnotation (
 	"Function used to instantiate anotated class.  
-	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.  
 	 Has to return an instance of the looking class."
 	shared FunctionDeclaration factoryFunction
 )
@@ -226,7 +225,7 @@ see( `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation FactoryAnnotation factory (
 	"Function used to instantiate anotated class.  
-	 Has to take no arguments or just a one argument of [[AsyncFactoryContext]] type.  
+	 See [[FactoryAnnotation]] for the requirements to the factory function arguments.  
 	 Has to return an instance of the looking class."
 	FunctionDeclaration factoryFunction
 	
