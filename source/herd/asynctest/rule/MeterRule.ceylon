@@ -3,7 +3,8 @@ import herd.asynctest {
 }
 
 
-"Collects statistic data on an execution time and on a rate (per second) at which a set of events occur.  
+"Lock-free and thread-safely collects statistic data on an execution time and on a rate (per second)
+ at which a set of events occur.  
  Statistic data is reset before _each_ test.  
  To start recording call [[start]]. To record time delta call [[tick]] which records time delta
  from `start` or previous `tick` and up to now.  
