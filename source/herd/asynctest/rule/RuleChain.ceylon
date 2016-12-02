@@ -8,6 +8,7 @@ import herd.asynctest {
  Initialization (i.e. `initialize` methods) is performed with iterating of the `rules` in direct order,
  while diposing (i.e. `dispose` methods) is performed in reverse order. So, the first initialized is
  the last disposed."
+see( `class TestRuleChain`, `class TestStatementChain` )
 tagged( "SuiteRule" ) since( "0.6.0" ) by( "Lis" )
 shared class SuiteRuleChain (
 	"A list of the rules to be chained in order they are provided." SuiteRule* rules
@@ -30,6 +31,7 @@ shared class SuiteRuleChain (
  Initialization (i.e. `before` methods) is performed with iterating of the `rules` in direct order,
  while diposing (i.e. `after` methods) is performed in reverse order. So, the first initialized is
  the last disposed."
+see( `class SuiteRuleChain`, `class TestStatementChain` )
 tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
 shared class TestRuleChain (
 	"A list of the rules to be chained in order they are provided." TestRule* rules
@@ -50,6 +52,7 @@ shared class TestRuleChain (
 
 "Applies test statements in the given order."
 tagged( "TestStatement" ) since( "0.6.1" ) by( "Lis" )
+see( `class SuiteRuleChain`, `class TestRuleChain` )
 shared class TestStatementChain (
 	"A list of the statements to be applied in order they are provided." TestStatement* statements
 ) satisfies TestStatement {
