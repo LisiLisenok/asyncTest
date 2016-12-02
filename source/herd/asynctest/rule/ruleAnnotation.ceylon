@@ -2,6 +2,9 @@ import ceylon.language.meta.declaration {
 	ValueDeclaration,
 	FunctionDeclaration
 }
+import ceylon.language.meta.model {
+	ValueModel
+}
 
 
 "Indicates that the annotated value or attribute identifies a test rule.  
@@ -9,7 +12,8 @@ import ceylon.language.meta.declaration {
 see( `interface SuiteRule`, `interface TestRule`, `interface TestStatement` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class TestRuleAnnotation()
-		satisfies OptionalAnnotation<TestRuleAnnotation, ValueDeclaration>
+		satisfies OptionalAnnotation<TestRuleAnnotation, ValueDeclaration,
+			ValueModel<SuiteRule>|ValueModel<TestRule>|ValueModel<TestStatement>>
 {}
 
 
