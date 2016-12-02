@@ -113,9 +113,13 @@ class TestGroupExecutor (
 						);
 					}
 				}
+				else if ( exists constructor = declaration.defaultConstructor ) {
+					// no factory specified - just instantiate using default constructor
+					return constructor.invoke( [], *resolveArgumentList( declaration, null ) );
+				}
 				else {
-					// no factory specified - just instantiate
-					return declaration.instantiate( [], *resolveArgumentList( declaration, null ) );
+					// no factory and no default constructor - throw exception
+					throw IncompatibleInstantiation( declaration );
 				}
 			}
 		}

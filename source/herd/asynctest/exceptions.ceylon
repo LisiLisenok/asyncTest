@@ -4,6 +4,10 @@ import ceylon.language.meta {
 import ceylon.test.engine {
 	TestAbortedException
 }
+import ceylon.language.meta.declaration {
+	ClassDeclaration
+}
+
 
 "Exception which shows that time out has been reached."
 since( "0.6.0" ) by( "Lis" )
@@ -17,6 +21,17 @@ see( `function factory`, `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared class FactoryReturnsNothing( String factoryTitle )
 		extends Exception( "Factory ``factoryTitle`` has neither instantiated object or throwed." )
+{}
+
+
+since( "0.6.1" ) by( "Lis" )
+shared class IncompatibleInstantiation (
+	shared ClassDeclaration declaration 
+)
+	extends Exception (
+		"Unable to instantiate class ``declaration.qualifiedName``.
+		 It has neither default constructor nor factory function."
+	)
 {}
 
 
