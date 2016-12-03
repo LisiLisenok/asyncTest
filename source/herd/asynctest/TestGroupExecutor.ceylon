@@ -321,9 +321,11 @@ class TestGroupExecutor (
 	}
 	
 	
-	"Runs test initializers. Returns `true` if successfull and `false` if errored.
-	 if errored fils test report with skipping."
-	Boolean runInitializers( Object? instance, ClassOrInterface<>? instanceType ) {
+	"Runs test initializers.  
+	 Returns: 
+	 * Empty list if succesfull.
+	 * Nonempty list of test outputs from initializers + cleaners if at least one initializer has been failed."
+	TestOutput[] runInitializers( Object? instance, ClassOrInterface<>? instanceType ) {
 		// overall test initializaers
 		value testRunInits =
 				if ( exists inst = instance )
@@ -341,11 +343,10 @@ class TestGroupExecutor (
 					then getAnnotatedPrepost<AfterTestRunAnnotation>( instance, instanceType )
 						.append( getSuiteCleaners( instance, instanceType ) )
 					else getSuiteCleaners( null, null );
-			skipGroupTest( initsRet.append( prePostContext.run( cleaners, null ) ) );
-			return false;
+			return initsRet.append( prePostContext.run( cleaners, null ) );
 		}
 		else {
-			return true;
+			return [];
 		}		
 	}
 	
@@ -417,7 +418,11 @@ class TestGroupExecutor (
 				Object? instance = instantiate();
 				ClassOrInterface<Object>? instanceType = if ( exists i = instance ) then type( i ) else null;
 				
-				if ( runInitializers( instance, instanceType ) ) {
+				if ( nonempty initOuts = runInitializers( instance, instanceType ) ) {
+					// initializers have been failed - skip test
+					skipGroupTest( initOuts );
+				}
+				else {
 					// each test run initializers
 					value testInitializers = getAnnotatedPrepost<BeforeTestAnnotation>( instance, instanceType )
 							.append( getTestInitializers( instance, instanceType ) );
