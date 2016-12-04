@@ -3,7 +3,8 @@ import herd.asynctest {
 }
 
 
-"Lock-free and thread-safely collects statistics of some variate values.  
+"Lock-free and thread-safely accumulates statistics data of some variate values.  
+ Doesn't collect values, just accumulates statistic data when sample added - see [[sample]] and [[samples]].  
  Statistic data is reseted before _each_ test.  "
 see( `class StatisticSummary` )
 tagged( "TestRule" ) by( "Lis" ) since( "0.6.0" )
@@ -15,12 +16,16 @@ shared class StatisticRule() satisfies TestRule
 	
 	
 	"Statistic summary accumulated up to the query moment."
-	see( `function sample` )
+	see( `function samples`, `function sample` )
 	shared StatisticSummary statisticSummary => calculator.element.statisticSummary;
 	
+	"Thread-safely adds a one sample to the statistic."
+	see( `value statisticSummary`, `function samples` )
+	shared void sample( Float val ) => calculator.element.sample( val );
+	
 	"Thread-safely adds samples to the statistic."
-	see( `value statisticSummary` )
-	shared void sample( Float* values ) => calculator.element.sample( *values );
+	see( `value statisticSummary`, `function sample` )
+	shared void samples( Float* values ) => calculator.element.samples( *values );
 	
 	
 	shared actual void after( AsyncPrePostContext context ) => calculator.after( context );

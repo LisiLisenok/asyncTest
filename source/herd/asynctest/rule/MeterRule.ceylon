@@ -1,6 +1,9 @@
 import herd.asynctest {
 	AsyncPrePostContext
 }
+import java.util.concurrent.atomic {
+	AtomicLong
+}
 
 
 "Lock-free and thread-safely collects statistic data on an execution time and on a rate (per second)
@@ -35,7 +38,7 @@ tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 		"Calculations of the rate of operations per second statistic data."
 		shared StatisticCalculator rateCalculator = StatisticCalculator();
 		"Time from previous tick."
-		shared variable Integer previousTime = -1;
+		shared AtomicLong previousTime = AtomicLong( -1 );
 		
 		string => "meter rule";
 	}
@@ -50,10 +53,10 @@ tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 	shared StatisticSummary rateStatistic => store.element.rateCalculator.statisticSummary;
 	
 	
-	"Starts benchmarking from now and memoizes current system time.  
+	"Starts metering from now and memoizes current system time.  
 	 To add sample to the statistics data - call [[tick]]."
 	see( `function tick` )
-	shared void start() => store.element.previousTime = system.nanoseconds;
+	shared void start() => store.element.previousTime.set( system.nanoseconds );
 	
 	"Adds clock sample from previous `tick` or from `start`.  
 	 [[start]] has to be called before the first call of `tick`.  
@@ -61,13 +64,12 @@ tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 	throws ( `class AssertionError`, "If called before `start`." )
 	see( `function start` )
 	shared void tick() {
-		"BenchmarkRule: calling `tick` before `start`."
-		assert ( store.element.previousTime >= 0 );
+		"MeterRule: calling `tick` before `start`."
+		assert ( store.element.previousTime.get() >= 0 );
 		
 		Box box = store.element;
 		Integer now = system.nanoseconds;
-		Integer delta = now - box.previousTime;
-		box.previousTime = now;
+		Integer delta = system.nanoseconds - box.previousTime.getAndSet( now );
 		box.timeCalculator.sample( delta / 1000000.0 );
 		box.rateCalculator.sample( 1000000000.0 / delta );
 	}
