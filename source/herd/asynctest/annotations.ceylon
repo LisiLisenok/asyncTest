@@ -100,14 +100,14 @@ shared annotation ArgumentsAnnotation arguments (
  		void testIdentity<Value>(AsyncTestContext context, Value arg)
  			given Value satisfies Object
  		{
- 			context.assertThat(identity<Value>(arg), EqualObjects<Value>(arg), \"\", true );
+ 			context.assertThat(identity<Value>(arg), EqualObjects<Value>(arg), \"\", true);
  			context.complete();
  		}
  
  In the above example the function `testIdentity` will be called 3 times:  
- *		testIdentity<String>(context, \"stringIdentity\");  
- *		testIdentity<Integer>(context, 1);  
- *		testIdentity<Float>(context, 1.0);  
+ * `testIdentity<String>(context, \"stringIdentity\");`  
+ * `testIdentity<Integer>(context, 1);`  
+ * `testIdentity<Float>(context, 1.0);`  
  
  In order to run test with conventional (non-generic function) type parameters list has to be empty:  
   		[Hobbit] who => [bilbo];
