@@ -282,7 +282,7 @@ shared class Contained<Value> (
  > Note: `Iterable` is lazy and there is no quarantee to get the same stream
  when it is iterating second time. While `Sequence` is eager and repeatably iterated."
 tagged( "Streams" ) since( "0.6.0" ) by( "Lis" )
-shared class IsNotContained<Value> (
+shared class NotContained<Value> (
 	"Stream to check if it doesn't contain matching value." [Value*] stream
 )
 		satisfies Matcher<Value&Object>
