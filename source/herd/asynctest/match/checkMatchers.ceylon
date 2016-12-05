@@ -127,7 +127,6 @@ shared class EqualWith<Value> (
 	Boolean comparator( Value first, Value second )
 )
 		satisfies Matcher<Value>
-		given Value satisfies Identifiable
 {
 	shared actual MatchResult match( Value val )
 		=> MatchResult (
