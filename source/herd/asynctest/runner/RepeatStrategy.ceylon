@@ -35,11 +35,11 @@ shared object repeatOnce satisfies RepeatStrategy {
 }
 
 
-"Repeats up to the first successfull run but no more than `maxRepeats` times.  
+"Repeats up to the first successful run but no more than `maxRepeats` times.  
  Reports result from the latest run."
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class RepeatUpToSuccessRun( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
+shared class RepeatUpToSuccessfulRun( "Maximum number of repeats." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
 	variable Integer totalRuns = 0;
 	
@@ -62,7 +62,7 @@ shared class RepeatUpToSuccessRun( "Number of repeats limit." Integer maxRepeats
  Reports result from the latest run."
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class RepeatUpToFailedRun( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
+shared class RepeatUpToFailedRun( "Maximum number of repeats." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
 	variable Integer totalRuns = 0;
 	
@@ -82,10 +82,10 @@ shared class RepeatUpToFailedRun( "Number of repeats limit." Integer maxRepeats 
 
 
 "Repeats up to the first failure message but no more than `maxRepeats` times.  
- Reports just this failed message."
+ Reports the first failure message only."
 tagged( "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class RepeatUpToFailureMessage( "Number of repeats limit." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
+shared class RepeatUpToFailureMessage( "Maximum number of repeats." Integer maxRepeats = 1 ) satisfies RepeatStrategy {
 	
 	variable Integer totalRuns = 0;
 	
