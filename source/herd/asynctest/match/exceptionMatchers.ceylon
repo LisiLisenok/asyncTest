@@ -2,6 +2,7 @@ import herd.asynctest.internal {
 	typeName
 }
 
+
 "Verifies if matching exception has type of `ExceptionType`."
 tagged( "Exceptions" ) since( "0.6.0" ) by( "Lis" )
 shared class ExceptionHasType<ExceptionType>()

@@ -169,42 +169,6 @@ shared class NotInRange<Value> (
 }
 
 
-"Verifies if matching value is equal to `merit`."
-tagged( "Comparators" ) since( "0.4.0" ) by( "Lis" )
-shared class EqualTo<Value> (
-	"Value to compare with matching one." Value merit
-)
-		satisfies Matcher<Value>
-		given Value satisfies Comparable<Value>
-{
-	shared actual MatchResult match( Value val )
-			=> MatchResult( "``stringify( val )`` == ``stringify( merit )``", ( val <=> merit ) == equal );
-
-	shared actual String string {
-		value tVal = `Value`;
-		return "equal <``typeName( tVal )``>";
-	}
-}
-
-
-"Verifies if matching value is not equal to `merit`."
-tagged( "Comparators" ) since( "0.4.0" ) by( "Lis" )
-shared class NotEqualTo<Value> (
-	"Value to compare with matching one." Value merit
-)
-		satisfies Matcher<Value>
-		given Value satisfies Comparable<Value>
-{
-	shared actual MatchResult match( Value val )
-			=> MatchResult( "``stringify( val )`` != ``stringify( merit )``", ( val <=> merit ) != equal );
-
-	shared actual String string {
-		value tVal = `Value`;
-		return "not equal <``typeName( tVal )``>";
-	}
-}
-
-
 "Verifies if matching value is close to `merit` with the given `tolerance`."
 tagged( "Comparators" ) since( "0.4.0" ) by( "Lis" )
 shared class CloseTo<Value> (

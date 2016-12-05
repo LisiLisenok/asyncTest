@@ -6,9 +6,9 @@ import herd.asynctest.internal {
 
 
 "Verifies if matching value equals to `merit` using operator `==`."
-tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
-shared class EqualObjects<Value> (
-	"Value to compare with matching one." Value merit
+tagged( "Checkers", "Comparators" ) since( "0.4.0" ) by( "Lis" )
+shared class EqualTo<Value> (
+	"Expected value." Value merit
 )
 		satisfies Matcher<Value>
 		given Value satisfies Object
@@ -24,9 +24,9 @@ shared class EqualObjects<Value> (
 
 
 "Verifies if matching value is _not_ equal to `merit` using operator `!=`."
-tagged( "Checkers" ) since( "0.6.1" ) by( "Lis" )
-shared class NotEqualObjects<Value> (
-	"Value to compare with matching one." Value merit
+tagged( "Checkers", "Comparators" ) since( "0.6.1" ) by( "Lis" )
+shared class NotEqualTo<Value> (
+	"Value which is expected to be not equal to matching one." Value merit
 )
 		satisfies Matcher<Value>
 		given Value satisfies Object
@@ -44,7 +44,7 @@ shared class NotEqualObjects<Value> (
 "Verifies if matching value is identical to `merit` using operator `===`."
 tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class Identical<Value> (
-	"Value to compare with matching one." Value merit
+	"Value which is expected to be identical to matching one." Value merit
 )
 		satisfies Matcher<Value>
 		given Value satisfies Identifiable
@@ -62,7 +62,7 @@ shared class Identical<Value> (
 "Verifies if matching value is _not_ identical to `merit` using operator `===`."
 tagged( "Checkers" ) since( "0.6.1" ) by( "Lis" )
 shared class NotIdentical<Value> (
-	"Value to compare with matching one." Value merit
+	"Value which is expected to be _not_ identical to matching one." Value merit
 )
 		satisfies Matcher<Value>
 		given Value satisfies Identifiable
@@ -117,10 +117,10 @@ shared class ValueEquality<Value> (
 }
 
 
-"Verifies if matching value is equal to `merit` using given comparator."
+"Verifies if matching value is equal to [[merit]] using given [[comparator]]."
 tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class EqualWith<Value> (
-	"Value to compare with matching one."
+	"Value which is expected to be equal to matching one with the given [[comparator]]."
 	Value merit,
 	"Comparator used to compare matching value and merit.  
 	 Has to return `true` if values are equal and `false` otherwise."
@@ -141,10 +141,10 @@ shared class EqualWith<Value> (
 }
 
 
-"Verifies if matching value is _not_ equal to `merit` using given comparator."
+"Verifies if matching value is _not_ equal to [[merit]] using given [[comparator]]."
 tagged( "Checkers" ) since( "0.6.1" ) by( "Lis" )
 shared class NotEqualWith<Value> (
-	"Value to compare with matching one."
+	"Value which is expected to be _not_ equal to matching one with the given [[comparator]]."
 	Value merit,
 	"Comparator used to compare matching value and merit.  
 	 Has to return `true` if values are equal and `false` otherwise."
