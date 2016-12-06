@@ -7,7 +7,9 @@ import herd.asynctest {
 "Applies suite rules in the given order.
  Initialization (i.e. `initialize` methods) is performed with iterating of the `rules` in direct order,
  while diposing (i.e. `dispose` methods) is performed in reverse order. So, the first initialized is
- the last disposed."
+ the last disposed.  
+ 
+ > If submited rule is marked with [[testRule]] annotation it will be executed twice."
 see( `class TestRuleChain`, `class TestStatementChain` )
 tagged( "SuiteRule" ) since( "0.6.0" ) by( "Lis" )
 shared class SuiteRuleChain (
@@ -30,7 +32,9 @@ shared class SuiteRuleChain (
 "Applies test rules in the given order.
  Initialization (i.e. `before` methods) is performed with iterating of the `rules` in direct order,
  while diposing (i.e. `after` methods) is performed in reverse order. So, the first initialized is
- the last disposed."
+ the last disposed.  
+ 
+ > If submited rule is marked with [[testRule]] annotation it will be executed twice."
 see( `class SuiteRuleChain`, `class TestStatementChain` )
 tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
 shared class TestRuleChain (
@@ -50,7 +54,9 @@ shared class TestRuleChain (
 }
 
 
-"Applies test statements in the given order."
+"Applies test statements in the given order.  
+ 
+ > If submited rule is marked with [[testRule]] annotation it will be executed twice."
 tagged( "TestStatement" ) since( "0.6.1" ) by( "Lis" )
 see( `class SuiteRuleChain`, `class TestRuleChain` )
 shared class TestStatementChain (

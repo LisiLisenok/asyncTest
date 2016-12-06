@@ -12,7 +12,7 @@ import herd.asynctest.match {
 see( `function AsyncTestContext.assertThat`, `package herd.asynctest.match`, `class VerifyRule` )
 tagged( "Statement" ) since ( "0.6.0" ) by( "Lis" )
 shared class Verifier<Element> (
-	"Element source, actually called when statement is evaluated" Element() source,
+	"Element source, actually called when the statement is evaluated" Element() source,
 	"Matcher to verify stored value." Matcher<Element> matcher,
 	"Optional title to be shown within test name." String title = "",
 	"`True` if success to be reported otherwise only failure is reported." Boolean reportSuccess = false
