@@ -48,7 +48,7 @@ class ChainedTestContext (
 	
 	
 	void processFunctions() {
-		while ( is Anything(AsyncTestContext) f = functions.next(), CurrentThread.works ) {
+		while ( is Anything(AsyncTestContext) f = functions.next(), CurrentThread.alive ) {
 			// execute next chained function
 			value box = TestContextBox();
 			try { f( box ); }

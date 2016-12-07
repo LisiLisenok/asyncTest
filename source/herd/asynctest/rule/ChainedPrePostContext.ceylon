@@ -57,7 +57,7 @@ class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(Asyn
 	
 	
 	void processPrepost() {
-		while ( is Anything(AsyncPrePostContext) f = functions.next(), CurrentThread.works ) {
+		while ( is Anything(AsyncPrePostContext) f = functions.next(), CurrentThread.alive ) {
 			// execute next chained function
 			value box = AsyncPrePostContextBox();
 			try { f( box ); }
