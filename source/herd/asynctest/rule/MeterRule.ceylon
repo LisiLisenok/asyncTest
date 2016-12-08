@@ -58,20 +58,30 @@ tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 	see( `function tick` )
 	shared void start() => store.element.previousTime.set( system.nanoseconds );
 	
-	"Adds clock sample from previous `tick` or from `start`.  
+	"Adds [[numberOfTicks]] meter samples from previous `tick` or from `start`.  
 	 [[start]] has to be called before the first call of `tick`.  
-	 in order to start again call `start` again."
+	 in order to start again call `start` again.  
+	 Meter samples are:  
+	 * Time spent from previous `tick` call divided by [[numberOfTicks]], i.e. mean time required by a one event.
+	   Added to [[timeStatistic]].  
+	 * Rate i.e. number of events per time occured from previous `tick` call.
+	   Number of events is equal to [[numberOfTicks]]. Added to [[rateStatistic]].  
+	 "
 	throws ( `class AssertionError`, "If called before `start`." )
-	see( `function start` )
-	shared void tick() {
+	see( `function start`, `value timeStatistic`, `value rateStatistic` )
+	shared void tick( "Number of ticks. To be > 0." Integer numberOfTicks = 1 ) {
 		"MeterRule: calling `tick` before `start`."
 		assert ( store.element.previousTime.get() >= 0 );
+		"MeterRule: number of ticks has to be > 0."
+		assert ( numberOfTicks > 0 );
 		
 		Box box = store.element;
 		Integer now = system.nanoseconds;
 		Integer delta = system.nanoseconds - box.previousTime.getAndSet( now );
-		box.timeCalculator.sample( delta / 1000000.0 );
-		box.rateCalculator.sample( 1000000000.0 / delta );
+		if ( delta > 0 ) {
+			box.timeCalculator.sample( delta / 1000000.0 / numberOfTicks );
+			box.rateCalculator.sample( 1000000000.0 / delta * numberOfTicks );
+		}
 	}
 	
 	
