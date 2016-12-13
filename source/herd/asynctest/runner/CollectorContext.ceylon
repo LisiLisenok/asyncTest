@@ -1,5 +1,4 @@
 import herd.asynctest {
-	AsyncMessageContext,
 	VariantResultBuilder,
 	TestVariantResult
 }
@@ -9,7 +8,7 @@ import herd.asynctest {
  To get results of the test run examine [[variantResult]]."
 tagged( "Context" )
 since( "0.6.0" ) by( "Lis" )
-shared class CollectorContext() satisfies AsyncMessageContext {
+shared class CollectorContext() satisfies AsyncRunnerContext {
 	
 	VariantResultBuilder builder = VariantResultBuilder();
 	
@@ -41,7 +40,7 @@ shared class CollectorContext() satisfies AsyncMessageContext {
  To get results of the test run examine [[variantResult]]."
 tagged( "Context" )
 since( "0.6.0" ) by( "Lis" )
-shared class CollectAndDelegateContext( "Delegate report to" AsyncMessageContext delegateTo )
+shared class CollectAndDelegateContext( "Delegate report to" AsyncRunnerContext delegateTo )
 	extends CollectorContext()
 {
 	

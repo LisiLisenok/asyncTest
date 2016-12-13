@@ -1,5 +1,4 @@
 import herd.asynctest {
-	AsyncMessageContext,
 	TestInfo,
 	retry,
 	TestVariantResult
@@ -37,7 +36,7 @@ shared abstract class RepeatRunner()
 	shared formal class Repeater() satisfies RepeatStrategy {}
 
 	
-	shared actual void run( AsyncMessageContext context, void testing(AsyncMessageContext context), TestInfo info ) {
+	shared actual void run( AsyncRunnerContext context, void testing(AsyncRunnerContext context), TestInfo info ) {
 		CollectorContext collect = CollectorContext();
 		RepeatStrategy strategy = Repeater();
 		while ( true ) {

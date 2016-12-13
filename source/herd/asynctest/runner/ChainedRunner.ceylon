@@ -1,5 +1,4 @@
 import herd.asynctest {
-	AsyncMessageContext,
 	TestInfo
 }
 
@@ -18,12 +17,12 @@ shared class ChainedRunner (
 		satisfies AsyncTestRunner
 {
 	
-	void runnerCaller( AsyncTestRunner runner, Anything(AsyncMessageContext) testing, TestInfo info )( AsyncMessageContext context ) {
+	void runnerCaller( AsyncTestRunner runner, Anything(AsyncRunnerContext) testing, TestInfo info )( AsyncRunnerContext context ) {
 		runner.run( context, testing, info );
 	}
 	
-	shared actual void run( AsyncMessageContext context, void testing(AsyncMessageContext context), TestInfo info ) {
-		variable Anything(AsyncMessageContext) runTest = testing;
+	shared actual void run( AsyncRunnerContext context, void testing(AsyncRunnerContext context), TestInfo info ) {
+		variable Anything(AsyncRunnerContext) runTest = testing;
 		for ( item in runners.reversed ) {
 			runTest = runnerCaller( item, runTest, info );
 		}

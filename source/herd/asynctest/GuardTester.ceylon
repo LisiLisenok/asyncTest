@@ -4,6 +4,9 @@ import herd.asynctest.internal {
 import java.lang {
 	Thread
 }
+import herd.asynctest.runner {
+	AsyncRunnerContext
+}
 
 
 "The most lower level of the runners - invokes test function itself.  
@@ -19,7 +22,7 @@ class GuardTester (
 	"Function to be executed."
 	TestFunction testFunction,
 	"Context the test function to be executed on."
-	AsyncMessageContext context
+	AsyncRunnerContext context
 )
 		extends ContextBase() satisfies AsyncTestContext
 {	

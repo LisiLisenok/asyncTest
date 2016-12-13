@@ -18,7 +18,8 @@ import herd.asynctest.internal {
 }
 import herd.asynctest.runner {
 
-	AsyncTestRunner
+	AsyncTestRunner,
+	AsyncRunnerContext
 }
 import java.util.concurrent.locks {
 
@@ -37,7 +38,7 @@ class Tester (
 	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
 	ContextThreadGroup group
 )
-		satisfies AsyncMessageContext
+		satisfies AsyncRunnerContext
 {
 	
 	"Synchronizes output writing."
@@ -116,7 +117,7 @@ class Tester (
 	
 	"Runs all test functions using guard context."
 	see( `class GuardTester` )
-	void runWithGuard( AsyncMessageContext context ) {
+	void runWithGuard( AsyncRunnerContext context ) {
 		// new GuardTest has to be used for each run
 		for ( statement in testFunctions ) {
 			GuardTester guard = GuardTester( group, statement, context );
