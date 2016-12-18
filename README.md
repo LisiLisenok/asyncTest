@@ -45,5 +45,5 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
 * [Microbenchmark](examples/herd/examples/asynctest/mapperformance) -
   comparative performance test of Ceylon / Java HashMap and TreeMap.  
 * [Matchers](examples/herd/examples/asynctest/matchers) - matchers usage.  
-* [Generics](examples/herd/examples/asynctest/generics) - type-parameterized testing.  
+* [Parameterized](examples/herd/examples/asynctest/parameterized) - type- and value- parameterized testing.  
 * [Rules](examples/herd/examples/asynctest/rule) - test rules usage.  

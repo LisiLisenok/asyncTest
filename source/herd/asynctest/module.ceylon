@@ -18,7 +18,8 @@
  * [[AsyncTestExecutor]] - the test executor which satisfies `ceylon.test.engine.spi::TestExecutor`
    and provides an interaction with `ceylon.test` module.  
  * [[AsyncTestContext]] which provides an interaction of the test function with the test framework.  
- * [[AsyncPrePostContext]] which provides an interaction of initialization / disposing logic with the test framework.  
+ * [[AsyncPrePostContext]] which provides an interaction of initialization / disposing logic with the test framework.
+ * [[package herd.asynctest.parameterization]] provides value- and type- parameterized testing capability.    
  * [[package herd.asynctest.rule]] package which contains rules used for test initialization / disposing
    and for modification of the test behaviour.  
  * [[package herd.asynctest.runner]] package which provides a control over a test function execution.  
@@ -180,8 +181,8 @@
  provider has to return the same arguments list. But async version will additionally be provided
  with `AsyncPrePostContext` which has to be the first argument.  
  
- > [[arguments]] annotation is not applicable to test functions. [[parameterized]] annotation is aimed
-   to perform parameterized testing, see, section [Value- and type- parameterized testing](#parameterized_section) below.  
+ > [[arguments]] annotation is not applicable to test functions.
+   See package [[package herd.asynctest.parameterization]] for the parameterized testing.  
  
  
  #### Test rules  
@@ -269,49 +270,12 @@
  -------------------------------------------
  ### <a name=\"parameterized_section\"></a> Value- and type- parameterized testing  
  
- In order to perform parameterized testing the test function has to be marked with annotation which supports
- [[TestVariantProvider]] interface. The interface has just a one method - `variants()`
- which has to provide [[TestVariantEnumerator]]. The enumerator produces a stream
- of the [[TestVariant]]'s and is iterated just a once.
- The test will be performed using all variants the enumerator produces.  
+ Parameterized testing is performed using annotations to specify a generator of the test variants.
+ Basically, each test variant is a list of test function type parameters and arguments.  
+ Package [[package herd.asynctest.parameterization]] provides parameterized testing capability
+ with a number of ways to generate test variants.  
  
- > The enumerator may return test variants lazily, dynamicaly or even non-determenisticaly.  
- > Each [[TestVariant]] contains a list of generic type parameters and a list of function arguments.  
-
   
- [[parameterized]] annotation satisfies [[TestVariantProvider]] interface and
- provides parameterized testing based on collection of test variants.  
- 
- 
- **Custom parameterization:**  
- 
- 1. Implement [[TestVariantEnumerator]] interface:
- 		class MyTestVariantEnumerator(...) satisfies TestVariantEnumerator {
- 			shared actual TestVariant|Finished current => ...;
- 
- 			shared actual void moveNext(TestVariantResult result) {
- 				if (testToBeCompleted) {
- 					// set `current` to `finished`
- 				} else {
- 					// set `current` to test variant to be tested next
- 				}
- 			}
- 		}
- 		
- 2. Make an annotation which satisfies [[TestVariantProvider]] interface:
- 		shared final annotation class MyParameterizedAnnotation(...)
- 			satisfies SequencedAnnotation<MyParameterizedAnnotation, FunctionDeclaration>&TestVariantProvider
- 		{
- 			shared actual TestVariantEnumerator variants() => MyTestVariantEnumerator(...);
- 		}
- 		
- 		shared annotation MyParameterizedAnnotation myParameterized(...) => MyParameterizedAnnotation(...);
- 		
- 
- 3. Mark test function with created annotation:
- 		myParameterized(...) void myTest(...) {...}
- 
- 
  -------------------------------------------
  ### <a name=\"runners\"></a> Test runners  
  

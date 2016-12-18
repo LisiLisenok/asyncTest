@@ -4,30 +4,13 @@ import ceylon.collection {
 import ceylon.language.meta.declaration {
 	FunctionDeclaration,
 	ClassDeclaration,
-	Package,
-	InterfaceDeclaration,
-	OpenInterfaceType
+	Package
 }
 import ceylon.test {
 	TestDescription
 }
-import ceylon.test.annotation {
-	TestExecutorAnnotation
-}
 import ceylon.test.engine.spi {
 	TestExecutionContext
-}
-import herd.asynctest.rule {
-
-	TestRuleAnnotation
-}
-import ceylon.language.meta.model {
-
-	Class
-}
-import herd.asynctest.internal {
-
-	findFirstAnnotation
 }
 import java.util.concurrent {
 
@@ -46,32 +29,15 @@ import java.util.concurrent.locks {
 
 	ReentrantLock
 }
+import herd.asynctest.internal {
+	findFirstAnnotation,
+	declarationVerifier
+}
 
 
 "Combines tests in the suites and starts test executions."
 since( "0.0.1" ) by( "Lis" )
 object asyncTestRunner {
-	
-	"Memoization of [[TestRuleAnnotation]]."
-	see( `class TestGroupExecutor` )
-	shared Class<TestRuleAnnotation, []> ruleAnnotationClass = `TestRuleAnnotation`;
-
-	
-	"AsyncTestContext declaration memoization."
-	see( `function isAsyncDeclaration` )
-	InterfaceDeclaration asyncContextDeclaration = `interface AsyncTestContext`;
-	
-	"AsyncPrePostContext declaration memoization."
-	see( `function isAsyncPrepostDeclaration` )
-	InterfaceDeclaration prepostContextDeclaration = `interface AsyncPrePostContext`;
-	
-	"AsyncFactoryContext declaration memoization."
-	see( `function isAsyncFactoryDeclaration` )
-	InterfaceDeclaration factoryContextDeclaration = `interface AsyncFactoryContext`;
-	
-	"Cache async test executor declaration. See `function isAsyncExecutedTest`" 
-	ClassDeclaration asyncTestDeclaration = `class AsyncTestExecutor`;
-
 	
 	"Executors of test groups - package or class level."
 	HashMap<String, TestGroupExecutor> sequentialExecutors = HashMap<String, TestGroupExecutor>(); 
@@ -93,7 +59,7 @@ object asyncTestRunner {
 	small Integer numberOfAsyncTest( TestDescription* descriptions ) {
 		variable small Integer ret = 0;
 		for ( descr in descriptions ) {
-			if ( exists fDeclaration = descr.functionDeclaration, isAsyncExecutedTest( fDeclaration ) ) {
+			if ( exists fDeclaration = descr.functionDeclaration, declarationVerifier.isAsyncExecutedTest( fDeclaration ) ) {
 				ret ++;
 			}
 			ret += numberOfAsyncTest( *descr.children );
@@ -195,36 +161,5 @@ object asyncTestRunner {
 			}
 		}
 	}
-	
-	
-	"`true` if execution is performed using `AsyncTestExecutor`"
-	Boolean isAsyncExecutedTest( FunctionDeclaration functionDeclaration ) =>
-		if ( exists ann = findFirstAnnotation<TestExecutorAnnotation>( functionDeclaration ) )
-			then ann.executor == asyncTestDeclaration else false;
-	
-	
-	"Returns `true` if function takes `firstArg` as first argument."
-	Boolean isFirstArgSatisfies( FunctionDeclaration functionDeclaration, InterfaceDeclaration firstArg ) {
-		if ( is OpenInterfaceType argType = functionDeclaration.parameterDeclarations.first?.openType,
-			argType.declaration == firstArg
-		) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	"Returns `true` if function runs async test == takes `AsyncTestContext` as first argument."
-	shared Boolean isAsyncDeclaration( FunctionDeclaration functionDeclaration )
-		=> isFirstArgSatisfies( functionDeclaration, asyncContextDeclaration );
-	
-	"Returns `true` if function runs async test initialization == takes `AsyncPrePostContext` as first argument."
-	shared Boolean isAsyncPrepostDeclaration( FunctionDeclaration functionDeclaration )
-		=> isFirstArgSatisfies( functionDeclaration, prepostContextDeclaration );
-	
-	"Returns `true` if function runs async test initialization == takes `AsyncFactoryContext` as first argument."
-	shared Boolean isAsyncFactoryDeclaration( FunctionDeclaration functionDeclaration )
-			=> isFirstArgSatisfies( functionDeclaration, factoryContextDeclaration );
 	
 }

@@ -1,9 +1,6 @@
 import herd.asynctest {
-
 	AsyncTestContext,
-	parameterized,
-	arguments,
-	TestVariant
+	arguments
 }
 import ceylon.test {
 
@@ -40,6 +37,10 @@ import herd.asynctest.rule {
 	Verifier,
 	MeterRule,
 	AtomicValueRule
+}
+import herd.asynctest.parameterization {
+	parameterized,
+	TestVariant
 }
 
 

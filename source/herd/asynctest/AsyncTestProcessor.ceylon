@@ -29,9 +29,10 @@ import ceylon.language.meta {
 	type
 }
 import herd.asynctest.internal {
-
 	ContextThreadGroup,
-	findFirstAnnotation
+	findFirstAnnotation,
+	extractSourceValue,
+	declarationVerifier
 }
 import herd.asynctest.runner {
 
@@ -39,6 +40,11 @@ import herd.asynctest.runner {
 	RunWithAnnotation,
 	RepeatStrategy,
 	repeatOnce
+}
+import herd.asynctest.parameterization {
+	TestVariantEnumerator,
+	TestVariant,
+	TestVariantProvider
 }
 
 
@@ -61,13 +67,29 @@ class AsyncTestProcessor(
 	Integer timeOutMilliseconds = extractTimeout( testFunctionDeclaration );
 
 	"`true` if test function is run on async test context."
-	Boolean runOnAsyncContext = asyncTestRunner.isAsyncDeclaration( testFunctionDeclaration );
+	Boolean runOnAsyncContext = declarationVerifier.isAsyncDeclaration( testFunctionDeclaration );
 	
 	"Init context to perform test initialization."
 	PrePostContext prePostContext = PrePostContext( group );
 	
 	"Tester to execute test + test statements."
 	Tester tester = Tester( group );
+	
+	
+	"Resolves a list of type parameters and function arguments provided by annotations satisfied `TestVariantProvider`.  
+	 Returns a list of parameters list."
+	TestVariantEnumerator resolveParameterizedList() {
+		value providers = testFunctionDeclaration.annotations<Annotation>().narrow<TestVariantProvider>();
+		if ( providers.empty ) {
+			return EmptyTestVariantEnumerator();
+		}
+		else if ( providers.size == 1 ) {
+			return providers.first?.variants( testFunctionDeclaration, instance ) else EmptyTestVariantEnumerator();
+		}
+		else {
+			return CombinedVariantEnumerator( providers*.variants( testFunctionDeclaration, instance ).iterator() );
+		}
+	}
 	
 	
 	"Extracts test runner from test function annotations."
@@ -190,7 +212,7 @@ class AsyncTestProcessor(
 			}
 			else {
 				// execute test with the given number of test variants
-				return executeVariants( functionContext, resolveParameterizedList( testFunctionDeclaration, instance ) );
+				return executeVariants( functionContext, resolveParameterizedList() );
 			}
 		}
 		catch ( TestSkippedException e ) {

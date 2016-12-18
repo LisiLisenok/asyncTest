@@ -12,7 +12,9 @@ import ceylon.test {
 }
 import herd.asynctest {
 	
-	AsyncTestContext,
+	AsyncTestContext
+}
+import herd.asynctest.parameterization {
 	parameterized
 }
 

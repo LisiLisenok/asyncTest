@@ -1,9 +1,13 @@
 import ceylon.test {
 	TestState
 }
+import herd.asynctest {
+	TestVariantResult
+}
 
 
 "Enumerates test variants."
+tagged( "Base" )
 see( `interface TestVariantProvider` )
 since( "0.6.0" ) by( "Lis" )
 shared interface TestVariantEnumerator {
@@ -17,17 +21,7 @@ shared interface TestVariantEnumerator {
 }
 
 
-"Provides a one empty test variant."
-since( "0.6.0" ) by( "Lis" )
-class EmptyTestVariantEnumerator() satisfies TestVariantEnumerator {
-	variable TestVariant|Finished currentVal = emptyTestVariant;
-	shared actual TestVariant|Finished current => currentVal;
-	shared actual void moveNext(TestVariantResult result) => currentVal = finished;
-}
-
-
 "Iterates variants by arguments list and completes when number of failures reach limit."
-see( `function parameterized` )
 since( "0.6.0" ) by( "Lis" )
 class TestVariantIterator (
 	"Test variants iterator - function which returns next." TestVariant|Finished argsIterator(),
@@ -57,41 +51,32 @@ class TestVariantIterator (
 }
 
 
-"Combines several test variant iterators."
-since( "0.6.0" ) by( "Lis" )
-class CombinedVariantEnumerator( Iterator<TestVariantEnumerator> providers )
+"Delegates enumeration to another enumerator but completes when number of failures reach limit."
+since( "0.6.1" ) by( "Lis" )
+class TestVariantMaxFailureEnumerator (
+	"Test variants iterator - function which returns next." TestVariantEnumerator other,
+	"Limit on failures. When it is reached `next` returns `finished`." Integer maxFailedVariants
+)
 		satisfies TestVariantEnumerator
 {
+	variable Integer variantsFailed = 0;
 	
-	variable TestVariantEnumerator|Finished currentProvider = providers.next();
-	
-	TestVariant|Finished moveNextProvider() {
-		while ( is TestVariantEnumerator cur = currentProvider ) {
-			if ( is TestVariant tv = cur.current ) {
-				return tv;
-			}
-			else {
-				currentProvider = providers.next();
-			}
+	shared actual TestVariant|Finished current {
+		if ( maxFailedVariants < 1 || maxFailedVariants > variantsFailed ) {
+			return other.current;
 		}
-		return finished;
+		else {
+			return finished;
+		}
 	}
 	
-	variable TestVariant|Finished currrentVariant = moveNextProvider();
-		
-	
-	shared actual TestVariant|Finished current => currrentVariant;
-	
 	shared actual void moveNext( TestVariantResult result ) {
-		if ( is TestVariantEnumerator cur = currentProvider ) {
-			cur.moveNext( result );
-			if ( is TestVariant tv = cur.current ) {
-				currrentVariant = tv;
-				return;
-			}
+		if ( result.overallState > TestState.success ) {
+			variantsFailed ++;
 		}
-		currrentVariant = moveNextProvider();
-	}	
+		if ( maxFailedVariants < 1 || maxFailedVariants > variantsFailed ) {
+			other.moveNext( result );
+		}
+	}
 	
 }
-

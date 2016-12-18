@@ -6,8 +6,9 @@ import ceylon.language.meta.declaration {
 "Provides enumerator for test variants.  
  Test execution context looks for annotations of the test function which support the interface
  and performs testing according to provided variants.
- As example, see [[parameterized]].
+ As example, see [[ParameterizedAnnotation]].
  "
+tagged( "Base" )
 see( `class TestVariant` )
 since( "0.6.0" ) by( "Lis" )
 shared interface TestVariantProvider {

@@ -12,7 +12,7 @@ import herd.asynctest.internal {
 }
 
 
-"Test info represents and information on currently running test variant."
+"Information on currently running test variant."
 see( `interface AsyncPrePostContext`, `interface AsyncTestRunner` )
 since( "0.6.0" ) by( "Lis" )
 shared final class TestInfo (
@@ -24,8 +24,8 @@ shared final class TestInfo (
 	shared Anything[] arguments,
 	"Test variant name as represented in the test report."
 	shared String variantName,
-	"Time out in milliseconds for a one test function run, <= 0 if no limit."
-	shared Integer timeOutMilliseconds
+	"Timeout in milliseconds for a one test function run, if <= 0 no limit."
+	shared Integer timeoutMilliseconds
 ) {
 	
 	variable Integer memoizedHash = 0;
@@ -36,7 +36,7 @@ shared final class TestInfo (
 				parameters == that.parameters && 
 				arguments == that.arguments && 
 				variantName == that.variantName && 
-				timeOutMilliseconds == that.timeOutMilliseconds;
+				timeoutMilliseconds == that.timeoutMilliseconds;
 		}
 		else {
 			return false;
@@ -49,7 +49,7 @@ shared final class TestInfo (
 			memoizedHash = 31 * memoizedHash + sequenceHash( arguments, 31 );
 			memoizedHash = 31 * memoizedHash + testFunction.hash;
 			memoizedHash = 31 * memoizedHash + variantName.hash;
-			memoizedHash = 31 * memoizedHash + timeOutMilliseconds;
+			memoizedHash = 31 * memoizedHash + timeoutMilliseconds;
 		}
 		return memoizedHash;
 	}

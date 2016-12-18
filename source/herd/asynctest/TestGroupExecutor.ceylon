@@ -51,8 +51,10 @@ import ceylon.test.event {
 	TestStartedEvent
 }
 import herd.asynctest.internal {
-
-	ContextThreadGroup
+	ContextThreadGroup,
+	extractSourceValue,
+	resolveArgumentList,
+	declarationVerifier
 }
 import java.util.concurrent.locks {
 
@@ -91,7 +93,7 @@ class TestGroupExecutor (
 				if ( exists factory = optionalAnnotation( `FactoryAnnotation`, declaration ) ) {
 					// factory exists - use this to instantiate object
 					value args = resolveArgumentList( factory.factoryFunction, null );
-					if ( asyncTestRunner.isAsyncFactoryDeclaration( factory.factoryFunction ) ) {
+					if ( declarationVerifier.isAsyncFactoryDeclaration( factory.factoryFunction ) ) {
 						return FactoryContext( "``factory.factoryFunction.name``", group ).run (
 							( AsyncFactoryContext context ) {
 								factory.factoryFunction.apply<>().apply( context, *args );
@@ -166,7 +168,7 @@ class TestGroupExecutor (
 		// timeout
 		value timeOut = extractTimeout( decl );
 		
-		if ( asyncTestRunner.isAsyncPrepostDeclaration( decl ) ) {
+		if ( declarationVerifier.isAsyncPrepostDeclaration( decl ) ) {
 			return PrePostFunction (
 				( AsyncPrePostContext context ) {
 					prepostFunction.apply( context, *args );
@@ -198,7 +200,7 @@ class TestGroupExecutor (
 	PrePostFunction[] getSuiteInitializers( Object? instance, ClassOrInterface<>? instanceType ) {
 		if ( exists container = instance, exists containerType = instanceType ) {
 			// attributes marked with `testRule`
-			value suiteAttrs = containerType.getAttributes<Nothing, SuiteRule, Nothing>( asyncTestRunner.ruleAnnotationClass );
+			value suiteAttrs = containerType.getAttributes<Nothing, SuiteRule, Nothing>( declarationVerifier.ruleAnnotationClass );
 			return [ for ( attr in suiteAttrs ) PrePostFunction (
 				attr.bind( container ).get().initialize,
 				extractTimeoutFromObject( attr.declaration, "initialize" ), attr.declaration.name,
@@ -221,7 +223,7 @@ class TestGroupExecutor (
 	PrePostFunction[] getTestInitializers( Object? instance, ClassOrInterface<>? instanceType )
 	{
 		if ( exists container = instance, exists containerType = instanceType ) {
-			value attrs = containerType.getAttributes<Nothing, TestRule, Nothing>( asyncTestRunner.ruleAnnotationClass );
+			value attrs = containerType.getAttributes<Nothing, TestRule, Nothing>( declarationVerifier.ruleAnnotationClass );
 			return [ for ( attr in attrs ) PrePostFunction (
 				attr.bind( container ).get().before,
 				extractTimeoutFromObject( attr.declaration, "before" ),
@@ -244,7 +246,7 @@ class TestGroupExecutor (
 	TestFunction[] getTestStatements( Object? instance, ClassOrInterface<>? instanceType )
 	{
 		if ( exists container = instance, exists containerType = instanceType ) {
-			value attrs = containerType.getAttributes<Nothing, TestStatement, Nothing>( asyncTestRunner.ruleAnnotationClass );
+			value attrs = containerType.getAttributes<Nothing, TestStatement, Nothing>( declarationVerifier.ruleAnnotationClass );
 			return [ for ( attr in attrs ) TestFunction (
 				attr.bind( container ).get().apply,
 				extractTimeoutFromObject( attr.declaration, "apply" ),
@@ -267,7 +269,7 @@ class TestGroupExecutor (
 	PrePostFunction[] getSuiteCleaners( Object? instance, ClassOrInterface<>? instanceType )
 	{
 		if ( exists container = instance, exists containerType = instanceType ) {
-			value suiteRules = containerType.getAttributes<Nothing, SuiteRule, Nothing>( asyncTestRunner.ruleAnnotationClass );
+			value suiteRules = containerType.getAttributes<Nothing, SuiteRule, Nothing>( declarationVerifier.ruleAnnotationClass );
 			return [ for ( attr in suiteRules ) PrePostFunction (
 				attr.bind( container ).get().dispose,
 				extractTimeoutFromObject( attr.declaration, "dispose" ),
@@ -289,7 +291,7 @@ class TestGroupExecutor (
 	PrePostFunction[] getTestCleaners( Object? instance, ClassOrInterface<>? instanceType )
 	{
 		if ( exists container = instance, exists containerType = instanceType ) {
-			value attrs = containerType.getAttributes<Nothing, TestRule, Nothing>( asyncTestRunner.ruleAnnotationClass );
+			value attrs = containerType.getAttributes<Nothing, TestRule, Nothing>( declarationVerifier.ruleAnnotationClass );
 			return [ for ( attr in attrs ) PrePostFunction (
 				attr.bind( container ).get().after,
 				extractTimeoutFromObject( attr.declaration, "after" ),

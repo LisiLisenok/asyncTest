@@ -3,17 +3,18 @@ import ceylon.test {
 	test
 }
 import herd.asynctest {
-
 	AsyncTestContext,
-	parameterized,
 	async,
-	TestVariant,
 	timeout
 }
 import herd.asynctest.match {
 
 	EqualTo,
 	Mapping
+}
+import herd.asynctest.parameterization {
+	TestVariant,
+	parameterized
 }
 
 

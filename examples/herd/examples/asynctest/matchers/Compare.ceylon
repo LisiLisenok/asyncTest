@@ -4,8 +4,7 @@ import ceylon.test {
 }
 import herd.asynctest {
 
-	AsyncTestContext,
-	parameterized
+	AsyncTestContext
 }
 import herd.asynctest.match {
 
@@ -15,6 +14,9 @@ import herd.asynctest.match {
 	LessOrEqual,
 	Less,
 	Greater
+}
+import herd.asynctest.parameterization {
+	parameterized
 }
 
 
