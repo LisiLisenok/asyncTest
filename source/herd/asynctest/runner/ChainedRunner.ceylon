@@ -1,6 +1,4 @@
-import herd.asynctest {
-	TestInfo
-}
+
 
 
 "Provides runners chaining:  

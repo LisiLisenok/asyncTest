@@ -15,6 +15,7 @@
  > Each [[TestVariant]] contains a list of generic type parameters and a list of function arguments.  
  
  
+ -------------------------------------------
  ### Custom parameterization  
  
  1. Implement [[TestVariantEnumerator]] interface:
@@ -44,12 +45,14 @@
  		myParameterized(...) void myTest(...) {...}
   
  
+ -------------------------------------------
  ### Varianted testing  
  
- [[parameterized]] annotation satisfies [[TestVariantProvider]] interface and
+ [[ParameterizedAnnotation]] satisfies [[TestVariantProvider]] interface and
  provides type- and value- parameterized testing based on collection of test variants.  
  
  
+ -------------------------------------------
  ### Combinatorial testing    
  
  Combinatorial testing provides generation of test variants based on data sources of each test function argument.  

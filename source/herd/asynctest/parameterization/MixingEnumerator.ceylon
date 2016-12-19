@@ -1,6 +1,5 @@
-import herd.asynctest {
-	TestVariantResult
-}
+
+
 
 
 "Enumerates mixed variants."

@@ -1,6 +1,7 @@
 import herd.asynctest {
-	TestInfo,
-	retry,
+	retry
+}
+import herd.asynctest.parameterization {
 	TestVariantResult
 }
 

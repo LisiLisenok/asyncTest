@@ -24,8 +24,10 @@ shared class FactoryReturnsNothing( String factoryTitle )
 {}
 
 
+"Thrown when instantiated class has neither default constructor nor factory function."
 since( "0.6.1" ) by( "Lis" )
 shared class IncompatibleInstantiation (
+	"Declaration of the trying to instantiate class."
 	shared ClassDeclaration declaration 
 )
 	extends Exception (
@@ -44,6 +46,7 @@ shared class MultipleAbortException (
 		extends TestAbortedException()
 {
 	
+	"Message collected from [[abortReasons]]."
 	shared actual String message {
 		value message = StringBuilder();
 		message.append( description );

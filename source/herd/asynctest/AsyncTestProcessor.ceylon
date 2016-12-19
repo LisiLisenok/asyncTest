@@ -35,16 +35,18 @@ import herd.asynctest.internal {
 	declarationVerifier
 }
 import herd.asynctest.runner {
-
 	AsyncTestRunner,
 	RunWithAnnotation,
 	RepeatStrategy,
-	repeatOnce
+	repeatOnce,
+	TestInfo
 }
 import herd.asynctest.parameterization {
 	TestVariantEnumerator,
 	TestVariant,
-	TestVariantProvider
+	TestVariantProvider,
+	TestOutput,
+	TestVariantResult
 }
 
 

@@ -1,5 +1,4 @@
-import herd.asynctest {
-	VariantResultBuilder,
+import herd.asynctest.parameterization {
 	TestVariantResult
 }
 

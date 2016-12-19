@@ -1,6 +1,4 @@
-import herd.asynctest {
-	TestInfo
-}
+
 
 
 "Test runner is applied to execute test function with a one test variant.  

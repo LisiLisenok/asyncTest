@@ -8,12 +8,16 @@ import ceylon.test.engine {
 	TestSkippedException,
 	TestAbortedException
 }
+import herd.asynctest.parameterization {
+	TestOutput,
+	TestVariantResult
+}
 
 
 "Builds test variant result from several test outputs."
 see( `class TestVariantResult`, `class TestOutput` )
 since( "0.6.0" ) by( "Lis" )
-shared class VariantResultBuilder() {
+final class VariantResultBuilder() {
 	variable Integer startTime = system.nanoseconds;
 	variable TestState overallState = TestState.skipped;
 	ArrayList<TestOutput> outs = ArrayList<TestOutput>(); 

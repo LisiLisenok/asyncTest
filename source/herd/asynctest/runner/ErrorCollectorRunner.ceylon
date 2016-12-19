@@ -1,6 +1,4 @@
-import herd.asynctest {
-	TestInfo
-}
+
 import ceylon.test.engine {
 	MultipleFailureException
 }

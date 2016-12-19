@@ -1,6 +1,5 @@
 import herd.asynctest {
 	AsyncPrePostContext,
-	TestInfo,
 	MultipleAbortException
 }
 import ceylon.collection {
@@ -15,6 +14,9 @@ import java.util.concurrent.locks {
 }
 import herd.asynctest.internal {
 	CurrentThread
+}
+import herd.asynctest.runner {
+	TestInfo
 }
 
 

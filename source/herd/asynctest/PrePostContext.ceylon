@@ -19,6 +19,12 @@ import java.lang {
 
 	Thread
 }
+import herd.asynctest.runner {
+	TestInfo
+}
+import herd.asynctest.parameterization {
+	TestOutput
+}
 
 
 "Performs initialization or disposing.

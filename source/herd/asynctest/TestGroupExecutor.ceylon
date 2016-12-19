@@ -61,6 +61,10 @@ import java.util.concurrent.locks {
 	ReentrantLock
 }
 
+import herd.asynctest.parameterization {
+	TestOutput
+}
+
 
 "Posseses and executes grouped tests, i.e. top-level functions contained in a package or methods contained in a class."
 since( "0.5.0" ) by( "Lis" )

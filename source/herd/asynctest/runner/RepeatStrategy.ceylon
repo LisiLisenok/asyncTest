@@ -1,9 +1,10 @@
-import herd.asynctest {
-	TestVariantResult,
-	TestOutput
-}
+
 import ceylon.test {
 	TestState
+}
+import herd.asynctest.parameterization {
+	TestOutput,
+	TestVariantResult
 }
 
 

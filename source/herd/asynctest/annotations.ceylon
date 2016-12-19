@@ -22,7 +22,7 @@ import herd.asynctest.runner {
 }
 
 
-"The same as `testExecutor(`\`class AsyncTestExecutor\``)`."
+"The same as `\`testExecutor(`class AsyncTestExecutor`)`\`."
 see( `class AsyncTestExecutor` )
 since( "0.6.0" ) by( "Lis" )
 shared annotation TestExecutorAnnotation async() => testExecutor( `class AsyncTestExecutor` );

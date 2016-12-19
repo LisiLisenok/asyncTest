@@ -17,13 +17,17 @@ import herd.asynctest.internal {
 	ContextThreadGroup
 }
 import herd.asynctest.runner {
-
 	AsyncTestRunner,
-	AsyncRunnerContext
+	AsyncRunnerContext,
+	TestInfo
 }
 import java.util.concurrent.locks {
 
 	ReentrantLock
+}
+import herd.asynctest.parameterization {
+	TestOutput,
+	TestVariantResult
 }
 
 

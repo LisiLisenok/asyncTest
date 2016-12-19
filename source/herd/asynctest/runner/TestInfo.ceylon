@@ -4,11 +4,12 @@ import ceylon.language.meta.declaration {
 import ceylon.language.meta.model {
 	Type
 }
-import herd.asynctest.runner {
-	AsyncTestRunner
-}
+
 import herd.asynctest.internal {
 	sequenceHash
+}
+import herd.asynctest {
+	AsyncPrePostContext
 }
 
 

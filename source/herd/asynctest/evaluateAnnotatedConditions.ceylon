@@ -28,6 +28,10 @@ import herd.asynctest.internal {
 	findTypedAnnotations
 }
 
+import herd.asynctest.parameterization {
+	TestOutput
+}
+
 
 "Evaluates test conditions applied as annotations."
 since( "0.0.1" )

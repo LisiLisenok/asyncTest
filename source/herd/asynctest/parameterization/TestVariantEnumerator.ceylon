@@ -1,9 +1,6 @@
 import ceylon.test {
 	TestState
 }
-import herd.asynctest {
-	TestVariantResult
-}
 
 
 "Enumerates test variants."

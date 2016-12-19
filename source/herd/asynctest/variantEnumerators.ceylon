@@ -1,13 +1,14 @@
 import herd.asynctest.parameterization {
 	TestVariant,
-	TestVariantEnumerator
+	TestVariantEnumerator,
+	TestVariantResult
 }
 
 
 
 "Test variant without any arguments."
 since( "0.6.0" ) by( "Lis" )
-shared object emptyTestVariant extends TestVariant( [], [] ) {
+object emptyTestVariant extends TestVariant( [], [] ) {
 	shared actual String variantName = "";
 	shared actual Boolean equals( Object that ) {
 		if ( is TestVariant that ) {
@@ -24,7 +25,7 @@ shared object emptyTestVariant extends TestVariant( [], [] ) {
 
 "Provides a one empty test variant."
 since( "0.6.0" ) by( "Lis" )
-shared class EmptyTestVariantEnumerator() satisfies TestVariantEnumerator {
+class EmptyTestVariantEnumerator() satisfies TestVariantEnumerator {
 	variable TestVariant|Finished currentVal = emptyTestVariant;
 	shared actual TestVariant|Finished current => currentVal;
 	shared actual void moveNext(TestVariantResult result) => currentVal = finished;
@@ -33,7 +34,7 @@ shared class EmptyTestVariantEnumerator() satisfies TestVariantEnumerator {
 
 "Combines several test variant iterators."
 since( "0.6.0" ) by( "Lis" )
-shared class CombinedVariantEnumerator( Iterator<TestVariantEnumerator> providers )
+class CombinedVariantEnumerator( Iterator<TestVariantEnumerator> providers )
 		satisfies TestVariantEnumerator
 {
 	

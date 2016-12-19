@@ -1,6 +1,9 @@
 import ceylon.language.meta.declaration {
 	FunctionDeclaration
 }
+import herd.asynctest.runner {
+	TestInfo
+}
 
 
 "Function which run before or after test."
