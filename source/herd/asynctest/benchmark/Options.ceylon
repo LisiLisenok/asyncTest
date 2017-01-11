@@ -16,6 +16,9 @@ shared class Options (
 	shared Clock clock = Clock.wall,
 	"Identifies GC execution strategy, i.e. how often to run GC.  
 	 By default GC is executed before warmup round and before iteraton round."
-	shared GCStrategy gcStrategy = GCStagedStrategy.beforeRounds
+	shared GCStrategy gcStrategy = GCStagedStrategy.beforeRounds,
+	"`true` if runs when GC has been started has to be skipped and `flase` otherwise.  
+	 By default is `true`."
+	shared Boolean skipGCRuns = true
 ) {
 }

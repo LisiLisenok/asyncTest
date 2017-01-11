@@ -25,45 +25,15 @@ shared abstract class BaseBench<in Parameter> (
 	shared actual default Integer hash => memoizedHash else ( memoizedHash = 7 * title.hash + 37 );
 	
 	
-	"Executed _before warmup round_ started. By default runs garbage collector."
-	shared default void beforeWarmupRound( Options options ) {
-		options.gcStrategy.gc( Stage.beforeWarmupRound );
+	"Executed before / after rounds and iterations as identified by [[stage]].  
+	 By default runs garbage collector if specified by strategy, see [[GCStrategy]]."
+	shared default void stageEvent (
+		"Options the bench is executed with." Options options,
+		"Stage the event belongs to." Stage stage
+	) {
+		options.gcStrategy.gc( stage );
 	}
-	
-	"Executed _after warmup round_ has been completed. By default do nothing."
-	shared default void afterWarmupRound( Options options ) {
-		options.gcStrategy.gc( Stage.afterWarmupRound );
-	}
-	
-	"Executed _before each_ warmup iteration. By default do nothing."
-	shared default void beforeWarmupIteration( Options options ) {
-		options.gcStrategy.gc( Stage.beforeWarmupIteration );
-	}
-	
-	"Executed _after each_ warmup iteration. By default do nothing."
-	shared default void afterWarmupIteration( Options options ) {
-		options.gcStrategy.gc( Stage.afterWarmupIteration );
-	}
-	
-	"Executed _before all_ measurements started. By default runs garbage collector."
-	shared default void beforeMeasureRound( Options options ) {
-		options.gcStrategy.gc( Stage.beforeMeasureRound );
-	}
-	
-	"Executed _after all_ measurements have been completed. By default do nothing."
-	shared default void afterMeasureRound( Options options ) {
-		options.gcStrategy.gc( Stage.afterMeasureRound );
-	}
-	
-	"Executed _before each_ iteration. By default do nothing."
-	shared default void beforeMeasureIteration( Options options ) {
-		options.gcStrategy.gc( Stage.beforeMeasureIteration );
-	}
-	
-	"Executed _after each_ iteration. By default do nothing."
-	shared default void afterMeasureIteration( Options options ) {
-		options.gcStrategy.gc( Stage.afterMeasureIteration );
-	}
+
 	
 	"Invokes a one test iteration.  
 	 May return results in order to avoid dead-code elimination.  
@@ -80,21 +50,21 @@ shared abstract class BaseBench<in Parameter> (
 	}
 	
 	"Executes test using the following cycle:  
-	 * [[beforeWarmupRound]]  
+	 * [[stageEvent]] with [[Stage.beforeWarmupRound]]  
 	 * Cycle while [[Options.warmupCriterion]] is not met:  
-	 	* [[beforeWarmupIteration]]  
+	 	* [[stageEvent]] with [[Stage.beforeWarmupIteration]]  
 	 	* [[runIteration]]  
 	 	* consume result returned by [[runIteration]] using [[pushToBlackHole]]  
-	 	* [[afterWarmupIteration]]  
-	 * [[afterWarmupRound]]  
-	 * [[beforeMeasureRound]]  
+	 	* [[stageEvent]] with [[Stage.afterWarmupIteration]]  
+	 * [[stageEvent]] with [[Stage.afterWarmupRound]]  
+	 * [[stageEvent]] with [[Stage.beforeMeasureRound]]  
 	 * Cycle while [[Options.measureCriterion]] is not met:  
-	 	* [[beforeMeasureIteration]]  
+	 	* [[stageEvent]] with [[Stage.beforeMeasureIteration]]  
 	 	* [[runIteration]]  
 	 	* collect time statistic  
 	 	* consume result returned by [[runIteration]] using [[pushToBlackHole]]  
-	 	* [[afterMeasureIteration]]  
-	 * [[afterMeasureRound]]  
+	 	* [[stageEvent]] with [[Stage.afterMeasureIteration]]  
+	 * [[stageEvent]] with [[Stage.afterMeasureRound]]  
 	 
 	 > Note: runs when GC wroks are excluded from statistic calculations.  
 	 "
@@ -108,36 +78,18 @@ shared abstract class BaseBench<in Parameter> (
 		// factor to scale time delta from nanoseconds (measured in) to timeUnit
 		Float timeFactor = TimeUnit.nanoseconds.factorToSeconds / options.timeUnit.factorToSeconds;
 		
-		// warmup round - clock is also warmupped!
-		if ( exists warmupCriterion = options.warmupCriterion ) {
-			SimpleStat calculator = SimpleStat();
-			beforeWarmupRound( options );
-			while ( true ) {
-				beforeWarmupIteration( options );
-				clock.start();
-				Anything ret = runIteration( *parameter );
-				Float delta = clock.measure() * timeFactor;
-				if ( delta > 0.0 ) {
-					calculator.sample( 1.0 / delta );
-					if ( warmupCriterion.verify( delta, calculator.result, options.timeUnit ) ) {
-						afterWarmupIteration( options );
-						break;
-					}
-				}
-				afterWarmupIteration( options );
-				pushToBlackHole( ret );
-			}
-			afterWarmupRound( options );
-		}
-		
-		// measure iterations
+		variable CompletionCriterion? warmupCriterion = options.warmupCriterion;
 		SimpleStat calculator = SimpleStat();
-		beforeMeasureRound( options );
+		if ( warmupCriterion exists ) { stageEvent( options, Stage.beforeWarmupRound ); }
+		else { stageEvent( options, Stage.beforeMeasureRound ); }
+		
+		// bench iterations
 		while ( true ) {
 			// number of GC starts before test run
 			Integer numGCBefore = numberOfGCRuns();
 			// execute the test
-			beforeMeasureIteration( options );
+			if ( warmupCriterion exists ) { stageEvent( options, Stage.beforeWarmupIteration ); }
+			else { stageEvent( options, Stage.beforeMeasureIteration ); }
 			clock.start();
 			Anything ret = runIteration( *parameter );
 			Float delta = clock.measure() * timeFactor;
@@ -145,21 +97,36 @@ shared abstract class BaseBench<in Parameter> (
 			if ( delta > 0.0 ) {
 				// number of GC starts after test run
 				Integer numGCAfter = numberOfGCRuns();
-				if ( numGCAfter == numGCBefore ) {
+				if ( numGCAfter == numGCBefore || !options.skipGCRuns ) {
 					// add sample only if GC has not been started during the test
 					calculator.sample( 1.0 / delta );
-					if ( options.measureCriterion.verify( delta, calculator.result, options.timeUnit ) ) {
-						// round is completed
-						afterMeasureIteration( options );
-						break;
+					if ( exists criterion = warmupCriterion ) {
+						if ( criterion.verify( delta, calculator.result, options.timeUnit ) ) {
+							// warmup round is completed
+							warmupCriterion = null;
+							calculator.reset();
+							stageEvent( options, Stage.afterWarmupIteration );
+							stageEvent( options, Stage.afterWarmupRound );
+							stageEvent( options, Stage.beforeMeasureRound );
+							continue;
+						}
+					}
+					else {
+						if ( options.measureCriterion.verify( delta, calculator.result, options.timeUnit ) ) {
+							// measure round is completed
+							stageEvent( options, Stage.afterMeasureIteration );
+							stageEvent( options, Stage.afterMeasureRound );
+							break;
+						}
 					}
 				}
 			}
 			// completing iteration
-			afterMeasureIteration( options );
+			if ( warmupCriterion exists ) { stageEvent( options, Stage.afterWarmupIteration ); }
+			else { stageEvent( options, Stage.afterMeasureIteration ); }
 			pushToBlackHole( ret );
 		}
-		afterMeasureRound( options );
+		
 		return calculator.result;
 	}
 	

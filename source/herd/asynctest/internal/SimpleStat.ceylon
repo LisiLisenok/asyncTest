@@ -27,6 +27,16 @@ shared class SimpleStat() {
 	"The number of the values that have been statisticaly treated."
 	shared Integer size => sizeVal;
 	
+	
+	"Resets accumulated statistic to initial state."
+	shared void reset() {
+		minVal = infinity;
+		maxVal = -infinity;
+		meanVal = 0.0;
+		m2Val = 0.0;
+		sizeVal = 0;
+	}
+	
 	"Returns variance of the values that have been statisticaly treated.
 	 The variance is mean((x-mean(x))^2)."
 	shared Float variance => if ( sizeVal > 1 ) then m2Val / ( sizeVal - 1 ) else 0.0;
