@@ -25,7 +25,7 @@ shared class FactoryReturnsNothing( String factoryTitle )
 
 
 "Thrown when instantiated class has neither default constructor nor factory function."
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared class IncompatibleInstantiation (
 	"Declaration of the trying to instantiate class."
 	shared ClassDeclaration declaration 
@@ -38,7 +38,7 @@ shared class IncompatibleInstantiation (
 
 
 "Collects multiple abort reasons in a one exception."
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared class MultipleAbortException (
 	"The collected exceptions." shared Throwable[] abortReasons,
 	"A brief abort description" shared String description = "multiple abort reasons (``abortReasons.size``):"

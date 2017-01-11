@@ -32,7 +32,7 @@
 tagged( "Applying combinatorial" )
 see( `function combinatorial`, `function mixingCombinations`, `function permutationSource`, `function zippedSource`,
 	`function permuting`, `function zipping` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared annotation CombinatorialAnnotation mixing (
 	"Maximum number of failed variants to stop testing. Unlimited if <= 0."
 	Integer maxFailedVariants = -1
@@ -40,7 +40,7 @@ shared annotation CombinatorialAnnotation mixing (
 
 
 "Returns first permuted kind starting from index `from`."
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 Integer firstPermutedKind( ArgumentVariants[] variants, Integer from ) {
 	variable Integer retIndex = from;
 	while ( exists arg = variants[retIndex ++], arg.kind === zippedKind ) {}
@@ -57,7 +57,7 @@ Integer firstPermutedKind( ArgumentVariants[] variants, Integer from ) {
  "
 tagged( "Combinatorial generators" )
 see( `function mixing`, `function permutationSource`, `function zippedSource` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared TestVariantEnumerator mixingCombinations (
 	"Variants of the test function arguments." ArgumentVariants[] arguments
 ) {

@@ -20,7 +20,7 @@ shared class DefinesKey<Value>( "Key to check if map defines." Value key )
 
 "Verifies if matching map doesn't define the given key [[key]], see `Map.defines`."
 see( `class DoesNotContainItem`, `class ContainsItem`, `class DefinesKey` )
-tagged( "Streams", "Maps" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "Maps" ) since( "0.7.0" ) by( "Lis" )
 shared class DoesNotDefineKey<Value>( "Key to check if map doesn't define." Value key )
 		satisfies Matcher<Map<Value, Anything>>
 		given Value satisfies Object
@@ -48,7 +48,7 @@ shared class ContainsItem<Value>( "Item to check if map contains." Value item )
 
 "Verifies if matching map doesn't contain the given item [[item]]."
 see( `class ContainsItem`, `class DoesNotDefineKey`, `class DefinesKey` )
-tagged( "Streams", "Maps" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "Maps" ) since( "0.7.0" ) by( "Lis" )
 shared class DoesNotContainItem<Value>( "Item to check if map doesn't contain." Value item )
 		satisfies Matcher<Map<Anything, Value>>
 		given Value satisfies Object
@@ -81,7 +81,7 @@ shared class ItemByKey<Value> (
 "Verifies if the given [[map]] contains the given item [[item]] at the matching value as key.
  Items are compared using operator `==`."
 see( `class ItemByKey` )
-tagged( "Streams", "Maps" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "Maps" ) since( "0.7.0" ) by( "Lis" )
 shared class ItemAtKey<Value> (
 	"Map which is expected to contain [[item]] under matching key." Map<Object, Value> map,
 	"Item to check if [[map]] contains under matching key." Value item

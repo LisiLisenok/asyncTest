@@ -5,7 +5,7 @@ import herd.asynctest.internal {
 
 
 "Verifies if matching set is subset of the given [[superset]]."
-tagged( "Set" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Set" ) since( "0.7.0" ) by( "Lis" )
 shared class SubsetOf<Value> (
 	"Set which is expected to be superset of matching set." Set<Value> superset
 )
@@ -22,7 +22,7 @@ shared class SubsetOf<Value> (
 
 
 "Verifies if matching set is superset of the given [[subset]]."
-tagged( "Set" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Set" ) since( "0.7.0" ) by( "Lis" )
 shared class SupersetOf<Value> (
 	"Set which is expected to be subset of matching set." Set<Value> subset
 )
@@ -39,7 +39,7 @@ shared class SupersetOf<Value> (
 
 
 "Verifies if the given [[subset]] is subset of matching set."
-tagged( "Set" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Set" ) since( "0.7.0" ) by( "Lis" )
 shared class Subset<Value> (
 	"Set which is expected to be subset of matching set." Set<Value> subset
 )
@@ -56,7 +56,7 @@ shared class Subset<Value> (
 
 
 "Verifies if the given [[superset]] is superset of matching set."
-tagged( "Set" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Set" ) since( "0.7.0" ) by( "Lis" )
 shared class Superset<Value> (
 	"Set which is expected to be superset of matching set." Set<Value> superset
 )

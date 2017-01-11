@@ -22,7 +22,7 @@
 tagged( "Applying combinatorial" )
 see( `function combinatorial`, `function zippingCombinations`, `function zippedSource`,
 	`function permuting`, `function mixing` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared annotation CombinatorialAnnotation zipping (
 	"Maximum number of failed variants to stop testing. Unlimited if <= 0."
 	Integer maxFailedVariants = -1
@@ -30,7 +30,7 @@ shared annotation CombinatorialAnnotation zipping (
 
 
 "Indicates that iterator finished."
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 abstract class FinishedIndicator() of finishedIndicator {}
 object finishedIndicator extends FinishedIndicator() {}
 
@@ -49,7 +49,7 @@ object finishedIndicator extends FinishedIndicator() {}
  "
 tagged( "Combinatorial generators" )
 see( `function zipping`, `function zippedSource` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared TestVariantEnumerator zippingCombinations (
 	"Variants of the test function arguments." ArgumentVariants[] arguments
 ) {

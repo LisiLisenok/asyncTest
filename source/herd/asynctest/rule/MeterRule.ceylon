@@ -4,6 +4,12 @@ import herd.asynctest {
 import java.util.concurrent.atomic {
 	AtomicLong
 }
+import herd.asynctest.benchmark {
+	StatisticSummary
+}
+import herd.asynctest.internal {
+	StatisticCalculator
+}
 
 
 "Lock-free and thread-safely collects statistic data on an execution time and on a rate (per second)
@@ -28,7 +34,7 @@ import java.util.concurrent.atomic {
  
  "
 see( `class StatisticSummary` )
-by( "Lis" ) since( "0.6.0" )
+since( "0.6.0" ) by( "Lis" )
 tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 {
 	

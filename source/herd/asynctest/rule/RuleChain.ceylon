@@ -57,7 +57,7 @@ shared class TestRuleChain (
 "Applies test statements in the given order.  
  
  > If submited rule is marked with [[testRule]] annotation it will be executed twice."
-tagged( "TestStatement" ) since( "0.6.1" ) by( "Lis" )
+tagged( "TestStatement" ) since( "0.7.0" ) by( "Lis" )
 see( `class SuiteRuleChain`, `class TestRuleChain` )
 shared class TestStatementChain (
 	"A list of the statements to be applied in order they are provided." TestStatement* statements

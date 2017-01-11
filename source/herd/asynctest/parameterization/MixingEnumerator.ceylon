@@ -3,7 +3,7 @@
 
 
 "Enumerates mixed variants."
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 class MixingEnumerator( ArgumentVariants[] arguments )
 		satisfies TestVariantEnumerator
 {

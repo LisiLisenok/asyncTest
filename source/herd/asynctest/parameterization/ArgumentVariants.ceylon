@@ -6,7 +6,7 @@ import ceylon.language.meta.declaration {
 
 "Specifies variants for a test function argument."
 tagged( "Combinatorial generators" )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared final class ArgumentVariants (
 	"Test function declaration."
 	shared FunctionDeclaration testFunction,

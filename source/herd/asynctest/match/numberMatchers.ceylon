@@ -19,7 +19,7 @@ shared class IsNegative<Value>()
 
 "Verifies if matching value is _not_ negative, i.e. is >= 0."
 see( `class IsPositive`, `class IsNotPositive`, `class IsNegative`, `class IsZero`, `class IsNotZero` )
-tagged( "Numbers" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Numbers" ) since( "0.7.0" ) by( "Lis" )
 shared class IsNotNegative<Value>()
 		satisfies Matcher<Value>
 		given Value satisfies Number<Value>
@@ -47,7 +47,7 @@ shared class IsPositive<Value>()
 
 "Verifies if matching value is not positive, i.e. is <= 0."
 see( `class IsNegative`, `class IsPositive`, `class IsNotNegative`, `class IsZero`, `class IsNotZero` )
-tagged( "Numbers" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Numbers" ) since( "0.7.0" ) by( "Lis" )
 shared class IsNotPositive<Value>()
 		satisfies Matcher<Value>
 		given Value satisfies Number<Value>
@@ -140,7 +140,7 @@ shared class IsDefined()
 
 
 "Verifies if matching integer is even, i.e. if exists number that i=2*k."
-tagged( "Numbers" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Numbers" ) since( "0.7.0" ) by( "Lis" )
 shared class IsEven() satisfies Matcher<Integer>
 {
 	shared actual MatchResult match( Integer val )
@@ -151,7 +151,7 @@ shared class IsEven() satisfies Matcher<Integer>
 
 
 "Verifies if matching integer is odd, i.e. if exists number that i=2*k+1."
-tagged( "Numbers" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Numbers" ) since( "0.7.0" ) by( "Lis" )
 shared class IsOdd() satisfies Matcher<Integer>
 {
 	shared actual MatchResult match( Integer val )

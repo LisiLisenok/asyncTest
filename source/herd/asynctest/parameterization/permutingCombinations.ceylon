@@ -24,7 +24,7 @@
 tagged( "Applying combinatorial" )
 see( `function combinatorial`, `function permutingCombinations`, `function permutationSource`,
 	`function zipping`, `function mixing` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared annotation CombinatorialAnnotation permuting (
 	"Maximum number of failed variants to stop testing. Unlimited if <= 0."
 	Integer maxFailedVariants = -1
@@ -32,7 +32,7 @@ shared annotation CombinatorialAnnotation permuting (
 
 
 "Extracts argument by asserting existing."
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 Anything getArgument( ArgumentVariants? args, Integer? index ) {
 	assert ( exists args );
 	assert ( exists index );
@@ -49,7 +49,7 @@ Anything getArgument( ArgumentVariants? args, Integer? index ) {
  See example in [[permuting]]."
 tagged( "Combinatorial generators" )
 see( `function permuting`, `function permutationSource` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared TestVariantEnumerator permutingCombinations (
 	"Variants of the test function arguments." ArgumentVariants[] arguments
 ) {

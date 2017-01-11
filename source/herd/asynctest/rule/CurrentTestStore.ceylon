@@ -24,7 +24,7 @@ import java.util.concurrent.atomic {
  > Owner here is the test for which initialization has been performed.  
  > The stored value is reseted by extracted from source value each time the new test is started.  
  "
-tagged( "TestRule" ) since( "0.6.1" ) by( "Lis" )
+tagged( "TestRule" ) since( "0.7.0" ) by( "Lis" )
 shared class CurrentTestStore<Element>( "Source of the stored value." Element | Element() source ) satisfies TestRule
 {
 	

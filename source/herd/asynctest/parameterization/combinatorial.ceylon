@@ -21,7 +21,7 @@ import herd.asynctest.internal {
 tagged( "Applying combinatorial" )
 see( `function combinatorial`, `class ParameterizedAnnotation`, `class DataSourceAnnotation`,
 	`function permuting`, `function zipping`, `function mixing` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared final annotation class CombinatorialAnnotation (
 	"Test variant generator function which has to return [[TestVariantEnumerator]] and takes `ArgumentVariants[]`
 	 which is generated based on [[DataSourceAnnotation]] at each test function argument.  
@@ -84,7 +84,7 @@ shared final annotation class CombinatorialAnnotation (
  See details in [[CombinatorialAnnotation]]."
 tagged( "Applying combinatorial" )
 see( `function permuting`, `function zipping`, `function mixing` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared annotation CombinatorialAnnotation combinatorial (
 	"Combinator function which has to return [[TestVariantEnumerator]] and takes `ArgumentVariants[]`
 	 which is generated based on [[DataSourceAnnotation]] at each test function argument.  

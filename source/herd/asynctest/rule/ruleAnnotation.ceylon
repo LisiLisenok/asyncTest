@@ -31,7 +31,7 @@ shared annotation TestRuleAnnotation testRule() => TestRuleAnnotation();
  > If statement from the given list is marked with [[testRule]] annotation it will be executed twice!
  "
 see( `interface TestStatement` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared final annotation class ApplyStatementAnnotation (
 	"Statement declarations. Each item has to satisfy [[TestStatement]] interface."
 	shared ValueDeclaration* statements
@@ -47,7 +47,7 @@ shared final annotation class ApplyStatementAnnotation (
  > If statement from the given list is marked with [[testRule]] annotation it will be executed twice!
  "
 see( `interface TestRule`, `interface TestStatement` )
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared annotation ApplyStatementAnnotation applyStatement (
 	"Statement declarations. Each item has to satisfy [[TestStatement]] interface."
 	ValueDeclaration* statements

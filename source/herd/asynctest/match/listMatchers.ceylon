@@ -94,7 +94,7 @@ shared class Included<Value> (
 "Verifies if matching `List` value is included in the given [[list]] at the given [[index]] of the [[list]].  
  `SearchableList.includesAt` is used in order to perform the verification.  
  "
-tagged( "Streams", "List" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "List" ) since( "0.7.0" ) by( "Lis" )
 shared class IncludedAt<Value> (
 	"The index at which the matching value might occur." Integer index,
 	"List which is expected to include matching value." SearchableList<Value> list
@@ -117,7 +117,7 @@ shared class IncludedAt<Value> (
 "Verifies if matching value occurs in the given [[list]] at any index within [[from]]:[[length]] segment.  
  `SearchableList.occurs` is used in order to perform the verification.  
  "
-tagged( "Streams", "List" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "List" ) since( "0.7.0" ) by( "Lis" )
 shared class Occured<Value> (
 	"List which is expected to include matching value." SearchableList<Value> list,
 	"The smallet index to consider." Integer from = 0,
@@ -141,7 +141,7 @@ shared class Occured<Value> (
 "Verifies if matching value occurs in the given [[list]] at the given [[index]].  
  `SearchableList.occursAt` is used in order to perform the verification.  
  "
-tagged( "Streams", "List" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "List" ) since( "0.7.0" ) by( "Lis" )
 shared class OccuredAt<Value> (
 	"The index at which the matching value might occur." Integer index,
 	"List which is expected to include matching value at the given [[index]]." SearchableList<Value> list
@@ -184,7 +184,7 @@ shared class Includes<Value> (
 "Verifies if matching `SearchableList` value includes the given [[list]] at the given [[index]].  
  `SearchableList.includesAt` is used in order to perform the verification.
  "
-tagged( "Streams", "List" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "List" ) since( "0.7.0" ) by( "Lis" )
 shared class IncludesAt<Value> (
 	"The index at which [[list]] might occur in matching value." Integer index,
 	"List which is expected to be included into matching one at the given [[index]]." List<Value> list
@@ -207,7 +207,7 @@ shared class IncludesAt<Value> (
 "Verifies if the given [[element]] occurs in matching `SearchableList` value within `from`:`length` segment.  
  `SearchableList.occurs` is used in order to perform the verification.
  "
-tagged( "Streams", "List" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "List" ) since( "0.7.0" ) by( "Lis" )
 shared class Occurs<Value> (
 	"Value which is expected to occur in the matching one at within `from`:`length` segment." Value element,
 	"The smallet index to consider." Integer from = 0,
@@ -232,7 +232,7 @@ shared class Occurs<Value> (
 "Verifies if the given [[element]] occurs in matching `SearchableList` value at the given [[index]].  
  `SearchableList.occursAt` is used in order to perform the verification.
  "
-tagged( "Streams", "List" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams", "List" ) since( "0.7.0" ) by( "Lis" )
 shared class OccursAt<Value> (
 	"The index at which the given [[element]] might occur in the matching list." Integer index,
 	"Value which is expected to occur in the matching one at within `from`:`length` segment." Value element

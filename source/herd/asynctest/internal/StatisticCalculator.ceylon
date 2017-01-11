@@ -1,38 +1,16 @@
-import java.lang {
-	Math
-}
 import java.util.concurrent.atomic {
 	AtomicReference
 }
-
-
-"Statistic summary for a stream of variate values."
-see( `class StatisticRule`, `class MeterRule` )
-by( "Lis" ) since( "0.6.0" )
-shared class StatisticSummary (
-	"Minimum of the values that have been statisticaly treated."
-	shared Float min,
-	"Maximum of the values that have been statisticaly treated."
-	shared Float max,
-	"Mean value."
-	shared Float mean,
-	"Returns standard deviation of the values that have been statisticaly treated.
-	 Standard deviation is `variance^0.5`."
-	shared Float standardDeviation,		
-	"The number of the values that have been statisticaly treated."
-	shared Integer size
-) {
-	"Variance of the values that have been statisticaly treated.
-	 The variance is mean((x-mean(x))^2)."
-	shared Float variance => standardDeviation * standardDeviation;
-	
-	string => "mean=``Float.format(mean, 0, 3)``, standard deviation=``Float.format(standardDeviation, 0, 3)``, " +
-			  "max=``Float.format(max, 0, 3)``, min=``Float.format(min, 0, 3)``, total samples=``size``";
+import herd.asynctest.benchmark {
+	StatisticSummary
+}
+import java.lang {
+	Math
 }
 
 
 "Current values of statistic calculations."
-by( "Lis" ) since( "0.6.1" )
+since( "0.7.0" ) by( "Lis" )
 class StatisticStream {
 	
 	"Minimum of the values that have been statisticaly treated."
@@ -54,7 +32,7 @@ class StatisticStream {
 		m2 = 0.0;
 		size = 0;
 	}
-
+	
 	"New stream by the given values."
 	shared new withValues( Float* values ) {
 		variable Float min = infinity;
@@ -73,7 +51,7 @@ class StatisticStream {
 			m2 += delta * ( item - mean );
 		}
 		if ( size < 2 ) { m2 = 0.0; }
-
+		
 		this.min = min;
 		this.max = max;
 		this.mean = mean;
@@ -99,7 +77,7 @@ class StatisticStream {
 		this.m2 = m2;
 		this.size = size;
 	}
-
+	
 	"New stream with precalculated data."
 	shared new withData( Float min, Float max, Float mean, Float m2, Integer size ) {
 		this.min = min;
@@ -135,9 +113,8 @@ class StatisticStream {
 
 
 "Calculates statistic data for stream of variate values."
-see( `class StatisticRule`, `class MeterRule` )
-by( "Lis" ) since( "0.6.0" )
-class StatisticCalculator() {
+since( "0.6.0" ) by( "Lis" )
+shared class StatisticCalculator() {
 	
 	AtomicReference<StatisticStream> stat = AtomicReference<StatisticStream>( StatisticStream.empty() ); 
 	

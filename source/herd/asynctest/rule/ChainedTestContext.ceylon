@@ -14,7 +14,7 @@ import herd.asynctest.internal {
 
 
 "Provides in chain calls of the given test functions."
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 class ChainedTestContext (
 	"Context to delegate reports." AsyncTestContext context,
 	"The functions to be executed." Iterator<Anything(AsyncTestContext)> functions ) {

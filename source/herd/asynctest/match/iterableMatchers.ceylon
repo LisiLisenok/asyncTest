@@ -86,7 +86,7 @@ shared class DoesNotContain<Value>( "Item to check if matching stream doesn't co
 
 
 "Verifies if matching stream of `Sequence` does _not_ contain duplicate elements."
-tagged( "Streams" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Streams" ) since( "0.7.0" ) by( "Lis" )
 shared class ContainsNoDuplicates<Value>()
 		satisfies Matcher<[Value*]>
 {

@@ -22,7 +22,7 @@ import ceylon.test.annotation {
 
 
 "Verifies if declaration meets templates"
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared object declarationVerifier {
 	
 	"Memoization of [[TestRuleAnnotation]]."

@@ -42,7 +42,7 @@ import java.util.concurrent.atomic {
  			}
  		}
  "
-tagged( "TestRule" ) since( "0.6.1" ) by( "Lis" )
+tagged( "TestRule" ) since( "0.7.0" ) by( "Lis" )
 shared class SignalRule() satisfies TestRule {
 	
 	class Box() {

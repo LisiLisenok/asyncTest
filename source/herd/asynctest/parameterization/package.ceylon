@@ -118,6 +118,28 @@
  
  > Custom _variant generator_ has to take a list of [[ArgumentVariants]] and has to return [[TestVariantEnumerator]].  
  
+ #### Example
+ 
+ 		Integer[] firstArgument => [1,2];
+ 		Integer[] secondArgument => [10,20];
+ 		String[] signArgument => [\"+\",\"-\"];
+  
+ 		shared test mixing void testMixing (
+ 			AsyncTestContext context,
+ 			zippedSource(\`value firstArgument\`) Integer arg1,
+ 			permutationSource(\`value signArgument\`) String arg2,
+ 			zippedSource(\`value secondArgument\`) Integer arg3
+ 		) {
+ 			context.succeed( \"\`\`arg1\`\`\`\`arg2\`\`\`\`arg3\`\`\" );
+ 			context.complete();
+ 		}
+ 
+ In the above example `testMixing` is called 4 times with following arguments:
+ 1. 1, +, 10
+ 2. 1, -, 10
+ 3. 2, +, 20
+ 4. 2, -, 20
+
 "
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 shared package herd.asynctest.parameterization;

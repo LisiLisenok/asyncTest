@@ -1,5 +1,6 @@
 
 "Contains some examples of `asyncTest` usage:
+ * [[package herd.examples.asynctest.benchmark]] - examples of benchmark test    
  * [[package herd.examples.asynctest.fibonacci]] - test of calculation of Fibonacci numbers in separated thread  
  * [[package herd.examples.asynctest.mapperformance]] - comparative performance test of Ceylon - Java HashMap and TreeMap  
  * [[package herd.examples.asynctest.matchers]] - several examples of matchers from `package herd.asynctest.match`  
@@ -31,7 +32,7 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.examples.asynctest "0.6.1" {
+module herd.examples.asynctest "0.7.0" {
 	shared import ceylon.collection "1.3.1";
 	shared import ceylon.http.server "1.3.1";
 	shared import ceylon.http.client "1.3.1";
@@ -41,6 +42,6 @@ module herd.examples.asynctest "0.6.1" {
 	shared import ceylon.file "1.3.1";
 	shared import ceylon.promise "1.3.1";
 	shared import ceylon.test "1.3.1";
-	shared import herd.asynctest "0.6.1";
+	shared import herd.asynctest "0.7.0";
 	shared import java.base "8";
 }

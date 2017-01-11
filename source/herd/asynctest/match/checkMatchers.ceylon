@@ -24,7 +24,7 @@ shared class EqualTo<Value> (
 
 
 "Verifies if matching value is _not_ equal to `merit` using operator `!=`."
-tagged( "Checkers", "Comparators" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Checkers", "Comparators" ) since( "0.7.0" ) by( "Lis" )
 shared class NotEqualTo<Value> (
 	"Value which is expected to be not equal to matching one." Value merit
 )
@@ -60,7 +60,7 @@ shared class Identical<Value> (
 
 
 "Verifies if matching value is _not_ identical to `merit` using operator `===`."
-tagged( "Checkers" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Checkers" ) since( "0.7.0" ) by( "Lis" )
 shared class NotIdentical<Value> (
 	"Value which is expected to be _not_ identical to matching one." Value merit
 )
@@ -142,7 +142,7 @@ shared class EqualWith<Value> (
 
 
 "Verifies if matching value is _not_ equal to [[merit]] using given [[comparator]]."
-tagged( "Checkers" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Checkers" ) since( "0.7.0" ) by( "Lis" )
 shared class NotEqualWith<Value> (
 	"Value which is expected to be _not_ equal to matching one with the given [[comparator]]."
 	Value merit,
@@ -184,7 +184,7 @@ shared class IsType<Check>()
 
 
 "Verifies if matching value is _not_ of `Check` type."
-tagged( "Checkers" ) since( "0.6.1" ) by( "Lis" )
+tagged( "Checkers" ) since( "0.7.0" ) by( "Lis" )
 shared class IsNotType<Check>()
 		satisfies Matcher<Anything>
 {

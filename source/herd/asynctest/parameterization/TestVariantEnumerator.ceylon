@@ -49,7 +49,7 @@ class TestVariantIterator (
 
 
 "Delegates enumeration to another enumerator but completes when number of failures reach limit."
-since( "0.6.1" ) by( "Lis" )
+since( "0.7.0" ) by( "Lis" )
 class TestVariantMaxFailureEnumerator (
 	"Test variants iterator - function which returns next." TestVariantEnumerator other,
 	"Limit on failures. When it is reached `next` returns `finished`." Integer maxFailedVariants

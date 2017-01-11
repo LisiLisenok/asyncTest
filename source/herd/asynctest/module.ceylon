@@ -44,8 +44,9 @@
  8. [Matchers.](#matchers)  
  9. [Time out.](#timeout_section)
  10. [Retry test.](#retry_section)    
- 11. [Conditional execution.](#conditions)  
- 12. [Reporting test results using charts.](#charts)  
+ 11. [Conditional execution.](#conditions)
+ 12. [Benchmarking.](#benchmarking)  
+ 13. [Reporting test results using charts.](#charts)  
 
  
  -------------------------------------------
@@ -328,17 +329,23 @@
  All conditions at every level are evaluated before test execution started
  and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.  
  
- For an example, see, `ceylon.test::ignore` annotation.
+ For an example, see `ceylon.test::ignore` annotation.
  
  > Conditions are evaluation up to the first unsatisfied condition.
    So, there is no guarantee for a condition to be evaluated.  
   
  
  -------------------------------------------
+ ### <a name=\"benchmarking\"></a> Benchmarking  
+ 
+ [[package herd.asynctest.benchmark]] package contains library to perform benchmark testing.  
+ 
+ 
+ -------------------------------------------
  ### <a name=\"charts\"></a> Reporting test results using charts  
  
  Chart is simply a set of plots, where each plot is a sequence of 2D points.  
- Test results can be represented and reported with charts using stuff provided by [[package herd.asynctest.chart]] package.  
+ Test results can be represented and reported with charts using [[package herd.asynctest.chart]] package.  
  
  
  --------------------------------------------
@@ -367,9 +374,10 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.asynctest "0.6.1" {
+module herd.asynctest "0.7.0" {
 	import java.base "8";
 	shared import ceylon.test "1.3.1";
 	import ceylon.collection "1.3.1";
 	shared import ceylon.file "1.3.1";
+	import java.management "8";
 }
