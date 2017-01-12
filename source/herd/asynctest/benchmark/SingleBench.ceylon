@@ -7,7 +7,7 @@ shared final class SingleBench<Parameter> (
 	"Bench title. Generally unique."
 	String title,
 	"Function to be tested."
-	shared actual Anything(*Parameter) runIteration
+	shared actual Anything(*Parameter) bench
 )
 	extends BaseBench<Parameter>( title )
 	given Parameter satisfies Anything[]

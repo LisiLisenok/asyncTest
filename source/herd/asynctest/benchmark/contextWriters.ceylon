@@ -31,7 +31,8 @@ shared void writeAbsolute<Parameter>( AsyncTestContext context, Result<Parameter
 					"``bench.title`` with `" + paramStr
 					+ "`: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
-					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%"
+					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
+					+ "runs = ``stat.size``"
 				);
 			}
 		}
@@ -40,7 +41,8 @@ shared void writeAbsolute<Parameter>( AsyncTestContext context, Result<Parameter
 				context.succeed (
 					"``bench.title``: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
-					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%"
+					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
+					+ "runs = ``stat.size``"
 				);
 			}
 		}
@@ -66,7 +68,8 @@ shared void writeRelativeToSlowest<Parameter>( AsyncTestContext context, Result<
 					+ "`: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
 					+ "``stat.relativeMean``% to slowest; "
-					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%"
+					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
+					+ "runs = ``stat.size``"
 				);
 			}
 		}
@@ -76,7 +79,8 @@ shared void writeRelativeToSlowest<Parameter>( AsyncTestContext context, Result<
 					"``bench.title``: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
 					+ "``stat.relativeMean``% to slowest; "
-					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%"
+					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
+					+ "runs = ``stat.size``"
 				);
 			}
 		}
@@ -102,7 +106,8 @@ shared void writeRelativeToFastest<Parameter>( AsyncTestContext context, Result<
 					+ "`: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
 					+ "``stat.relativeMean``% to fastest; "
-					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%"
+					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
+					+ "runs = ``stat.size``"
 				);
 			}
 		}
@@ -112,7 +117,8 @@ shared void writeRelativeToFastest<Parameter>( AsyncTestContext context, Result<
 					"``bench.title``: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
 					+ "``stat.relativeMean``% to fastest; "
-					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%"
+					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
+					+ "runs = ``stat.size``"
 				);
 			}
 		}

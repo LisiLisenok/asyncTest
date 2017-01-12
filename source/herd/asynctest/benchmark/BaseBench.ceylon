@@ -8,7 +8,7 @@ import herd.asynctest.internal {
 
 "Intended to implement details of bench execution in a signle thread.  
  
- Just [[runIteration]] has to be implemented which is indended to invoke test function once.    
+ Just [[bench]] has to be implemented which is indended to invoke test function once.    
  See [[execute]] for the run cycle.  
  "
 tagged( "Bench" )
@@ -35,10 +35,10 @@ shared abstract class BaseBench<in Parameter> (
 	}
 
 	
-	"Invokes a one test iteration.  
+	"Bench test function.  
 	 May return results in order to avoid dead-code elimination.  
 	 Returned result is consumed using [[pushToBlackHole]]."
-	shared formal Anything(*Parameter) runIteration;
+	shared formal Anything(*Parameter) bench;
 	
 
 	"Returns number of GC runs up to now."
@@ -53,16 +53,16 @@ shared abstract class BaseBench<in Parameter> (
 	 * [[stageEvent]] with [[Stage.beforeWarmupRound]]  
 	 * Cycle while [[Options.warmupCriterion]] is not met:  
 	 	* [[stageEvent]] with [[Stage.beforeWarmupIteration]]  
-	 	* [[runIteration]]  
-	 	* consume result returned by [[runIteration]] using [[pushToBlackHole]]  
+	 	* [[bench]]  
+	 	* consume result returned by [[bench]] using [[pushToBlackHole]]  
 	 	* [[stageEvent]] with [[Stage.afterWarmupIteration]]  
 	 * [[stageEvent]] with [[Stage.afterWarmupRound]]  
 	 * [[stageEvent]] with [[Stage.beforeMeasureRound]]  
 	 * Cycle while [[Options.measureCriterion]] is not met:  
 	 	* [[stageEvent]] with [[Stage.beforeMeasureIteration]]  
-	 	* [[runIteration]]  
+	 	* [[bench]]  
 	 	* collect time statistic  
-	 	* consume result returned by [[runIteration]] using [[pushToBlackHole]]  
+	 	* consume result returned by [[bench]] using [[pushToBlackHole]]  
 	 	* [[stageEvent]] with [[Stage.afterMeasureIteration]]  
 	 * [[stageEvent]] with [[Stage.afterMeasureRound]]  
 	 
@@ -87,18 +87,19 @@ shared abstract class BaseBench<in Parameter> (
 		while ( true ) {
 			// number of GC starts before test run
 			Integer numGCBefore = numberOfGCRuns();
-			// execute the test
+			// before iteration event
 			if ( warmupCriterion exists ) { stageEvent( options, Stage.beforeWarmupIteration ); }
 			else { stageEvent( options, Stage.beforeMeasureIteration ); }
+			// execute the test function
 			clock.start();
-			Anything ret = runIteration( *parameter );
+			Anything ret = bench( *parameter );
 			Float delta = clock.measure() * timeFactor;
 			// calculate execution statistic
 			if ( delta > 0.0 ) {
 				// number of GC starts after test run
 				Integer numGCAfter = numberOfGCRuns();
 				if ( numGCAfter == numGCBefore || !options.skipGCRuns ) {
-					// add sample only if GC has not been started during the test
+					// add sample only if GC has not been started during the test or GC runs have not be skipped
 					calculator.sample( 1.0 / delta );
 					if ( exists criterion = warmupCriterion ) {
 						if ( criterion.verify( delta, calculator.result, options.timeUnit ) ) {

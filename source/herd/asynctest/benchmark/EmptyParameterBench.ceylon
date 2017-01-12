@@ -8,7 +8,7 @@ shared final class EmptyParameterBench (
 	"Bench title. Generally unique."
 	String title,
 	"Function to be tested."
-	shared actual Anything() runIteration
+	shared actual Anything() bench
 )
 		extends BaseBench<[]>( title )
 {
