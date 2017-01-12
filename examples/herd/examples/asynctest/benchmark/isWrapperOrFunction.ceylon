@@ -12,9 +12,7 @@ import herd.asynctest.benchmark {
 	TimeUnit,
 	Options,
 	Clock,
-	TotalIterations,
-	LocalIterations,
-	LocalError
+	TotalIterations
 }
 
 
@@ -69,7 +67,7 @@ shared test async void isWrapperOrFunctionCPU(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options( LocalIterations( 10000 ).or( LocalError( 0.005 ) ), LocalIterations( 1000 ), TimeUnit.milliseconds, Clock.cpu ),
+			Options(TotalIterations(10000), TotalIterations(2000), TimeUnit.milliseconds, Clock.cpu),
 			[
 				EmptyParameterBench (
 					"narrowed single argument wrapper",
@@ -113,7 +111,7 @@ shared test async void isWrapperOrFunctionWall(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options( TotalIterations( 10000 ), TotalIterations( 1000 ), TimeUnit.milliseconds, Clock.wall ),
+			Options(TotalIterations(10000), TotalIterations(2000), TimeUnit.milliseconds, Clock.wall),
 			[
 			EmptyParameterBench (
 				"narrowed single argument wrapper",

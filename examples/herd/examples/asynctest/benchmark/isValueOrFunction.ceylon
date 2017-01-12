@@ -51,7 +51,7 @@ shared test async void isValueOrFunction(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options( TotalIterations( 10000 ), TotalIterations( 100 ) ),
+			Options(TotalIterations(10000), TotalIterations(2000)),
 			[
 				SingleBench("value", isValue),
 				SingleBench("function", isFunction)
