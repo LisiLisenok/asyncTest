@@ -9,14 +9,54 @@ import java.util.concurrent {
 }
 
 
-"Continues benchmark iterations while overall time accumulated by benchmark iterations doesn't exceed
- [[totalTime]]."
+"Continues benchmark iterations while total execution time doesn't exceed [[timeLimit]].  
+ Execution time is overall time spent on test execution.
+ I.e. it summarizes time spent on benchmark function execution as well as on internal calculations.  
+ 
+ The alternative way is take into account time spent on benchmark function execution only is realized
+ in [[LocalBenchTime]] and [[TotalBenchTime]].  
+ "
 tagged( "Criteria" )
-see( `class Options`, `class LocalBenchTime` )
+see( `class Options`, `class LocalBenchTime`, `class TotalBenchTime` )
+throws( `class AssertionError`, "Maximum permited execution is <= 0." )
+since( "0.7.0" ) by( "Lis" )
+shared class TotalExecutionTime (
+	"Maximum permited execution time in [[timeUnit]] units." Integer timeLimit,
+	"Unit the [[timeLimit]] is measured in.  Default is milliseconds." TimeUnit timeUnit = TimeUnit.milliseconds	
+)
+		satisfies CompletionCriterion
+{
+	"Maximum permited execution has to be > 0."
+	assert( timeLimit > 0 );
+	Integer totalNanoseconds = ( timeLimit * timeUnit.factorToSeconds / TimeUnit.nanoseconds.factorToSeconds + 0.5 ).integer;
+	
+	variable Integer startTime = 0;
+	
+	
+	shared actual void reset() {
+		startTime = system.nanoseconds;
+	}
+	
+	shared actual Boolean verify( Float delta, StatisticSummary result, TimeUnit deltaTimeUnit ) {
+		return system.nanoseconds - startTime > totalNanoseconds;
+	}
+	
+}
+
+
+"Continues benchmark iterations while overall time accumulated by benchmark iterations doesn't exceed
+ [[totalTime]].  
+ This criterion summarizes only time spent on benchmark function execution for all execution threads jointly.  
+ 
+ If benchmark function execution time is to be summarized for each thread separately [[LocalBenchTime]] is to be used.  
+ If overall execution time has to be taken into account [[TotalExecutionTime]] is to be used.
+ "
+tagged( "Criteria" )
+see( `class Options`, `class LocalBenchTime`, `class TotalExecutionTime` )
 throws( `class AssertionError`, "Total benchmark time is <= 0." )
 since( "0.7.0" ) by( "Lis" )
 shared class TotalBenchTime (
-	"Maximum time (in [[timeUnit]]) to be accumulated by benchmark iterations." Integer totalTime,
+	"Maximum time (in [[timeUnit]] units) to be accumulated by benchmark iterations." Integer totalTime,
 	"Unit the [[totalTime]] is measured in.  Default is milliseconds." TimeUnit timeUnit = TimeUnit.milliseconds	
 )
 		satisfies CompletionCriterion
@@ -41,13 +81,18 @@ shared class TotalBenchTime (
 
 
 "Continues benchmark iterations while local (relative to thread) time accumulated by benchmark iterations doesn't exceed
- [[localTime]]."
+ [[localTime]].  
+ This criterion summarizes time spent on benchmark function execution for each thread separately.  
+ 
+ If benchmark function execution time is to be summarized for all threads [[TotalBenchTime]] is to be used.  
+ If overall execution time has to be taken into account [[TotalExecutionTime]] is to be used.  
+ "
 tagged( "Criteria" )
-see( `class Options`, `class TotalBenchTime` )
+see( `class Options`, `class TotalBenchTime`, `class TotalExecutionTime` )
 throws( `class AssertionError`, "Local benchmark time is <= 0." )
 since( "0.7.0" ) by( "Lis" )
 shared class LocalBenchTime (
-	"Maximum time (in [[timeUnit]]) to be accumulated by local (relative to thread) iterations." Integer localTime,
+	"Maximum time (in [[timeUnit]] units) to be accumulated by local (relative to thread) iterations." Integer localTime,
 	"Unit the [[localTime]] is measured in.  Default is milliseconds." TimeUnit timeUnit = TimeUnit.milliseconds
 )
 		satisfies CompletionCriterion
