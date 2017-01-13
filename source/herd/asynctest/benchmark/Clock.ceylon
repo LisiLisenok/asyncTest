@@ -1,6 +1,3 @@
-import java.lang.management {
-	ManagementFactory
-}
 import java.lang {
 	ThreadLocal
 }
@@ -9,24 +6,15 @@ import java.util.\ifunction {
 }
 
 
-"Measures the time interval with one of the three strategies:  
- 
- 1. [[wall]] time, i.e. the time provided by system wall clocks.  
- 2. [[cpu]] thread time which is time the thread occupies a CPU.  
- 3. Thread [[user]] time which is time the thread occupies a CPU in user mode, rather than in system mode.  
- 
- > Note: `cpu` and `user` times are evaluated approximately.  
- 
- 
+"Measures the time interval.  
+   
  Usage:  
- 1. Call [[initialize]] before measure cycle.    
- 2. Call [[start]] before each measure.  
- 3. Call [[measure]] to measure time interval from the last [[start]] call.  
+ 1. Call [[start]] before each measure.  
+ 2. Call [[measure]] to measure time interval from the last [[start]] call.  
  
  Example:  
  
- 		Clock clock = Clock.wall;
- 		clock.initialize();
+ 		Clock clock = WallClock();
  		for ( item in 0 : totalRuns ) {
  			clock.start();
  			doOperation();
@@ -37,69 +25,85 @@ import java.util.\ifunction {
  So, if [[measure]] is called from _thread A_, then the interval is measured from the last call of [[start]]
  done on the same _thread A_.  
  "
-tagged( "Options" )
+tagged( "Options", "Clock" )
 see( `class Options` )
 since( "0.7.0" ) by( "Lis" )
-shared class Clock
-		of cpu | user | wall
+shared interface Clock
 {
 	
-	"Instantiates new local to the thread clock."
-	ThreadLocalClock() instantiate;
+	"Units the clock measures time interval in."
+	shared formal TimeUnit units;
 	
-	shared actual String string;
-		
+	"Starts time interval measure from the current time and locally for the current thread."
+	shared formal void start();
 	
-	"Indicates that `ThreadMXBean.currentThreadCpuTime` has to be used for time measurement.  
-	 If CPU time is not supported uses `system.nanoseconds`."
-	shared new cpu {
-		// TODO: log clock selection?
-		if ( ManagementFactory.threadMXBean.threadCpuTimeSupported ) {
-			string = "CPU clock";
-			instantiate = CPULocalClock;
-		}
-		else {
-			string = "wall clock";
-			instantiate = WallLocalClock;
-		}
+	"Measures time interval from the last [[start]] call (in the same thread as `measure` called) and up to now."
+	shared formal Integer measure();
+	
+}
+
+
+"Wall clock - uses `system.nanoseconds` to measure time interval."
+tagged( "Clock" )
+see( `class Options`, `class CPUClock`, `class UserClock` )
+since( "0.7.0" ) by( "Lis" )
+shared class WallClock() satisfies Clock
+{
+	ThreadLocal<Integer> startWallTime = ThreadLocal<Integer>();
+	
+	shared actual TimeUnit units => TimeUnit.nanoseconds;
+	
+	shared actual void start() {
+		startWallTime.set( system.nanoseconds );
 	}
 	
-	"Indicates that `ThreadMXBean.currentThreadUserTime` has to be used for time measurement.  
-	 If CPU time is not supported uses `system.nanoseconds`."
-	shared new user {
-		// TODO: log clock selection?
-		if ( ManagementFactory.threadMXBean.threadCpuTimeSupported ) {
-			string = "CPU user clock";
-			instantiate = UserLocalClock;
-		}
-		else {
-			string = "wall clock";
-			instantiate = WallLocalClock;
-		}
-	}
+	shared actual Integer measure() => system.nanoseconds - startWallTime.get();
 	
-	"Indicates that `system.nanoseconds` has to be used for time measurement."
-	shared new wall {
-		string = "wall clock";
-		instantiate = WallLocalClock;
-	}
-	
-	
+	shared actual String string => "wall clock";	
+}
+
+
+"CPU clock uses `ThreadMXBean.currentThreadCpuTime` to measure time interval."
+tagged( "Clock" )
+see( `class Options`, `class UserClock`, `class WallClock` )
+since( "0.7.0" ) by( "Lis" )
+shared class CPUClock() satisfies Clock
+{
+
 	ThreadLocal<ThreadLocalClock> localClock = ThreadLocal.withInitial (
 		object satisfies Supplier<ThreadLocalClock> {
-			get() => instantiate();
+			get() => CPULocalClock();
 		}
 	);
 
+	shared actual TimeUnit units => TimeUnit.nanoseconds;
+		
+	shared actual void start() => localClock.get().start();
 	
-	"Initializes the clock locally for the current thread.  
-	 Has to be called before any measurements."
-	shared void initialize() => localClock.get().initialize();
+	shared actual Integer measure() => localClock.get().measure();
+
+	shared actual String string => "CPU clock";
+}
+
+
+"User clock uses `ThreadMXBean.currentThreadUserTime` to measure time interval."
+tagged( "Clock" )
+see( `class Options`, `class CPUClock`, `class WallClock` )
+since( "0.7.0" ) by( "Lis" )
+shared class UserClock() satisfies Clock
+{
 	
-	"Starts time interval measure from the current time and locally for the current thread."
-	shared void start() => localClock.get().start();
+	ThreadLocal<ThreadLocalClock> localClock = ThreadLocal.withInitial (
+		object satisfies Supplier<ThreadLocalClock> {
+			get() => UserLocalClock();
+		}
+	);
 	
-	"Measures time interval from the last [[start]] call (in the same thread as `measure` called) and up to now."
-	shared Integer measure() => localClock.get().measure();
+	shared actual TimeUnit units => TimeUnit.nanoseconds;
 	
+	shared actual void start() => localClock.get().start();
+	
+	shared actual Integer measure() => localClock.get().measure();
+	
+	shared actual String string => "User clock";
 }

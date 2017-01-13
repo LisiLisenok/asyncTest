@@ -7,30 +7,11 @@ import java.lang.management {
 since( "0.7.0" ) by( "Lis" )
 interface ThreadLocalClock {
 	
-	"Initializes the clock."
-	shared formal void initialize();
-	
 	"Starts time interval measure from the current time."
 	shared formal void start();
 	
 	"Measures time interval from the last [[start]] call and up to now."
 	shared formal Integer measure();
-}
-
-
-"Wall clock uses `system.nanoseconds` to measure time interval."
-since( "0.7.0" ) by( "Lis" )
-class WallLocalClock() satisfies ThreadLocalClock {
-	
-	variable Integer startWallTime = system.nanoseconds;
-	
-	shared actual void start() {
-		startWallTime = system.nanoseconds;
-	}
-	
-	shared actual void initialize() {}
-	
-	shared actual Integer measure() => system.nanoseconds - startWallTime;
 }
 
 
@@ -48,26 +29,19 @@ abstract class ThreadClock() satisfies ThreadLocalClock {
 	variable Integer lastWallTime = 0;
 	variable Integer lastSample = 0;
 	variable Float factor = 1.0;
+
+	if ( !ManagementFactory.threadMXBean.threadCpuTimeEnabled ) {
+		ManagementFactory.threadMXBean.threadCpuTimeEnabled = true;
+	}
 	
 	"Returns current time based on strategy."
 	shared formal Integer readCurrentTime();
 
 	
-	shared actual void initialize() {
-		value threadMXBean = ManagementFactory.threadMXBean;
-		if ( !threadMXBean.threadCpuTimeEnabled ) {
-			threadMXBean.threadCpuTimeEnabled = true;
-		}
-		lastSample = readCurrentTime();
-		startWallTime = system.nanoseconds;
-		lastWallTime = startWallTime;
-		factor = 1.0;
-	}
-	
 	shared actual void start() {
 		Integer currentSample = readCurrentTime();
 		Integer currentWallTime = system.nanoseconds;
-		if ( currentSample > lastSample && currentWallTime > lastWallTime ) {
+		if ( lastSample > 0 && currentSample > lastSample && currentWallTime > lastWallTime ) {
 			// Moving averaging factor!
 			factor = 0.9 * factor + 0.1 * ( currentSample - lastSample ) / ( currentWallTime - lastWallTime );
 			lastSample = currentSample;

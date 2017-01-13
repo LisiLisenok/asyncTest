@@ -13,7 +13,7 @@ shared class Options (
 	"Time unit the results have to be reported with.  Default is seconds."
 	shared TimeUnit timeUnit = TimeUnit.seconds,
 	"Clock to measure time intervals.  Default wall clock."
-	shared Clock clock = Clock.wall,
+	shared Clock clock = WallClock(),
 	"Identifies GC execution strategy, i.e. how often to run GC.  
 	 By default GC is executed before warmup round and before iteraton round."
 	shared GCStrategy gcStrategy = GCStagedStrategy.beforeRounds,

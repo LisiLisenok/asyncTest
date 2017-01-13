@@ -72,11 +72,10 @@ shared abstract class BaseBench<in Parameter> (
 		Options options, Parameter parameter
 	) {
 		
-		// intialize clock
+		// clockto measure time interval
 		Clock clock = options.clock;
-		clock.initialize();
 		// factor to scale time delta from nanoseconds (measured in) to timeUnit
-		Float timeFactor = TimeUnit.nanoseconds.factorToSeconds / options.timeUnit.factorToSeconds;
+		Float timeFactor = clock.units.factorToSeconds / options.timeUnit.factorToSeconds;
 		
 		variable CompletionCriterion? warmupCriterion = options.warmupCriterion;
 		SimpleStat calculator = SimpleStat();
