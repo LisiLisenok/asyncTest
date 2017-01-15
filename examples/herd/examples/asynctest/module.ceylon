@@ -44,4 +44,5 @@ module herd.examples.asynctest "0.7.0" {
 	shared import ceylon.test "1.3.1";
 	shared import herd.asynctest "0.7.0";
 	shared import java.base "8";
+	import ceylon.interop.java "1.3.1";
 }
