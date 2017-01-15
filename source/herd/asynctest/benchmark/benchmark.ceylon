@@ -7,12 +7,16 @@ import java.lang {
 }
 
 
+"Clears black hole and resets criteria."
+since( "0.7.0" ) by( "Lis" )
 void initializeBench( Options options ) {
 	blackHole.clear();
 	options.measureCriterion.reset();
 	options.warmupCriterion?.reset();
 }
 
+"Resets criteria and verifies black hole."
+since( "0.7.0" ) by( "Lis" )
 void completeBench( Options options ) {
 	options.measureCriterion.reset();
 	options.warmupCriterion?.reset();
@@ -20,6 +24,8 @@ void completeBench( Options options ) {
 	blackHole.verifyNumbers();
 }
 
+"Runs garbage collector and sleeps for a short amount of time."
+since( "0.7.0" ) by( "Lis" )
 void warmupBenchmark() {
 	System.gc();
 	Thread.sleep( 200 );
