@@ -22,5 +22,5 @@ shared Result extractSourceValue<Result>( FunctionOrValueDeclaration source, Obj
 		return if ( !source.toplevel, exists instance ) 
 			then source.memberApply<Nothing, Result>( type( instance ) ).bind( instance ).get()
 			else source.apply<Result>().get();
-	}
+	}	
 }

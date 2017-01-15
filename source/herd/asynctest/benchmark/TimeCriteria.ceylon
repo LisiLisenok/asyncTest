@@ -37,7 +37,7 @@ shared class TotalExecutionTime (
 		startTime = system.nanoseconds;
 	}
 	
-	shared actual Boolean verify( Float delta, StatisticSummary result, TimeUnit deltaTimeUnit ) {
+	shared actual Boolean verify( Float delta, StatisticAggregator stat, TimeUnit deltaTimeUnit ) {
 		return system.nanoseconds - startTime > totalNanoseconds;
 	}
 	
@@ -72,7 +72,7 @@ shared class TotalBenchTime (
 		accumulatedTime.set( 0 );
 	}
 	
-	shared actual Boolean verify( Float delta, StatisticSummary result, TimeUnit deltaTimeUnit ) {
+	shared actual Boolean verify( Float delta, StatisticAggregator stat, TimeUnit deltaTimeUnit ) {
 		Integer timeToAdd = ( delta * deltaTimeUnit.factorToSeconds / TimeUnit.nanoseconds.factorToSeconds + 0.5 ).integer;
 		return accumulatedTime.addAndGet( timeToAdd ) > totalNanoseconds;
 	}
@@ -109,7 +109,7 @@ shared class LocalBenchTime (
 		localAccumulators.clear();
 	}
 	
-	shared actual Boolean verify( Float delta, StatisticSummary result, TimeUnit deltaTimeUnit ) {
+	shared actual Boolean verify( Float delta, StatisticAggregator stat, TimeUnit deltaTimeUnit ) {
 		Integer id = Thread.currentThread().id;
 		Integer timeVal;
 		if ( exists current = localAccumulators.get( id ) ) {

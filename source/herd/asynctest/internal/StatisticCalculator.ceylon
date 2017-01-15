@@ -34,7 +34,7 @@ class StatisticStream {
 	}
 	
 	"New stream by the given values."
-	shared new withValues( Float* values ) {
+	shared new withValues( {Float*} values ) {
 		variable Float min = infinity;
 		variable Float max = -infinity;
 		variable Float mean = 0.0;
@@ -145,13 +145,13 @@ shared class StatisticCalculator() {
 	
 	"Thread-safely adds samples to the statistic."
 	see( `value statisticSummary`, `function sample` )
-	shared void samples( Float* values ) {
+	shared void samples( {Float*} values ) {
 		Integer addedSize = values.size;
 		if ( addedSize == 1, exists val = values.first ) {
 			sample( val );
 		}
 		else if ( addedSize > 1 ) {
-			StatisticStream sAdd = StatisticStream.withValues( *values );
+			StatisticStream sAdd = StatisticStream.withValues( values );
 			variable StatisticStream sOld = stat.get();
 			variable StatisticStream sNew = StatisticStream.combined( sOld, sAdd );
 			while ( !stat.compareAndSet( sOld, sNew ) ) {

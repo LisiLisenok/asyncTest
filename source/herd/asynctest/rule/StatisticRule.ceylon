@@ -31,7 +31,7 @@ shared class StatisticRule() satisfies TestRule
 	
 	"Thread-safely adds samples to the statistic."
 	see( `value statisticSummary`, `function sample` )
-	shared void samples( Float* values ) => calculator.element.samples( *values );
+	shared void samples( {Float*} values ) => calculator.element.samples( values );
 	
 	
 	shared actual void after( AsyncPrePostContext context ) => calculator.after( context );

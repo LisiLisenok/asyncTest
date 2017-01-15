@@ -1,14 +1,11 @@
 import java.lang {
 	Math
 }
-import herd.asynctest.benchmark {
-	StatisticSummary
-}
 
 
 "Provides thread-unsafe statistic calculations."
 since( "0.7.0" ) by( "Lis" )
-shared class SimpleStat() {
+shared class StatisticAggregator() {
 	
 	variable Float minVal = infinity;
 	variable Float maxVal = -infinity;
@@ -28,7 +25,7 @@ shared class SimpleStat() {
 	shared Integer size => sizeVal;
 	
 	
-	"Resets accumulated statistic to initial state."
+	"Resets accumulated statistic to zero state."
 	shared void reset() {
 		minVal = infinity;
 		maxVal = -infinity;
@@ -60,7 +57,7 @@ shared class SimpleStat() {
 	"Equals to sampleError/mean."
 	shared Float relativeSampleError => sampleError / mean;
 	
-	
+	"Adds sample to the statistic data."
 	shared void sample( Float val ) {
 		minVal = val < minVal then val else minVal;
 		maxVal = val > maxVal then val else maxVal;
@@ -70,6 +67,7 @@ shared class SimpleStat() {
 		m2Val = sizeVal > 1 then m2Val + delta * ( val - meanVal ) else 0.0;
 	}
 	
+	"Statistic summary aggregated up to the moment."
 	shared StatisticSummary result => StatisticSummary( minVal, maxVal, meanVal, standardDeviation, sizeVal );
 	
 }

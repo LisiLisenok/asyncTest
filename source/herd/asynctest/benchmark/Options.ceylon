@@ -14,11 +14,24 @@ shared class Options (
 	shared TimeUnit timeUnit = TimeUnit.seconds,
 	"Clock to measure time intervals.  Default wall clock."
 	shared Clock clock = WallClock(),
-	"Identifies GC execution strategy, i.e. how often to run GC.  
-	 By default GC is executed before warmup round and before iteraton round."
-	shared GCStrategy gcStrategy = GCStagedStrategy.beforeRounds,
 	"`true` if runs when GC has been started has to be skipped and `flase` otherwise.  
 	 By default is `true`."
-	shared Boolean skipGCRuns = true
+	shared Boolean skipGCRuns = true,
+	"Callbacks executed at each stage.  
+	 By default callback which executes garbage collector before warmup and measure rounds (see [[gcBeforeRounds]])."
+	shared Anything(Stage)[] callbacks = [gcBeforeRounds]
 ) {
 }
+
+
+"Returns options with prepended callbacks."
+since( "0.7.0" ) by( "Lis" )
+Options prependCallbacksToOptions( Options options, Anything(Stage)+ callbacks ) 
+	=> Options( options.measureCriterion, options.warmupCriterion, options.timeUnit, options.clock, options.skipGCRuns,
+				options.callbacks.prepend( callbacks ) );
+
+"Returns options with appended callbacks."
+since( "0.7.0" ) by( "Lis" )
+Options appendCallbacksToOptions( Options options, Anything(Stage)+ callbacks ) 
+		=> Options( options.measureCriterion, options.warmupCriterion, options.timeUnit, options.clock, options.skipGCRuns,
+			options.callbacks.append( callbacks ) );

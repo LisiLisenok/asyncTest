@@ -1,7 +1,7 @@
 
 
 "Identifies a stage of the bench execution."
-see( `class Options`, `interface GCStrategy`, `class GCStagedStrategy` )
+see( `class Options`, `function gcCallback` )
 tagged( "Options" )
 since( "0.7.0" ) by( "Lis" )
 shared class Stage

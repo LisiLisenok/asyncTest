@@ -1,9 +1,6 @@
 import java.lang.management {
 	ManagementFactory
 }
-import herd.asynctest.internal {
-	SimpleStat
-}
 
 
 "Intended to implement details of bench execution in a signle thread.  
@@ -25,13 +22,13 @@ shared abstract class BaseBench<in Parameter> (
 	shared actual default Integer hash => memoizedHash else ( memoizedHash = 7 * title.hash + 37 );
 	
 	
-	"Executed before / after rounds and iterations as identified by [[stage]].  
-	 By default runs garbage collector if specified by strategy, see [[GCStrategy]]."
-	shared default void stageEvent (
-		"Options the bench is executed with." Options options,
-		"Stage the event belongs to." Stage stage
+	"Executes optioned callbacks."
+	void stageEvent (
+		"Stage the event belongs to." Stage stage, "Callbacks." Anything(Stage)[] callbacks 
 	) {
-		options.gcStrategy.gc( stage );
+		for ( item in callbacks ) {
+			item( stage );
+		}
 	}
 
 	
@@ -72,23 +69,23 @@ shared abstract class BaseBench<in Parameter> (
 		Options options, Parameter parameter
 	) {
 		
-		// clockto measure time interval
+		// clock to measure time interval
 		Clock clock = options.clock;
 		// factor to scale time delta from nanoseconds (measured in) to timeUnit
 		Float timeFactor = clock.units.factorToSeconds / options.timeUnit.factorToSeconds;
 		
 		variable CompletionCriterion? warmupCriterion = options.warmupCriterion;
-		SimpleStat calculator = SimpleStat();
-		if ( warmupCriterion exists ) { stageEvent( options, Stage.beforeWarmupRound ); }
-		else { stageEvent( options, Stage.beforeMeasureRound ); }
+		StatisticAggregator calculator = StatisticAggregator();
+		if ( warmupCriterion exists ) { stageEvent( Stage.beforeWarmupRound, options.callbacks ); }
+		else { stageEvent( Stage.beforeMeasureRound, options.callbacks ); }
 		
 		// bench iterations
 		while ( true ) {
 			// number of GC starts before test run
 			Integer numGCBefore = numberOfGCRuns();
 			// before iteration event
-			if ( warmupCriterion exists ) { stageEvent( options, Stage.beforeWarmupIteration ); }
-			else { stageEvent( options, Stage.beforeMeasureIteration ); }
+			if ( warmupCriterion exists ) { stageEvent( Stage.beforeWarmupIteration, options.callbacks ); }
+			else { stageEvent( Stage.beforeMeasureIteration, options.callbacks ); }
 			// execute the test function
 			clock.start();
 			Anything ret = bench( *parameter );
@@ -101,29 +98,29 @@ shared abstract class BaseBench<in Parameter> (
 					// add sample only if GC has not been started during the test or GC runs have not be skipped
 					calculator.sample( 1.0 / delta );
 					if ( exists criterion = warmupCriterion ) {
-						if ( criterion.verify( delta, calculator.result, options.timeUnit ) ) {
+						if ( criterion.verify( delta, calculator, options.timeUnit ) ) {
 							// warmup round is completed
 							warmupCriterion = null;
 							calculator.reset();
-							stageEvent( options, Stage.afterWarmupIteration );
-							stageEvent( options, Stage.afterWarmupRound );
-							stageEvent( options, Stage.beforeMeasureRound );
+							stageEvent( Stage.afterWarmupIteration, options.callbacks );
+							stageEvent( Stage.afterWarmupRound, options.callbacks );
+							stageEvent( Stage.beforeMeasureRound, options.callbacks );
 							continue;
 						}
 					}
 					else {
-						if ( options.measureCriterion.verify( delta, calculator.result, options.timeUnit ) ) {
+						if ( options.measureCriterion.verify( delta, calculator, options.timeUnit ) ) {
 							// measure round is completed
-							stageEvent( options, Stage.afterMeasureIteration );
-							stageEvent( options, Stage.afterMeasureRound );
+							stageEvent( Stage.afterMeasureIteration, options.callbacks );
+							stageEvent( Stage.afterMeasureRound, options.callbacks );
 							break;
 						}
 					}
 				}
 			}
 			// completing iteration
-			if ( warmupCriterion exists ) { stageEvent( options, Stage.afterWarmupIteration ); }
-			else { stageEvent( options, Stage.afterMeasureIteration ); }
+			if ( warmupCriterion exists ) { stageEvent( Stage.afterWarmupIteration, options.callbacks ); }
+			else { stageEvent( Stage.afterMeasureIteration, options.callbacks ); }
 			pushToBlackHole( ret );
 		}
 		

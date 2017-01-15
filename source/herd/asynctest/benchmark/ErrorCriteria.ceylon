@@ -23,16 +23,29 @@ shared class TotalError (
 	"Maximum allowed total error has to be > 0."
 	assert( maxRelativeError > 0.0 );
 	
-	ConcurrentSkipListMap<Integer, StatisticSummary> localStat = ConcurrentSkipListMap<Integer, StatisticSummary>( IntegerComparator() );
+	class Stat (
+		shared variable Float mean,
+		shared variable Float variance,
+		shared variable Integer size
+	) {}
+	
+	ConcurrentSkipListMap<Integer, Stat> localStat = ConcurrentSkipListMap<Integer, Stat>( IntegerComparator() );
 	
 	
 	shared actual void reset() {
 		localStat.clear();
 	}
 	
-	shared actual Boolean verify( Float delta, StatisticSummary result, TimeUnit timeUnit ) {
+	shared actual Boolean verify( Float delta, StatisticAggregator stat, TimeUnit timeUnit ) {
 		Integer id = Thread.currentThread().id;
-		localStat.put( id, result );
+		if ( exists localStat = localStat.get( id ) ) {
+			localStat.mean = stat.mean;
+			localStat.variance = stat.variance;
+			localStat.size = stat.size;
+		}
+		else {
+			localStat.put( id, Stat( stat.mean, stat.variance, stat.size ) );
+		}
 		variable Integer size = 0;
 		variable Float mean = 0.0;
 		variable Float variance = 0.0;
@@ -72,8 +85,8 @@ shared class LocalError (
 	shared actual void reset() {
 	}
 	
-	shared actual Boolean verify( Float delta, StatisticSummary result, TimeUnit timeUnit ) {
-		return result.size > minIterations && result.relativeSampleError < maxRelativeError;
+	shared actual Boolean verify( Float delta, StatisticAggregator stat, TimeUnit timeUnit ) {
+		return stat.size > minIterations && stat.relativeSampleError < maxRelativeError;
 	}
 	
 }
