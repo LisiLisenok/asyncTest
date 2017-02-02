@@ -7,19 +7,13 @@ import java.lang {
 tagged( "Result" )
 see( `class ParameterResult` )
 since( "0.6.0" ) by( "Lis" )
-shared final class StatisticSummary {
+shared final class StatisticSummary satisfies Statistic {
 	
-	"Minimum of the values that have been statisticaly treated."
-	shared Float min;
-	"Maximum of the values that have been statisticaly treated."
-	shared Float max;
-	"Mean value."
-	shared Float mean;
-	"Returns standard deviation of the values that have been statisticaly treated.
-	 Standard deviation is `variance^0.5`."
-	shared Float standardDeviation;		
-	"The number of the values that have been statisticaly treated."
-	shared Integer size;
+	shared actual Float min;
+	shared actual Float max;
+	shared actual Float mean;
+	shared actual Float standardDeviation;		
+	shared actual Integer size;
 	
 	"Creates new statistic summary with the given data."
 	shared new (
@@ -58,27 +52,7 @@ shared final class StatisticSummary {
 		this.standardDeviation = Math.sqrt( variance );
 	}
 	
-	
-	"Variance of the values that have been statisticaly treated.
-	 The variance is mean((x-mean(x))^2)."
-	shared Float variance => standardDeviation * standardDeviation;
-	
-	"Sample variance is size/(size - 1)*variance."
-	shared Float sampleVariance => if ( size > 1 ) then size * variance / ( size - 1 ) else 0.0;
-	
-	"Sample standard deviation is sqrt(size/(size - 1)*variance)."
-	shared Float sampleDeviation => if ( size > 1 ) then Math.sqrt( size.float / ( size - 1 ) ) * standardDeviation else 0.0;
-	
-	"Equals to standardDeviation/sqrt(size)."
-	shared Float standardError => if ( size > 1 ) then standardDeviation / Math.sqrt( size.float ) else 0.0;
-	
-	"Equals to sampleStandardDeviation/sqrt(size)."
-	shared Float sampleError => if ( size > 1 ) then standardDeviation / Math.sqrt( ( size - 1 ).float ) else 0.0;
-	
-	"Equals to sampleError/mean."
-	shared Float relativeSampleError => sampleError / mean;
-	
-	
+		
 	shared actual Boolean equals( Object other ) {
 		if ( is StatisticSummary other ) {
 			return min == other.min && max == other.max

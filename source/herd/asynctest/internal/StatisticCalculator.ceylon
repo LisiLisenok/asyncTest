@@ -128,6 +128,12 @@ shared class StatisticCalculator() {
 		}
 	}
 	
+	"Mean calculated within Welford's method of standard deviation computation."
+	shared Float mean => stat.get().mean;
+	"The number of the values that have been statisticaly treated."
+	shared Integer size => stat.get().size;
+
+	
 	"Statistic summary accumulated up to the query moment."
 	see( `function sample`, `function samples` )
 	shared StatisticSummary statisticSummary => stat.get().summary;

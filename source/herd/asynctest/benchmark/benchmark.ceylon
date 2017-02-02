@@ -1,5 +1,7 @@
 import ceylon.collection {
-	HashMap
+	HashMap,
+	Hashtable,
+	linked
 }
 import java.lang {
 	Thread,
@@ -10,6 +12,8 @@ import java.lang {
 "Clears black hole and resets criteria."
 since( "0.7.0" ) by( "Lis" )
 void initializeBench( Options options ) {
+	Thread.sleep( 50 );
+	System.gc();
 	blackHole.clear();
 	options.measureCriterion.reset();
 	options.warmupCriterion?.reset();
@@ -24,20 +28,10 @@ void completeBench( Options options ) {
 	blackHole.verifyNumbers();
 }
 
-"Runs garbage collector and sleeps for a short amount of time."
-since( "0.7.0" ) by( "Lis" )
-void warmupBenchmark() {
-	System.gc();
-	Thread.sleep( 200 );
-	System.gc();
-	Thread.sleep( 200 );	
-}
-
 
 "Runs benchmark testing.  
  Executes each given bench with each given parameter.  
  Bench is responsible for the execution details and calculation performance statistic."
-throws( `class AssertionError`, "number of measure rounds is <= 0" )
 since( "0.7.0" ) by( "Lis" )
 shared Result<Parameter> benchmark<Parameter> (
 	"Benchmark options of benches executing."
@@ -49,15 +43,16 @@ shared Result<Parameter> benchmark<Parameter> (
 )
 		given Parameter satisfies Anything[]
 {
-	warmupBenchmark();
-	
 	if ( nonempty params = parameters ) {
-		
 		// run test for each parameter and each bench
-		HashMap<Parameter, ParameterResult<Parameter>> res = HashMap<Parameter, ParameterResult<Parameter>>();
+		HashMap<Parameter, ParameterResult<Parameter>> res = HashMap<Parameter, ParameterResult<Parameter>> (
+			linked, Hashtable( params.size )
+		);
 		for ( param in params ) {
 			if ( !res.defines( param ) ) {
-				HashMap<Bench<Parameter>, StatisticSummary> benchRes = HashMap<Bench<Parameter>, StatisticSummary>();
+				HashMap<Bench<Parameter>, StatisticSummary> benchRes = HashMap<Bench<Parameter>, StatisticSummary> (
+					linked, Hashtable( benches.size )
+				);
 				for ( bench in benches ) {
 					if ( !benchRes.defines( bench ) ) {
 						// initialize criteria and black hole
@@ -83,7 +78,9 @@ shared Result<Parameter> benchmark<Parameter> (
 		assert ( is [Bench<[]>+] benches );
 		
 		HashMap<[], ParameterResult<[]>> res = HashMap<[], ParameterResult<[]>>();
-		HashMap<Bench<[]>, StatisticSummary> benchRes = HashMap<Bench<[]>, StatisticSummary>();
+		HashMap<Bench<[]>, StatisticSummary> benchRes = HashMap<Bench<[]>, StatisticSummary> (
+			linked, Hashtable( benches.size )
+		);
 		for ( bench in benches ) {
 			if ( !benchRes.defines( bench ) ) {
 				// initialize criteria and black hole

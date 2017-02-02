@@ -11,13 +11,9 @@ shared interface CompletionCriterion {
 	
 	"Returns `true` if completion criterion is met and `false` otherwise."
 	shared formal Boolean verify (
-		"The latest execution time in the given time unit."
-		Float delta,
-		"Accumulated execution statistic of operations per given time unit.  
-		 Statistic is aggregated by theexecution on the current thread.  
-		 This is mutable but be careful to modify aggregated statistic. It may lead to wrong summary results."
-		StatisticAggregator stat,
-		"Time unit [[delta]] and [[stat]] are measured in."
+		"Accumulated execution statistic of operations per the given time unit."
+		Statistic stat,
+		"Time unit [[stat]] is measured in."
 		TimeUnit timeUnit
 	);
 	
@@ -46,9 +42,9 @@ class AndCriterion( CompletionCriterion+ criteria ) satisfies CompletionCriterio
 		}
 	}
 	
-	shared actual Boolean verify( Float delta, StatisticAggregator stat, TimeUnit timeUnit ) {
+	shared actual Boolean verify( Statistic stat, TimeUnit timeUnit ) {
 		for ( item in criteria ) {
-			if ( !item.verify( delta, stat, timeUnit ) ) {
+			if ( !item.verify( stat, timeUnit ) ) {
 				return false;
 			}
 		}
@@ -72,9 +68,9 @@ class OrCriterion( CompletionCriterion+ criteria ) satisfies CompletionCriterion
 		}
 	}
 	
-	shared actual Boolean verify( Float delta, StatisticAggregator stat, TimeUnit timeUnit ) {
+	shared actual Boolean verify( Statistic stat, TimeUnit timeUnit ) {
 		for ( item in criteria ) {
-			if ( item.verify( delta, stat, timeUnit ) ) {
+			if ( item.verify( stat, timeUnit ) ) {
 				return true;
 			}
 		}

@@ -8,10 +8,10 @@ import ceylon.test {
 import herd.asynctest.benchmark {
 	benchmark,
 	writeRelativeToFastest,
-	EmptyParameterBench,
+	SingleBench,
 	TimeUnit,
 	Options,
-	TotalIterations,
+	NumberOfLoops,
 	CPUClock,
 	WallClock
 }
@@ -68,29 +68,29 @@ shared test async void isWrapperOrFunctionCPU(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options(TotalIterations(10000), TotalIterations(2000), TimeUnit.milliseconds, CPUClock()),
+			Options(NumberOfLoops(1000), NumberOfLoops(100), 10, TimeUnit.milliseconds, CPUClock),
 			[
-				EmptyParameterBench (
+				SingleBench<> (
 					"narrowed single argument wrapper",
 					narrowSingleWrapperToInteger(SingleArgumentWrapper<Integer>(integerArgumentFunction))
 				),
-				EmptyParameterBench (
+				SingleBench<> (
 					"not narrowed single argument wrapper",
 					narrowSingleWrapperToInteger(SingleArgumentWrapper<Float>(floatArgumentFunction))
 				),
-				EmptyParameterBench (
+				SingleBench<> (
 					"narrowed multiple argument wrapper",
 					narrowMultipleWrapperToInteger(MultipleArgumentWrapper<[Integer]>(integerArgumentFunction))
 				),
-				EmptyParameterBench (
+				SingleBench<> (
 					"not narrowed multiple argument wrapper",
 					narrowMultipleWrapperToInteger(MultipleArgumentWrapper<[Float]>(floatArgumentFunction))
 				),
-				EmptyParameterBench (
+				SingleBench<> (
 					"narrowed function",
 					narrowFunctionToInteger(integerArgumentFunction)
 				),
-				EmptyParameterBench (
+				SingleBench<> (
 					"not narrowed function",
 					narrowFunctionToInteger(floatArgumentFunction)
 				)
@@ -112,29 +112,29 @@ shared test async void isWrapperOrFunctionWall(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options(TotalIterations(10000), TotalIterations(2000), TimeUnit.milliseconds, WallClock()),
+			Options(NumberOfLoops(1000), NumberOfLoops(100), 10, TimeUnit.milliseconds, WallClock),
 			[
-			EmptyParameterBench (
+			SingleBench<> (
 				"narrowed single argument wrapper",
 				narrowSingleWrapperToInteger(SingleArgumentWrapper<Integer>(integerArgumentFunction))
 			),
-			EmptyParameterBench (
+			SingleBench<> (
 				"not narrowed single argument wrapper",
 				narrowSingleWrapperToInteger(SingleArgumentWrapper<Float>(floatArgumentFunction))
 			),
-			EmptyParameterBench (
+			SingleBench<> (
 				"narrowed multiple argument wrapper",
 				narrowMultipleWrapperToInteger(MultipleArgumentWrapper<[Integer]>(integerArgumentFunction))
 			),
-			EmptyParameterBench (
+			SingleBench<> (
 				"not narrowed multiple argument wrapper",
 				narrowMultipleWrapperToInteger(MultipleArgumentWrapper<[Float]>(floatArgumentFunction))
 			),
-			EmptyParameterBench (
+			SingleBench<> (
 				"narrowed function",
 				narrowFunctionToInteger(integerArgumentFunction)
 			),
-			EmptyParameterBench (
+			SingleBench<> (
 				"not narrowed function",
 				narrowFunctionToInteger(floatArgumentFunction)
 			)

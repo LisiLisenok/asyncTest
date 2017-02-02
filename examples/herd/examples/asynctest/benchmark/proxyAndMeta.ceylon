@@ -13,7 +13,7 @@ import herd.asynctest.benchmark {
 	benchmark,
 	writeRelativeToFastest,
 	Options,
-	TotalIterations,
+	NumberOfLoops,
 	SingleBench
 }
 import herd.asynctest {
@@ -71,7 +71,7 @@ shared test async void proxyAndMetaBenchmark(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options(TotalIterations(10000), TotalIterations(2000)),
+			Options(NumberOfLoops(1000), NumberOfLoops(100)),
 			[
 			SingleBench("direct", II().plusOne),
 			SingleBench("meta", instanceDecl().plusOne),

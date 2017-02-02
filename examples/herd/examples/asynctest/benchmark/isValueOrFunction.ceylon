@@ -10,7 +10,7 @@ import herd.asynctest.benchmark {
 	benchmark,
 	SingleBench,
 	Options,
-	TotalIterations
+	NumberOfLoops
 }
 
 
@@ -51,7 +51,7 @@ shared test async void isValueOrFunction(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options(TotalIterations(10000), TotalIterations(2000)),
+			Options(NumberOfLoops(1000), NumberOfLoops(100)),
 			[
 				SingleBench("value", isValue),
 				SingleBench("function", isFunction)

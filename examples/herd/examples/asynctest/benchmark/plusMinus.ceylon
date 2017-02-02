@@ -11,10 +11,10 @@ import herd.asynctest.benchmark {
 
 	writeRelativeToFastest,
 	benchmark,
-	LocalIterations,
+	NumberOfLoops,
 	Options,
 	SingleBench,
-	LocalError
+	ErrorCriterion
 }
 
 
@@ -29,7 +29,7 @@ shared test async void plusMinusBenchmark(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options(LocalIterations(50000).or(LocalError(0.001)), LocalIterations(5000).or(LocalError(0.001))),
+			Options(NumberOfLoops(1000).or(ErrorCriterion(0.002)), NumberOfLoops(100).or(ErrorCriterion(0.002))),
 			[SingleBench("plus", plusBenchmarkFunction),
 			SingleBench("minus", minusBenchmarkFunction)],
 			[1, 1], [2, 3], [25, 34]
