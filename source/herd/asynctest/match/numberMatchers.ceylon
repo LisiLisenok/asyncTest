@@ -159,3 +159,23 @@ shared class IsOdd() satisfies Matcher<Integer>
 	
 	shared actual String string => "is odd";
 }
+
+
+"Verifies if matching value is close to `merit` with the given `tolerance`."
+tagged( "Numbers" ) see( `class EqualTo` )
+since( "0.4.0" ) by( "Lis" )
+shared class CloseTo<Value> (
+	"Value to compare with matching one." Value merit,
+	"Tolerance to accept matching." Value tolerance
+)
+		satisfies Matcher<Value>
+		given Value satisfies Number<Value>
+		{
+	shared actual MatchResult match( Value val )
+			=> MatchResult (
+		"``stringify( val )`` is close to ``stringify( merit )`` with tolerance of ``tolerance``",
+		( val - merit ).magnitude < tolerance
+	);
+	
+	shared actual String string => "close with tolerance ``tolerance``";
+}
