@@ -1,11 +1,12 @@
 import java.util.concurrent.atomic {
 	AtomicReference
 }
-import herd.asynctest.benchmark {
-	StatisticSummary
-}
+
 import java.lang {
 	Math
+}
+import herd.asynctest.benchmark {
+	Statistic
 }
 
 
@@ -112,7 +113,8 @@ class StatisticStream {
 }
 
 
-"Calculates statistic data for stream of variate values."
+"Provides thread-safe statistic calculations."
+see( `class StatisticAggregator` )
 since( "0.6.0" ) by( "Lis" )
 shared class StatisticCalculator() {
 	
@@ -136,7 +138,7 @@ shared class StatisticCalculator() {
 	
 	"Statistic summary accumulated up to the query moment."
 	see( `function sample`, `function samples` )
-	shared StatisticSummary statisticSummary => stat.get().summary;
+	shared Statistic statisticSummary => stat.get().summary;
 	
 	"Thread-safely adds a one sample to the statistic."
 	see( `value statisticSummary`, `function samples` )

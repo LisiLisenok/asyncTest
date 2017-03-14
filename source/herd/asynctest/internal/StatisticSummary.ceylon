@@ -1,11 +1,13 @@
 import java.lang {
 	Math
 }
+import herd.asynctest.benchmark {
+	Statistic
+}
 
 
 "Statistic summary for a stream of variate values."
 tagged( "Result" )
-see( `class ParameterResult` )
 since( "0.6.0" ) by( "Lis" )
 shared final class StatisticSummary satisfies Statistic {
 	

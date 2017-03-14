@@ -2,10 +2,15 @@ import java.lang {
 	Math
 }
 
+import herd.asynctest.benchmark {
+	Statistic
+}
+
 
 "Provides thread-unsafe statistic calculations."
+see( `class StatisticCalculator` )
 since( "0.7.0" ) by( "Lis" )
-class StatisticAggregator() satisfies Statistic {
+shared class StatisticAggregator() satisfies Statistic {
 	
 	variable Float minVal = infinity;
 	variable Float maxVal = -infinity;

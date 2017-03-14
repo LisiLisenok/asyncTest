@@ -2,7 +2,7 @@ import herd.asynctest {
 	AsyncPrePostContext
 }
 import herd.asynctest.benchmark {
-	StatisticSummary
+	Statistic
 }
 import herd.asynctest.internal {
 	StatisticCalculator
@@ -12,7 +12,7 @@ import herd.asynctest.internal {
 "Lock-free and thread-safely accumulates statistics data of some variate values.  
  Doesn't collect values, just accumulates statistic data when sample added - see [[sample]] and [[samples]].  
  Statistic data is reseted before _each_ test.  "
-see( `class StatisticSummary` )
+see( `interface Statistic` )
 tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
 shared class StatisticRule() satisfies TestRule
 {
@@ -23,7 +23,7 @@ shared class StatisticRule() satisfies TestRule
 	
 	"Statistic summary accumulated up to the query moment."
 	see( `function samples`, `function sample` )
-	shared StatisticSummary statisticSummary => calculator.element.statisticSummary;
+	shared Statistic statisticSummary => calculator.element.statisticSummary;
 	
 	"Thread-safely adds a one sample to the statistic."
 	see( `value statisticSummary`, `function samples` )

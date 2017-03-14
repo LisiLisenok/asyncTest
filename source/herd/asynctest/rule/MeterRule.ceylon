@@ -5,7 +5,7 @@ import java.util.concurrent.atomic {
 	AtomicLong
 }
 import herd.asynctest.benchmark {
-	StatisticSummary
+	Statistic
 }
 import herd.asynctest.internal {
 	StatisticCalculator
@@ -33,7 +33,7 @@ import herd.asynctest.internal {
  		}
  
  "
-see( `class StatisticSummary` )
+see( `interface Statistic` )
 since( "0.6.0" ) by( "Lis" )
 tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 {
@@ -53,10 +53,10 @@ tagged( "TestRule" ) shared class MeterRule() satisfies TestRule
 	
 
 	"Statistic summary for execution time."
-	shared StatisticSummary timeStatistic => store.element.timeCalculator.statisticSummary;
+	shared Statistic timeStatistic => store.element.timeCalculator.statisticSummary;
 	
 	"Statistic summary for rate (operations per second)."
-	shared StatisticSummary rateStatistic => store.element.rateCalculator.statisticSummary;
+	shared Statistic rateStatistic => store.element.rateCalculator.statisticSummary;
 	
 	
 	"Starts metering from now and memoizes current system time.  

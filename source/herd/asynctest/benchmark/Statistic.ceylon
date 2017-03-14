@@ -1,6 +1,10 @@
 import java.lang {
 	Math
 }
+import herd.asynctest.internal {
+	StatisticSummary,
+	StatisticAggregator
+}
 
 
 "Provides statistic data for a stream of variate values."
