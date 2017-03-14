@@ -34,7 +34,7 @@ import herd.asynctest.match {
  "
 see( `class AsyncTestExecutor`, `package herd.asynctest.match` )
 since( "0.0.1" ) by( "Lis" )
-shared interface AsyncTestContext// satisfies AsyncMessageContext
+shared interface AsyncTestContext
 {
 	
 	"Completes the testing. To be called by the test function when testing is completed.
@@ -98,7 +98,8 @@ shared interface AsyncTestContext// satisfies AsyncMessageContext
 		"Optional title to be shown within test name."
 		String title = "",
 		"If `true` reports on failures and successes.
-		 Otherwise reportes only on failures."
+		 Otherwise reportes only on failures.  
+		 Default is `false`."
 		Boolean reportSuccess = false
 	) {
 		try { 
