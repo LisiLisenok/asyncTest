@@ -13,7 +13,7 @@ shared interface Bench<in Parameter>
 	
 	"Executes this bench with the given `Parameter` value.  
 	 Returns statistic of operations per second for the execution."
-	shared formal StatisticSummary execute (
+	shared formal BenchResult execute (
 		"Options of the bench execution." Options options,
 		"Value of the parameter the bench is parameterized with." Parameter parameter
 	);

@@ -27,7 +27,7 @@ shared class NumberOfLoops (
 
 
 "Continues benchmark iterations while relative sample error doesn't exceed [[maxRelativeError]].  
- I.e. [[StatisticSummary.relativeSampleError]] is compared against [[maxRelativeError]]."
+ I.e. [[Statistic.relativeSampleError]] is compared against [[maxRelativeError]]."
 tagged( "Criteria" )
 see( `class Options` )
 throws( `class AssertionError`, "Maximum allowed error is <= 0." )

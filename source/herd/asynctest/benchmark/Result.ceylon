@@ -17,22 +17,22 @@ shared final class Result<Parameter> (
 		given Parameter satisfies Anything[]
 {
 	
-	class BenchMap( Bench<Parameter> bench ) satisfies Map<Parameter, StatisticSummary> {
+	class BenchMap( Bench<Parameter> bench ) satisfies Map<Parameter, BenchResult> {
 		
 		Map<Parameter, ParameterResult<Parameter>> outerParameters => byParameter;
 		
 		shared actual Boolean defines( Object key ) => byParameter.get( bench )?.defines( key ) else false;
 		
-		shared actual StatisticSummary? get( Object key ) => byParameter.get( bench )?.get( key );
+		shared actual BenchResult? get( Object key ) => byParameter.get( bench )?.get( key );
 		
-		shared actual StatisticSummary|Default getOrDefault<Default>( Object key, Default default )
+		shared actual BenchResult|Default getOrDefault<Default>( Object key, Default default )
 				=> byParameter.get( key )?.get( key ) else default;
 		
-		shared actual Iterator<Parameter->StatisticSummary> iterator()
-			=> object satisfies Iterator<Parameter->StatisticSummary> {
+		shared actual Iterator<Parameter->BenchResult> iterator()
+			=> object satisfies Iterator<Parameter->BenchResult> {
 				Iterator<Parameter->ParameterResult<Parameter>> paramIterator = byParameter.iterator();
 				
-				shared actual <Parameter->StatisticSummary>|Finished next() {
+				shared actual <Parameter->BenchResult>|Finished next() {
 					if ( is <Parameter->ParameterResult<Parameter>> nn = paramIterator.next() ) {
 						"Results don't contain specified bench."
 						assert( exists ret = nn.item.get( bench ) );
@@ -69,7 +69,7 @@ shared final class Result<Parameter> (
 	
 	
 	"Returns results for a specific bench."
-	shared Map<Parameter, StatisticSummary> forBench( "Bench the results are asked for." Bench<Parameter> bench ) {
+	shared Map<Parameter, BenchResult> forBench( "Bench the results are asked for." Bench<Parameter> bench ) {
 		if ( exists ret = benches.get( bench ) ) {
 			return ret;
 		}

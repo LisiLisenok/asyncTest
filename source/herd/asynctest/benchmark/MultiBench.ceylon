@@ -16,7 +16,7 @@ shared class MultiBench (
 		satisfies Bench<[Integer+]>
 {	
 	
-	shared actual StatisticSummary execute( Options options, [Integer+] parameter )
+	shared actual BenchResult execute( Options options, [Integer+] parameter )
 		=> object extends ThreadableRunner( options ) {
 			variable RunnableBench[] benchesMemo = [];
 			shared actual RunnableBench[] benches

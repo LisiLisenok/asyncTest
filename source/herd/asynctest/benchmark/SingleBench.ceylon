@@ -1,6 +1,9 @@
 import java.lang {
 	System
 }
+import herd.asynctest.internal {
+	StatisticAggregator
+}
 
 
 "Executes test function in a single thread."
@@ -44,7 +47,7 @@ shared final class SingleBench<Parameter=[]> (
 	 		* Consume result returned by [[bench]] using [[pushToBlackHole]]
  		* Collect statistic in operations per time units  
 	 "
-	shared actual StatisticSummary execute (
+	shared actual BenchResult execute (
 		"Options the bench is executed with." Options options,
 		"Execution parameter the benchmark function takes." Parameter parameter
 	) {
@@ -56,6 +59,7 @@ shared final class SingleBench<Parameter=[]> (
 		StatisticAggregator calculator = StatisticAggregator();
 		System.gc();
 		
+		variable Integer loops = 0;
 		actualBench.setup();
 		// bench iterations
 		while ( true ) {
@@ -67,8 +71,9 @@ shared final class SingleBench<Parameter=[]> (
 				// number of GC starts before test run
 				Integer numGCBefore = numberOfGCRuns();
 				// execute the test function
+				Anything(*Parameter) benchFunction = actualBench.bench;
 				clock.start();
-				Anything ret = actualBench.bench( *parameter );
+				Anything ret = benchFunction( *parameter );
 				Float delta = clock.measure( options.timeUnit );
 				// number of GC starts after test run
 				Integer numGCAfter = numberOfGCRuns();
@@ -90,6 +95,7 @@ shared final class SingleBench<Parameter=[]> (
 				if ( exists criterion = warmupCriterion ) {
 					if ( criterion.verify( calculator, options.timeUnit ) ) {
 						// warmup round is completed
+						loops = 0;
 						warmupCriterion = null;
 						calculator.reset();
 						System.gc();
@@ -102,10 +108,18 @@ shared final class SingleBench<Parameter=[]> (
 					}
 				}
 			}
+			
+			// force GC
+			if ( options.loopsToRunGC > 0 ) {
+				if ( ++ loops == options.loopsToRunGC ) {
+					loops = 0;
+					System.gc();
+				}
+			}
 		}
 		
 		actualBench.dispose();
-		return calculator.result;
+		return SimpleResults( calculator.result );
 	}
 	
 }

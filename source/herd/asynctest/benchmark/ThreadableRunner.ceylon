@@ -9,6 +9,9 @@ import java.util.concurrent {
 import java.util.concurrent.atomic {
 	AtomicInteger
 }
+import herd.asynctest.internal {
+	StatisticAggregator
+}
 
 
 "Base class for family of benches runners in several threads."
@@ -47,9 +50,10 @@ abstract class ThreadableRunner( "Options the bench is executed with." Options o
 					// number of GC starts before test run
 					Integer numGCBefore = numberOfGCRuns();
 					// execute the test function
+					Anything() benchFunction = bench.bench;
 					clock.start();
 					Integer threadsBefore = benchThreads.incrementAndGet();
-					Anything ret = bench.bench();
+					Anything ret = benchFunction();
 					Integer threadsAfter = benchThreads.andDecrement;
 					Float delta = clock.measure( options.timeUnit );
 					// number of GC starts after test run
@@ -84,14 +88,16 @@ abstract class ThreadableRunner( "Options the bench is executed with." Options o
 	
 	
 	"Executes the benchmark."
-	shared StatisticSummary execute() {
+	shared BenchResult execute() {
 		running = true;
 		benchThreads.set( 0 );
 		StatisticAggregator calculator = StatisticAggregator();
+		StatisticAggregator concurrencyLevel = StatisticAggregator();
 		loopBarrier = CyclicBarrier( benches.size + 1 );
 		calculateBarrier = CyclicBarrier( benches.size + 1 );
 		variable CompletionCriterion? warmupCriterion = options.warmupCriterion;
 		Integer totalBenches = benches.size;
+		variable Integer loops = 0;
 		
 		// start benches
 		for ( item in benches ) {
@@ -110,12 +116,14 @@ abstract class ThreadableRunner( "Options the bench is executed with." Options o
 			meanConcurrencyLevel /= totalBenches;
 			meanOperations /= totalBenches; 
 			calculator.sample( meanConcurrencyLevel * meanOperations );
+			concurrencyLevel.sample( meanConcurrencyLevel );
 			
 			// completion verifying
 			if ( exists criterion = warmupCriterion ) {
 				if ( criterion.verify( calculator, options.timeUnit ) ) {
 					// warmup round is completed
 					warmupCriterion = null;
+					loops = 0;
 					calculator.reset();
 					System.gc();
 				}
@@ -125,9 +133,21 @@ abstract class ThreadableRunner( "Options the bench is executed with." Options o
 					// measure round is completed
 					running = false;
 					calculateBarrier.await();
-					return calculator.result;
+					return SimpleResults (
+						calculator.result,
+						map( {"concurrency"->concurrencyLevel.mean} )
+					);
 				}
 			}
+			
+			// force GC
+			if ( options.loopsToRunGC > 0 ) {
+				if ( ++ loops == options.loopsToRunGC ) {
+					loops = 0;
+					System.gc();
+				}
+			}
+			
 			benchThreads.set( 0 );
 			calculateBarrier.await();
 		}

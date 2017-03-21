@@ -33,16 +33,16 @@ license (
 by( "Lis" )
 native( "jvm" )
 module herd.examples.asynctest "0.7.0" {
-	shared import ceylon.collection "1.3.1";
-	shared import ceylon.http.server "1.3.1";
-	shared import ceylon.http.client "1.3.1";
-	shared import ceylon.buffer "1.3.1";
-	shared import ceylon.http.common "1.3.1";
-	shared import ceylon.json "1.3.1";
-	shared import ceylon.file "1.3.1";
-	shared import ceylon.promise "1.3.1";
-	shared import ceylon.test "1.3.1";
+	shared import ceylon.collection "1.3.2";
+	shared import ceylon.http.server "1.3.2";
+	shared import ceylon.http.client "1.3.2";
+	shared import ceylon.buffer "1.3.2";
+	shared import ceylon.http.common "1.3.2";
+	shared import ceylon.json "1.3.2";
+	shared import ceylon.file "1.3.2";
+	shared import ceylon.promise "1.3.2";
+	shared import ceylon.test "1.3.2";
 	shared import herd.asynctest "0.7.0";
 	shared import java.base "8";
-	import ceylon.interop.java "1.3.1";
+	import ceylon.interop.java "1.3.2";
 }

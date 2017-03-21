@@ -17,7 +17,21 @@
  Each bench has to satisfy [[Bench]] interface.  
  Any particular bench may implement its own testing semantic and purposes.  
  
- For instance, [[SingleBench]] is intended to run test function in a single thread.  
+ [[SingleBench]] is intended to run test function in a single thread.  
+ [[MultiBench]] is intended to run test function in a multithread environment.  
+ 
+ 
+ ### Bench flow
+ 
+ An object which provides more flexible execution control then just bench function.
+ Has to satisfy [[BenchFlow]] interface.  
+ Both [[SingleBench]] and [[MultiBench]] may take either bench function of an object satisfied [[BenchFlow]] interface.  
+ 
+ There are some impementations of bench flow:
+ * [[SelectiveFlow]] which reselects bench function each given number of iterations  
+ * [[SequentialFlow]] which reselects bench function one by one from the given sequence
+ * [[RandomFlow]] which randomly reselects bench function from the given list each given number of iterations
+ * [[RandomDataFlow]] which randomly chooses bench function argument from the given list each given number of iterations
  
  
  ### Benchmark execution
@@ -106,7 +120,7 @@
  			writeRelativeToFastest (
  				context,
  				benchmark (
- 					Options(LocalIterations(20000).or(LocalError(0.002))),
+ 					Options(NumberOfLoops(20000).or(ErrorCriterion(0.002)), NumberOfLoops(100).or(ErrorCriterion(0.002))),
  					[SingleBench(\"plus\", plusBenchmarkFunction),
  					SingleBench(\"minus\", minusBenchmarkFunction)],
  					[1, 1], [2, 3], [25, 34]

@@ -19,6 +19,10 @@ shared class Options (
 	"Clock factory (instantiated for each bench and each execution thread ).  
 	 The clock is used to measure time intervals."
 	shared Clock() clock = WallClock,
+	"Number of loops to run GC. I.e. GC is run after each given number of loops.
+	 If <= 0 GC is never forced.  
+	 Default is 100."
+	shared Integer loopsToRunGC = 100,
 	"`true` if runs when GC has been started has to be skipped and `flase` otherwise."
 	shared Boolean skipGCRuns = true
 ) {}

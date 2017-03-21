@@ -1,8 +1,8 @@
 
 
 "Represents benchmark function + test flow. I.e. functions called before / after test iteration."
-tagged( "Bench" )
-see( `function benchmark`, `class SingleBench`, `class MultiBench` )
+tagged( "Bench flow" )
+see( `class SingleBench`, `class MultiBench` )
 since( "0.7.0" ) by( "Lis" )
 shared interface BenchFlow<in Parameter>
 		given Parameter satisfies Anything[]
@@ -11,13 +11,15 @@ shared interface BenchFlow<in Parameter>
 	"Setups the benchmark test. Called before the test."
 	shared formal void setup();
 	
-	"Called before each [[bench]] execution."
+	"Called before each [[bench]] execution.  
+	 Might be called concurrently."
 	shared formal void before();
 	
-	"Benchmark function."
+	"Benchmark function.  Is going to be called concurrently."
 	shared formal Anything(*Parameter) bench;
 	
-	"Called after each [[bench]] execution."
+	"Called after each [[bench]] execution.  
+	 Might be called concurrently."
 	shared formal void after();
 	
 	"Disposes the benchmark test. Called after the test."
@@ -27,6 +29,7 @@ shared interface BenchFlow<in Parameter>
 
 
 "Just [[bench]] function makes sense."
+tagged( "Bench flow" )
 since( "0.7.0" ) by( "Lis" )
 class EmptyBenchFlow<in Parameter> (
 	shared actual Anything(*Parameter) bench

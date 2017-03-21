@@ -376,8 +376,8 @@ by( "Lis" )
 native( "jvm" )
 module herd.asynctest "0.7.0" {
 	import java.base "8";
-	shared import ceylon.test "1.3.1";
-	import ceylon.collection "1.3.1";
-	shared import ceylon.file "1.3.1";
+	shared import ceylon.test "1.3.2";
+	import ceylon.collection "1.3.2";
+	shared import ceylon.file "1.3.2";
 	import java.management "8";
 }

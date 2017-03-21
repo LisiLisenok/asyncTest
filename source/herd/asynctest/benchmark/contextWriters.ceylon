@@ -33,6 +33,7 @@ shared void writeAbsolute<Parameter>( AsyncTestContext context, Result<Parameter
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
 					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
 					+ "loops = ``stat.size``"
+					+ stringifyAdditionalResults( stat )
 				);
 			}
 		}
@@ -43,6 +44,7 @@ shared void writeAbsolute<Parameter>( AsyncTestContext context, Result<Parameter
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
 					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
 					+ "loops = ``stat.size``"
+					+ stringifyAdditionalResults( stat )
 				);
 			}
 		}
@@ -62,25 +64,27 @@ shared void writeRelativeToSlowest<Parameter>( AsyncTestContext context, Result<
 	String tuShort = " op/" + results.timeUnit.shortString;
 	for ( param->paramRes in results ) {
 		if ( exists paramStr = stringifyParameter( param ) ) {
-			for ( bench->stat in paramRes.relativeToSlowest() ) {
+			for ( bench->stat in paramRes ) {
 				context.succeed (
 					"``bench.title`` with `" + paramStr
 					+ "`: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
-					+ "``stat.relativeMean``% to slowest; "
+					+ "``( 100 * ( stat.mean / paramRes.slowestMean ) + 0.5 ).integer``% to slowest; "
 					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
 					+ "loops = ``stat.size``"
+					+ stringifyAdditionalResults( stat )
 				);
 			}
 		}
 		else {
-			for ( bench->stat in paramRes.relativeToSlowest() ) {
+			for ( bench->stat in paramRes ) {
 				context.succeed (
 					"``bench.title``: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
-					+ "``stat.relativeMean``% to slowest; "
+					+ "``( 100 * ( stat.mean / paramRes.slowestMean ) + 0.5 ).integer``% to slowest; "
 					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
 					+ "loops = ``stat.size``"
+					+ stringifyAdditionalResults( stat )
 				);
 			}
 		}
@@ -100,25 +104,27 @@ shared void writeRelativeToFastest<Parameter>( AsyncTestContext context, Result<
 	String tuShort = " op/" + results.timeUnit.shortString;
 	for ( param->paramRes in results ) {
 		if ( exists paramStr = stringifyParameter( param ) ) {
-			for ( bench->stat in paramRes.relativeToFastest() ) {
+			for ( bench->stat in paramRes ) {
 				context.succeed (
 					"``bench.title`` with `" + paramStr
 					+ "`: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
-					+ "``stat.relativeMean``% to fastest; "
+					+ "``( 100 * ( stat.mean / paramRes.fastestMean ) + 0.5 ).integer``% to fastest; "
 					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
 					+ "loops = ``stat.size``"
+					+ stringifyAdditionalResults( stat )
 				);
 			}
 		}
 		else {
-			for ( bench->stat in paramRes.relativeToFastest() ) {
+			for ( bench->stat in paramRes ) {
 				context.succeed (
 					"``bench.title``: mean=``stringifyNumberOfOperations( stat.mean )````tuShort``; "
 					+ "dev=``stringifyNumberOfOperations( stat.sampleDeviation )````tuShort``; "
-					+ "``stat.relativeMean``% to fastest; "
+					+ "``( 100 * ( stat.mean / paramRes.fastestMean ) + 0.5 ).integer``% to fastest; "
 					+ "error=``Float.format( stat.relativeSampleError * 100, 0, 2 )``%; "
 					+ "loops = ``stat.size``"
+					+ stringifyAdditionalResults( stat )
 				);
 			}
 		}

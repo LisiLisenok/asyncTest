@@ -2,13 +2,13 @@
 
 "Benchmark run result for a given [[parameter]] and a set of benches."
 tagged( "Result" )
-see( `class Result`, `interface Bench` )
+see( `class Result` )
 since( "0.7.0" ) by( "Lis" )
 shared final class ParameterResult<Parameter> (
 	"Parameter the test has been run with." shared Parameter parameter,
-	"Results of the run for the given bench." Map<Bench<Parameter>, StatisticSummary> byBenches
+	"Results of the run for the given bench." Map<Bench<Parameter>, BenchResult> byBenches
 )
-	satisfies Map<Bench<Parameter>, StatisticSummary>
+	satisfies Map<Bench<Parameter>, BenchResult>
 	given Parameter satisfies Anything[]
 {
 	
@@ -17,7 +17,7 @@ shared final class ParameterResult<Parameter> (
 	
 	Float findSlowestMean() {
 		Float minVal = byBenches.fold<Float>( infinity ) (
-			( Float res, <Bench<Parameter>->StatisticSummary> item )
+			( Float res, <Bench<Parameter>->BenchResult> item )
 					=> if ( item.item.mean < res ) then item.item.mean else res
 		);
 		memoizedSlowestMean = minVal;
@@ -26,7 +26,7 @@ shared final class ParameterResult<Parameter> (
 	
 	Float findFastestMean() {
 		Float maxVal = byBenches.fold<Float>( -infinity ) (
-			( Float res, <Bench<Parameter>->StatisticSummary> item )
+			( Float res, <Bench<Parameter>->BenchResult> item )
 					=> if ( item.item.mean > res ) then item.item.mean else res
 		);
 		memoizedFastestMean = maxVal;
@@ -35,10 +35,10 @@ shared final class ParameterResult<Parameter> (
 
 	
 	"`true` if item mean equals to `slowestMean`."	
-	Boolean filterBySlowest( <Bench<Parameter>->StatisticSummary> item ) => item.item.mean == slowestMean;
+	Boolean filterBySlowest( <Bench<Parameter>->BenchResult> item ) => item.item.mean == slowestMean;
 	
 	"`true` if item mean equals to `fastestMean`."
-	Boolean filterByFastest( <Bench<Parameter>->StatisticSummary> item ) => item.item.mean == fastestMean;
+	Boolean filterByFastest( <Bench<Parameter>->BenchResult> item ) => item.item.mean == fastestMean;
 	
 	
 	"Mean value of the slowest benches."
@@ -47,7 +47,7 @@ shared final class ParameterResult<Parameter> (
 	
 	"A list of benches which showed the smallest performance, i.e. mean number of operations per second is smallest."
 	see( `value slowestMean` )
-	shared {<Bench<Parameter>->StatisticSummary>*} slowest => byBenches.filter( filterBySlowest );
+	shared {<Bench<Parameter>->BenchResult>*} slowest => byBenches.filter( filterBySlowest );
 	
 	"Mean value of the fastest benches."
 	see( `value fastest` )
@@ -55,40 +55,17 @@ shared final class ParameterResult<Parameter> (
 	
 	"A list of benches which showed the fastest performance, i.e. mean number of operations per second is largest."
 	see( `value fastestMean` )
-	shared {<Bench<Parameter>->StatisticSummary>*} fastest => byBenches.filter( filterByFastest );
-	
-	"Returns map of [[ComparativeStatistic]] related to the given [[benchOrMean]]."
-	see( `function relativeToSlowest`, `function relativeToFastest` )
-	shared Map<Bench<Parameter>, ComparativeStatistic> relativeTo (
-		"Bench or summary statistic to calculate comparative statistic to." Bench<Parameter> | Float benchOrMean
-	) {
-		if ( exists stat = if ( is Float benchOrMean ) then benchOrMean else get( benchOrMean )?.mean ) {
-			return byBenches.mapItems<ComparativeStatistic> (
-				(  Bench<Parameter> key, StatisticSummary item ) => ComparativeStatistic( item, stat )
-			);
-		}
-		else {
-			return emptyMap;
-		}
-	}
-	
-	"Returns map of [[ComparativeStatistic]] related to the slowest bench."
-	see( `function relativeTo`, `function relativeToFastest` )
-	shared Map<Bench<Parameter>, ComparativeStatistic> relativeToSlowest() => relativeTo( slowestMean );
-	
-	"Returns map of [[ComparativeStatistic]] related to the fastest bench."
-	see( `function relativeToSlowest`, `function relativeTo` )
-	shared Map<Bench<Parameter>, ComparativeStatistic> relativeToFastest() => relativeTo( fastestMean );
-	
+	shared {<Bench<Parameter>->BenchResult>*} fastest => byBenches.filter( filterByFastest );
+		
 	
 	shared actual Boolean defines( Object key ) => byBenches.defines( key );
 	
-	shared actual StatisticSummary? get( Object key ) => byBenches.get( key );
+	shared actual BenchResult? get( Object key ) => byBenches.get( key );
 	
-	shared actual StatisticSummary|Default getOrDefault<Default>( Object key, Default default )
+	shared actual BenchResult|Default getOrDefault<Default>( Object key, Default default )
 		=> byBenches.getOrDefault<Default>( key, default );
 	
-	shared actual Iterator<Bench<Parameter>->StatisticSummary> iterator() => byBenches.iterator();
+	shared actual Iterator<Bench<Parameter>->BenchResult> iterator() => byBenches.iterator();
 	
 	shared actual Integer size => byBenches.size;
 	

@@ -28,7 +28,7 @@ shared test async void lockFreeQueueProducerConsumer(AsyncTestContext context) {
 	writeRelativeToFastest (
 		context,
 		benchmark (
-			Options(NumberOfLoops(500), NumberOfLoops(100), 100, TimeUnit.milliseconds, CPUClock, true),
+			Options(NumberOfLoops(500), NumberOfLoops(100), 100, TimeUnit.milliseconds, CPUClock),
 			[
 				MultiBench(
 					"producer-consumer",

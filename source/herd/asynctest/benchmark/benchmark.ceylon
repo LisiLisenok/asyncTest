@@ -50,7 +50,7 @@ shared Result<Parameter> benchmark<Parameter> (
 		);
 		for ( param in params ) {
 			if ( !res.defines( param ) ) {
-				HashMap<Bench<Parameter>, StatisticSummary> benchRes = HashMap<Bench<Parameter>, StatisticSummary> (
+				HashMap<Bench<Parameter>, BenchResult> benchRes = HashMap<Bench<Parameter>, BenchResult> (
 					linked, Hashtable( benches.size )
 				);
 				for ( bench in benches ) {
@@ -78,7 +78,7 @@ shared Result<Parameter> benchmark<Parameter> (
 		assert ( is [Bench<[]>+] benches );
 		
 		HashMap<[], ParameterResult<[]>> res = HashMap<[], ParameterResult<[]>>();
-		HashMap<Bench<[]>, StatisticSummary> benchRes = HashMap<Bench<[]>, StatisticSummary> (
+		HashMap<Bench<[]>, BenchResult> benchRes = HashMap<Bench<[]>, BenchResult> (
 			linked, Hashtable( benches.size )
 		);
 		for ( bench in benches ) {
