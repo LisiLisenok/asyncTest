@@ -11,6 +11,7 @@ is an extension to SDK `ceylon.test` module with following capabilities:
 * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
   each report is represented as test variant and might be marked with `String` title  
 * reporting test results using charts (or plots)  
+* benchmarks
 
 The module is available on [Ceylon Herd](https://herd.ceylon-lang.org/modules/herd.asynctest).  
 Current version is 0.7.0.  
@@ -18,17 +19,18 @@ Current version is 0.7.0.
 
 #### Ceylon compiler / platform  
 
-Compiled with Ceylon 1.3.1  
+Compiled with Ceylon 1.3.2  
 Available on JVM only  
 
 
 #### Dependencies  
 
-* ceylon.collection/1.3.1  
-* ceylon.file/1.3.1 shared  
-* ceylon.language/1.3.1  
-* ceylon.test/1.3.1 shared  
-* java.base/8 JDK  
+* ceylon.collection/1.3.2  
+* ceylon.file/1.3.2 shared  
+* ceylon.language/1.3.2  
+* ceylon.test/1.3.2 shared  
+* java.base/8 JDK
+* java.management/8 JDK  
 
 
 #### Usage and documentation  
