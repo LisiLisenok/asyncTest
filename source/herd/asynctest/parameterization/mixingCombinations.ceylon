@@ -57,6 +57,7 @@ Integer firstPermutedKind( ArgumentVariants[] variants, Integer from ) {
  "
 tagged( "Combinatorial generators" )
 see( `function mixing`, `function permutationSource`, `function zippedSource` )
+throws( `class AssertionError`, "Argument variant is not of 'zipped' or 'permutation' kind" )
 since( "0.7.0" ) by( "Lis" )
 shared TestVariantEnumerator mixingCombinations (
 	"Variants of the test function arguments." ArgumentVariants[] arguments

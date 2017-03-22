@@ -49,6 +49,7 @@ object finishedIndicator extends FinishedIndicator() {}
  "
 tagged( "Combinatorial generators" )
 see( `function zipping`, `function zippedSource` )
+throws( `class AssertionError`, "Argument variant is not of 'zipped' kind" )
 since( "0.7.0" ) by( "Lis" )
 shared TestVariantEnumerator zippingCombinations (
 	"Variants of the test function arguments." ArgumentVariants[] arguments

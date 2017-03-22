@@ -49,6 +49,7 @@ Anything getArgument( ArgumentVariants? args, Integer? index ) {
  See example in [[permuting]]."
 tagged( "Combinatorial generators" )
 see( `function permuting`, `function permutationSource` )
+throws( `class AssertionError`, "Argument variant is not of 'permutation' kind" )
 since( "0.7.0" ) by( "Lis" )
 shared TestVariantEnumerator permutingCombinations (
 	"Variants of the test function arguments." ArgumentVariants[] arguments
