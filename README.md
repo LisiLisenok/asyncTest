@@ -43,9 +43,7 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
  
 * Test of [Fibonacci numbers calculation](examples/herd/examples/asynctest/fibonacci).  
   Calculation function is executed on separated thread and returns results using `ceylon.promise`.
-* [Time scheduler](examples/herd/examples/asynctest/scheduler) testing.  
-* [Comparative performance](examples/herd/examples/asynctest/mapperformance) -
-  comparative performance test of Ceylon / Java HashMap and TreeMap.  
+* [Time scheduler](examples/herd/examples/asynctest/scheduler) testing.   
 * [Benchmarking](examples/herd/examples/asynctest/benchmark) examples of benchmarks.  
 * [Matchers](examples/herd/examples/asynctest/matchers) - matchers usage.  
 * [Parameterized](examples/herd/examples/asynctest/parameterized) - type- and value- parameterized testing.  
