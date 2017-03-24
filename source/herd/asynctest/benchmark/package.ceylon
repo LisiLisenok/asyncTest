@@ -17,8 +17,9 @@
  Each bench has to satisfy [[Bench]] interface.  
  Any particular bench may implement its own testing semantic and purposes.  
  
- [[SingleBench]] is intended to run test function in a single thread.  
- [[MultiBench]] is intended to run test function in a multithread environment.  
+ The package contains two implementations:
+ * [[SingleBench]] is intended to run test function in a single thread.  
+ * [[MultiBench]] is intended to run test function in a multithread environment.  
  
  
  ### Bench flow
@@ -32,6 +33,8 @@
  * [[SequentialFlow]] which reselects bench function one by one from the given sequence
  * [[RandomFlow]] which randomly reselects bench function from the given list each given number of iterations
  * [[RandomDataFlow]] which randomly chooses bench function argument from the given list each given number of iterations
+ 
+ Both [[SingleBench]] and [[MultiBench]] benches run test with either benchmark function or [[BenchFlow]].
  
  
  ### Benchmark execution

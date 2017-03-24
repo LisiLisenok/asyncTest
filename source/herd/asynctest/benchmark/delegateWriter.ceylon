@@ -3,7 +3,7 @@ import herd.asynctest {
 }
 
 
-"Delegates benchmark run result writing to the given `writers`."
+"Delegates writing of the benchmark run results to the given `writers`."
 tagged( "Writer" )
 see( `function benchmark`, `function writeRelativeToSlowest`,
 	`function writeRelativeToFastest`, `function writeAbsolute` )

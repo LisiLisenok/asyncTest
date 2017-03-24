@@ -12,6 +12,7 @@
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
    each report is represented as test variant and might be marked with \`String\` title  
  * reporting test results using charts (or plots)  
+ * benchmarks  
  
  
  The extension is based on:  
@@ -24,7 +25,9 @@
    and for modification of the test behaviour.  
  * [[package herd.asynctest.runner]] package which provides a control over a test function execution.  
  * [[package herd.asynctest.match]] package which contains matching API.  
- * [[package herd.asynctest.chart]] package which is intended to organize reporting with charts.  
+ * [[package herd.asynctest.chart]] package which is intended to organize reporting with charts.
+ * [[package herd.asynctest.benchmark]] package which contains library for thebenchmark testing.   
+ 
  
  It is recommended to read documentation on `module ceylon.test` before starting with **asyncTest**.
  
@@ -238,7 +241,7 @@
  
  For example:  
  * A package has three test classes.  
- * Two of them are annotated with [[concurrent]] and third is not annotated.  
+ * Two of them are annotated with [[concurrent]] and third is not.  
  * Two marked suites are executed via thread pool. Each suite in separated thread if number of
    available cores admits. But all test functions in the given suite are executed sequentially via a one thread.  
  * After completion the test of the first two suites the third one is executed.  

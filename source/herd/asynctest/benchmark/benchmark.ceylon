@@ -34,7 +34,7 @@ void completeBench( Options options ) {
  Bench is responsible for the execution details and calculation performance statistic."
 since( "0.7.0" ) by( "Lis" )
 shared Result<Parameter> benchmark<Parameter> (
-	"Benchmark options of benches executing."
+	"Options the benches has to be executed with."
 	Options options,
 	"A list of benches to be executed."
 	[Bench<Parameter>+] benches,
