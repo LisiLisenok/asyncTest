@@ -37,11 +37,45 @@
  Both [[SingleBench]] and [[MultiBench]] benches run test with either benchmark function or [[BenchFlow]].
  
  
+ ### Writing benchmark result
+ 
+ Benchmark run results may be writed to `AsyncTestContext` using a number of writers. See functions tagged as `Writer`.
+ 
+ 
  ### Benchmark execution
  
  [[benchmark]] is intended to run benchmark. The function executes each given bench with each given parameter
  and returns results of benchmark test as instance of [[Result]].
  
+ Steps to perform benchmark testing:
+ 1. Define test function or implement [[BenchFlow]] interface.  
+ 2. Choose [[Bench]] which has to run the benchmark.  
+ 3. Invoke [[benchmark]] with the test options, benches and test parameters.  
+ 4. Write benchmark results.  
+  
+ 
+ ### Example
+ 
+ 		Integer plusBenchmarkFunction(Integer x, Integer y) {
+ 			return x + y;
+ 		}
+ 		Integer minusBenchmarkFunction(Integer x, Integer y) {
+ 			return x - y;
+ 		}
+
+ 		shared test async void plusMinusBenchmark(AsyncTestContext context) {
+ 			writeRelativeToFastest (
+ 				context,
+ 				benchmark (
+ 					Options(NumberOfLoops(20000).or(ErrorCriterion(0.002)), NumberOfLoops(100).or(ErrorCriterion(0.002))),
+ 					[SingleBench(\"plus\", plusBenchmarkFunction),
+ 					SingleBench(\"minus\", minusBenchmarkFunction)],
+ 					[1, 1], [2, 3], [25, 34]
+ 				)
+ 			);
+ 			context.complete();
+ 		}
+  
  
  ### JIT optimization
  
@@ -86,11 +120,11 @@
  
  There are two constants `x` and `y` in the above examples. JIT may find that result of `+` operation is always
  the same and replace the last function with
-
+ 
  		Integer plusBenchmark() {
  			return 5;
  		}
-
+ 
  So, the plus operation will never be executed. In order to avoid this the parameters might be passed to function as arguments
  or declared outside the function scope as variables:  
  
@@ -103,36 +137,7 @@
  
  > Note: returning value is prefer to direct pushing to black hole, since in this case time consumed by black hole is excluded
    from total time of the test function execution.  
- 
- 
- ### Writing benchmark result
- 
- Benchmark run results may be writed to `AsyncTestContext` using a number of writers. See functions tagged as `Writer`.
- 
- 
- ### Example
- 
- 		Integer plusBenchmarkFunction(Integer x, Integer y) {
- 			return x + y;
- 		}
- 		Integer minusBenchmarkFunction(Integer x, Integer y) {
- 			return x - y;
- 		}
 
- 		shared test async void plusMinusBenchmark(AsyncTestContext context) {
- 			writeRelativeToFastest (
- 				context,
- 				benchmark (
- 					Options(NumberOfLoops(20000).or(ErrorCriterion(0.002)), NumberOfLoops(100).or(ErrorCriterion(0.002))),
- 					[SingleBench(\"plus\", plusBenchmarkFunction),
- 					SingleBench(\"minus\", minusBenchmarkFunction)],
- 					[1, 1], [2, 3], [25, 34]
- 				)
- 			);
- 			context.complete();
- 		}
-  
- 
  "
 since( "0.7.0" ) by( "Lis" )
 shared package herd.asynctest.benchmark;
