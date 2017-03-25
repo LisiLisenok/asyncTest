@@ -1,5 +1,5 @@
 "
- Test rule provides a way to perform initialization / disposing before / after test execution and to modify test behaviour.  
+ Test rule provides a way to perform test initialization/disposing and a way to modify test behaviour.  
  
  
  Each rule is a top-level value or class attribute which satisfies some of the following interfaces:  
