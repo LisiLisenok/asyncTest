@@ -19,8 +19,8 @@ Current version is 0.7.0.
 
 #### Project structure
 
-master branch contains the latest release
-develop branch contains the currently developed version
+master branch contains the latest release  
+develop branch contains the currently developed version  
 
 
 #### Ceylon compiler / platform  
