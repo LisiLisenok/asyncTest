@@ -17,6 +17,12 @@ The module is available on [Ceylon Herd](https://herd.ceylon-lang.org/modules/he
 Current version is 0.7.0.  
 
 
+#### Project structure
+
+master branch contains the latest release
+develop branch contains the currently developed version
+
+
 #### Ceylon compiler / platform  
 
 Compiled with Ceylon 1.3.2  
