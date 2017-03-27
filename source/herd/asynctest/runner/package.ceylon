@@ -19,7 +19,7 @@
  Example:  
  		class MyRunner() satisfies AsyncTestRunner {
  			shared actual void run(AsyncMessageContext context, void testing(AsyncMessageContext context), TestInfo info) {
- 				teting(context);
+ 				testing(context);
  			}
  		}
  		
@@ -28,6 +28,8 @@
  
  > Test runner executes only test function. All `before`, `after` and `testRule` (including `TestStatement`)
    callbacks are executed outside the runner. If overall execution cycle has to be repeated, see [[herd.asynctest::retry]].    
+ 
+ > The test function submitted to the runner blocks current thread until `context.complete` called.  
  
  
  #### Built-in runners  
@@ -45,8 +47,8 @@
    calling `AsyncMessageContext.complete` always leads to test completion and
    runner has no way to avoid the test completion.  
    Reasons:  
-   1. Test may be interrupted by timeout.
-   2. Synchronized context method calling.
+   1. Test may be interrupted by timeout.  
+   2. Synchronized calling of context methods.  
  
  "
 since( "0.6.0" ) by( "Lis" )

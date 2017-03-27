@@ -7,8 +7,13 @@ import ceylon.language.meta.declaration {
 }
 
 
-"Annotation class for [[runWith]]."
-see( `function runWith` )
+"Indicates that the test function has to be run with the given runner.  
+ The runner has to satisfy [[AsyncTestRunner]] interface.  
+ 
+ If class or top-level container is marked with the annotation each test function of the container
+ is executed with the given runner.
+ "
+see( `function runWith`, `package herd.asynctest.runner`, `interface AsyncTestRunner` )
 since( "0.6.0" ) by( "Lis" )
 shared final annotation class RunWithAnnotation (
 	"Runner source. Top-level function or value or method or attribute of a test function container.
@@ -19,12 +24,7 @@ shared final annotation class RunWithAnnotation (
 {}
 
 
-"Indicates that the test function has to be run with the given runner.  
- The runner has to satisfy [[AsyncTestRunner]] interface.  
- 
- If class or top-level container is marked with the annotation each test function of the container
- is executed with the given runner.
- "
+"Provides test runner for the annotated test function. See details in [[RunWithAnnotation]]."
 since( "0.6.0" ) by( "Lis" )
 see( `package herd.asynctest.runner`, `interface AsyncTestRunner` )
 shared annotation RunWithAnnotation runWith (

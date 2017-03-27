@@ -17,8 +17,17 @@ import herd.asynctest.internal {
 	ContextThreadGroup
 }
 import herd.asynctest.runner {
+	AsyncTestRunner,
+	AsyncRunnerContext,
+	TestInfo
+}
+import java.util.concurrent.locks {
 
-	AsyncTestRunner
+	ReentrantLock
+}
+import herd.asynctest.parameterization {
+	TestOutput,
+	TestVariantResult
 }
 
 
@@ -33,8 +42,12 @@ class Tester (
 	"Group to run test function, is used in order to interrupt for timeout and treat uncaught exceptions."
 	ContextThreadGroup group
 )
-		satisfies AsyncMessageContext
+		satisfies AsyncRunnerContext
 {
+	
+	"Synchronizes output writing."
+	ReentrantLock locker = ReentrantLock();
+	
 	"storage for reports"
 	ArrayList<TestOutput> outputs = ArrayList<TestOutput>();
 
@@ -48,7 +61,11 @@ class Tester (
 		
 	shared actual void complete( String title ) {
 		if ( outputs.empty ) {
-			if ( title.empty ) { totalState = TestState.success; }
+			if ( title.empty ) {
+				locker.lock();
+				try { totalState = TestState.success; }
+				finally { locker.unlock(); }
+			}
 			else { addOutput( TestState.success, null, title ); }
 		}
 	}
@@ -70,8 +87,14 @@ class Tester (
 	
 	"Adds new output to `outputs`"
 	void addOutput( TestState state, Throwable? error, String title ) {
-		outputs.add( TestOutput( state, error, ( system.nanoseconds - startTime ) / 1000000, title ) );
-		if ( totalState < state ) { totalState = state; }
+		locker.lock();
+		try {
+			outputs.add( TestOutput( state, error, ( system.nanoseconds - startTime ) / 1000000, title ) );
+			if ( totalState < state ) { totalState = state; }
+		}
+		finally {
+			locker.unlock();
+		}
 	}
 	
 	"Fails the test with either `Exception` or `AssertionError`."
@@ -98,7 +121,7 @@ class Tester (
 	
 	"Runs all test functions using guard context."
 	see( `class GuardTester` )
-	void runWithGuard( AsyncMessageContext context ) {
+	void runWithGuard( AsyncRunnerContext context ) {
 		// new GuardTest has to be used for each run
 		for ( statement in testFunctions ) {
 			GuardTester guard = GuardTester( group, statement, context );

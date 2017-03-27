@@ -1,33 +1,41 @@
 import herd.asynctest {
 	AsyncPrePostContext
 }
+import herd.asynctest.benchmark {
+	Statistic
+}
+import herd.asynctest.internal {
+	StatisticCalculator
+}
 
 
-"Provides statistics of some variate values.  
+"Lock-free and thread-safely accumulates statistics data of some variate values.  
+ Doesn't collect values, just accumulates statistic data when sample added - see [[sample]] and [[samples]].  
  Statistic data is reseted before _each_ test.  "
-see( `class StatisticSummary` )
-tagged( "TestRule" ) by( "Lis" ) since( "0.6.0" )
+see( `interface Statistic` )
+tagged( "TestRule" ) since( "0.6.0" ) by( "Lis" )
 shared class StatisticRule() satisfies TestRule
 {
 
 	"Calculations of the statistic data."
-	StatisticCalculator calculator = StatisticCalculator();
+	CurrentTestStore<StatisticCalculator> calculator = CurrentTestStore<StatisticCalculator>( StatisticCalculator );
 	
 	
 	"Statistic summary accumulated up to the query moment."
-	see( `function sample` )
-	shared StatisticSummary statisticSummary => calculator.statisticSummary;
+	see( `function samples`, `function sample` )
+	shared Statistic statisticSummary => calculator.element.statisticSummary;
+	
+	"Thread-safely adds a one sample to the statistic."
+	see( `value statisticSummary`, `function samples` )
+	shared void sample( Float val ) => calculator.element.sample( val );
 	
 	"Thread-safely adds samples to the statistic."
-	see( `value statisticSummary` )
-	shared void sample( Float* values ) => calculator.sample( *values );
+	see( `value statisticSummary`, `function sample` )
+	shared void samples( {Float*} values ) => calculator.element.samples( values );
 	
 	
-	shared actual void after( AsyncPrePostContext context ) => context.proceed();
+	shared actual void after( AsyncPrePostContext context ) => calculator.after( context );
 	
-	shared actual void before( AsyncPrePostContext context ) {
-		calculator.reset();
-		context.proceed();
-	}
+	shared actual void before( AsyncPrePostContext context ) => calculator.before( context );
 	
 }

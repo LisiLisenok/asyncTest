@@ -1,5 +1,7 @@
 
 "Matchers are intended to organize complex test conditions into a one flexible expression.  
+ 
+ 
  Each matcher is requirements specification and verification method
  which identifies if submitted test value satisfies matcher specification or not.  
  

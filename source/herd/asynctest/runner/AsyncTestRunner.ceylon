@@ -1,7 +1,4 @@
-import herd.asynctest {
-	AsyncMessageContext,
-	TestInfo
-}
+
 
 
 "Test runner is applied to execute test function with a one test variant.  
@@ -25,9 +22,9 @@ shared interface AsyncTestRunner {
 	 "
 	shared formal void run (
 		"Context to run the test function with."
-		AsyncMessageContext context,
+		AsyncRunnerContext context,
 		"Test function to be run."
-		void testing( AsyncMessageContext context ),
+		void testing( AsyncRunnerContext context ),
 		"Information on the currently run test variant."
 		TestInfo info
 	);

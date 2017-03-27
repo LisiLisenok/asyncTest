@@ -1,12 +1,9 @@
 import herd.asynctest {
 	AsyncPrePostContext,
-	TestInfo
+	MultipleAbortException
 }
 import ceylon.collection {
 	ArrayList
-}
-import ceylon.test.engine {
-	MultipleFailureException
 }
 import java.util.concurrent.atomic {
 	AtomicBoolean
@@ -15,9 +12,15 @@ import java.util.concurrent.locks {
 	Condition,
 	ReentrantLock
 }
+import herd.asynctest.internal {
+	CurrentThread
+}
+import herd.asynctest.runner {
+	TestInfo
+}
 
 
-"Provides in chain calls of the given functions."
+"Provides in chain calls of the given prepost functions."
 since( "0.6.0" ) by( "Lis" )
 class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(AsyncPrePostContext)> functions )
 {
@@ -56,7 +59,7 @@ class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(Asyn
 	
 	
 	void processPrepost() {
-		while ( is Anything(AsyncPrePostContext) f = functions.next() ) {
+		while ( is Anything(AsyncPrePostContext) f = functions.next(), CurrentThread.alive ) {
 			// execute next chained function
 			value box = AsyncPrePostContextBox();
 			try { f( box ); }
@@ -65,9 +68,10 @@ class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(Asyn
 			}
 			if ( box.running ) {
 				// await completion
-				locker.lock();
-				try { completed.await(); }
-				finally { locker.unlock(); }
+				if ( locker.tryLock() ) {
+					try { completed.await(); }
+					finally { locker.unlock(); }
+				}
 			}
 		}
 	}
@@ -82,8 +86,8 @@ class ChainedPrePostContext( AsyncPrePostContext context, Iterator<Anything(Asyn
 			context.abort( first[0], first[1] );
 		}
 		else {
-			String title = "multiple abort reasons (``abortReasons.size``)";
-			context.abort( MultipleFailureException( [for ( r in abortReasons ) r[0]], title ), title );
+			value reason = MultipleAbortException( [for ( r in abortReasons ) r[0]] );
+			context.abort( reason, reason.description );
 		}		
 	}
 	

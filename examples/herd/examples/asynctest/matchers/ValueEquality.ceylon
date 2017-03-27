@@ -1,12 +1,14 @@
 import herd.asynctest {
-	AsyncTestContext,
-	parameterized
+	AsyncTestContext
 }
 import ceylon.test {
 	test
 }
 import herd.asynctest.match {
 	ValueEquality
+}
+import herd.asynctest.parameterization {
+	parameterized
 }
 
 

@@ -4,10 +4,11 @@ import herd.asynctest.internal {
 	typeName
 }
 
+
 "Verifies if matching value equals to `merit` using operator `==`."
-tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
-shared class EqualObjects<Value> (
-	"Value to compare with matching one." Value merit
+tagged( "Checkers", "Comparators" ) since( "0.4.0" ) by( "Lis" )
+shared class EqualTo<Value> (
+	"Expected value." Value merit
 )
 		satisfies Matcher<Value>
 		given Value satisfies Object
@@ -22,10 +23,28 @@ shared class EqualObjects<Value> (
 }
 
 
+"Verifies if matching value is _not_ equal to `merit` using operator `!=`."
+tagged( "Checkers", "Comparators" ) since( "0.7.0" ) by( "Lis" )
+shared class NotEqualTo<Value> (
+	"Value which is expected to be not equal to matching one." Value merit
+)
+		satisfies Matcher<Value>
+		given Value satisfies Object
+{
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``stringify( val )`` != ``stringify( merit )``", val != merit );
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "not equal objects of '``typeName( tVal )``'";
+	}
+}
+
+
 "Verifies if matching value is identical to `merit` using operator `===`."
 tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class Identical<Value> (
-	"Value to compare with matching one." Value merit
+	"Value which is expected to be identical to matching one." Value merit
 )
 		satisfies Matcher<Value>
 		given Value satisfies Identifiable
@@ -40,14 +59,32 @@ shared class Identical<Value> (
 }
 
 
-"The matcher is useful to test classes which implements `eqauls` method. It verifies value equality rules i.e.:
+"Verifies if matching value is _not_ identical to `merit` using operator `===`."
+tagged( "Checkers" ) since( "0.7.0" ) by( "Lis" )
+shared class NotIdentical<Value> (
+	"Value which is expected to be _not_ identical to matching one." Value merit
+)
+		satisfies Matcher<Value>
+		given Value satisfies Identifiable
+{
+	shared actual MatchResult match( Value val )
+			=> MatchResult( "``stringify( val )`` !== ``stringify( merit )``", !(val === merit) );
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "not identical <``typeName( tVal )``>";
+	}
+}
+
+
+"The matcher is useful to test classes which implements `equals` method. It verifies value equality rules i.e.:
  * reflexivity, x==x  
  * symmetry, if x==y then y==x  
  * trasitivity, if x==y and y==z then x==z  
  * \'hashivity\', if x==y then x.hash==y.hash
  
- In order to have value to compare to `clone` function is used which has to return new object
- which has to be equal to the given one.
+ In order to have value to compare to `clone` function is used. The function has to return new object
+ which has to be equal to the passed to.
  "
 tagged( "Checkers" ) since( "0.6.0" ) by( "Lis" )
 shared class ValueEquality<Value> (
@@ -80,17 +117,16 @@ shared class ValueEquality<Value> (
 }
 
 
-"Verifies if matching value is equal to `merit` using given comparator."
+"Verifies if matching value is equal to [[merit]] using given [[comparator]]."
 tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class EqualWith<Value> (
-	"Value to compare with matching one."
+	"Value which is expected to be equal to matching one with the given [[comparator]]."
 	Value merit,
 	"Comparator used to compare matching value and merit.  
 	 Has to return `true` if values are equal and `false` otherwise."
 	Boolean comparator( Value first, Value second )
 )
 		satisfies Matcher<Value>
-		given Value satisfies Identifiable
 {
 	shared actual MatchResult match( Value val )
 		=> MatchResult (
@@ -105,6 +141,31 @@ shared class EqualWith<Value> (
 }
 
 
+"Verifies if matching value is _not_ equal to [[merit]] using given [[comparator]]."
+tagged( "Checkers" ) since( "0.7.0" ) by( "Lis" )
+shared class NotEqualWith<Value> (
+	"Value which is expected to be _not_ equal to matching one with the given [[comparator]]."
+	Value merit,
+	"Comparator used to compare matching value and merit.  
+	 Has to return `true` if values are equal and `false` otherwise."
+	Boolean comparator( Value first, Value second )
+)
+		satisfies Matcher<Value>
+		given Value satisfies Identifiable
+{
+	shared actual MatchResult match( Value val )
+			=> MatchResult (
+		"``stringify( val )`` not equal to ``stringify( merit )`` with comparator",
+		!comparator( val, merit )
+	);
+	
+	shared actual String string {
+		value tVal = `Value`;
+		return "not equal with comparator <``typeName( tVal )``>";
+	}
+}
+
+
 "Verifies if matching value is of `Check` type."
 tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class IsType<Check>()
@@ -112,12 +173,29 @@ shared class IsType<Check>()
 {
 	shared actual MatchResult match( Anything val ) {
 		value tCheck = `Check`;
-		return MatchResult( "``stringify( val )`` is ``tCheck``", if ( is Check val ) then true else false );
+		return MatchResult( "``stringify( val )`` is ``tCheck``", val is Check );
 	}
 	
 	shared actual String string {
 		value tCheck = `Check`;
 		return "is <``typeName( tCheck )``>";
+	}
+}
+
+
+"Verifies if matching value is _not_ of `Check` type."
+tagged( "Checkers" ) since( "0.7.0" ) by( "Lis" )
+shared class IsNotType<Check>()
+		satisfies Matcher<Anything>
+{
+	shared actual MatchResult match( Anything val ) {
+		value tCheck = `Check`;
+		return MatchResult( "``stringify( val )`` is ``tCheck``", !val is Check );
+	}
+	
+	shared actual String string {
+		value tCheck = `Check`;
+		return "is not <``typeName( tCheck )``>";
 	}
 }
 

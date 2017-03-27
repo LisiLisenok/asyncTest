@@ -1,19 +1,25 @@
-import ceylon.test {
-	TestState
+import herd.asynctest.parameterization {
+	TestVariant,
+	TestVariantEnumerator,
+	TestVariantResult
 }
 
 
-"Enumerates test variants."
-see( `interface TestVariantProvider` )
+
+"Test variant without any arguments."
 since( "0.6.0" ) by( "Lis" )
-shared interface TestVariantEnumerator {
-	"Currently applied test variant."
-	shared formal TestVariant|Finished current;
+object emptyTestVariant extends TestVariant( [], [] ) {
+	shared actual String variantName = "";
+	shared actual Boolean equals( Object that ) {
+		if ( is TestVariant that ) {
+			return that === this;
+		}
+		else {
+			return false;
+		}
+	}
 	
-	"Move to the next test variant. Sets `current` to the next variant to be tested."
-	shared formal void moveNext (
-		"Results of the test with `current` variant." TestVariantResult result
-	);
+	shared actual Integer hash => 37;	
 }
 
 
@@ -23,37 +29,6 @@ class EmptyTestVariantEnumerator() satisfies TestVariantEnumerator {
 	variable TestVariant|Finished currentVal = emptyTestVariant;
 	shared actual TestVariant|Finished current => currentVal;
 	shared actual void moveNext(TestVariantResult result) => currentVal = finished;
-}
-
-
-"Iterates variants by arguments list and completes when number of failures reach limit."
-see( `function parameterized` )
-since( "0.6.0" ) by( "Lis" )
-class TestVariantIterator (
-	"Test variants iterator - function which returns next." TestVariant|Finished argsIterator(),
-	"Limit on failures. When it is reached `next` returns `finished`." Integer maxFailedVariants
-)
-	satisfies TestVariantEnumerator
-{
-	variable Integer variantsFailed = 0;
-	
-	variable TestVariant|Finished curVariant = argsIterator();
-	
-	
-	shared actual TestVariant|Finished current => curVariant;
-	
-	shared actual void moveNext( TestVariantResult result ) {
-		if ( result.overallState > TestState.success ) {
-			variantsFailed ++;
-		}
-		if ( maxFailedVariants < 1 || maxFailedVariants > variantsFailed ) {
-			curVariant = argsIterator();
-		}
-		else {
-			curVariant = finished;
-		}
-	}
-	
 }
 
 
@@ -78,7 +53,7 @@ class CombinedVariantEnumerator( Iterator<TestVariantEnumerator> providers )
 	}
 	
 	variable TestVariant|Finished currrentVariant = moveNextProvider();
-		
+	
 	
 	shared actual TestVariant|Finished current => currrentVariant;
 	
@@ -94,4 +69,3 @@ class CombinedVariantEnumerator( Iterator<TestVariantEnumerator> providers )
 	}	
 	
 }
-

@@ -1,11 +1,8 @@
 import herd.asynctest {
-
 	AsyncTestContext,
-	parameterized,
 	async,
 	arguments,
-	AsyncPrePostContext,
-	TestVariant
+	AsyncPrePostContext
 }
 import ceylon.test {
 
@@ -22,7 +19,10 @@ import java.lang {
 
 	Runtime
 }
-
+import herd.asynctest.parameterization {
+	parameterized,
+	TestVariant
+}
 
 
 shared {TestVariant*} testTimers => {

@@ -1,7 +1,7 @@
 import herd.asynctest {
-	AsyncMessageContext,
-	TestInfo,
-	retry,
+	retry
+}
+import herd.asynctest.parameterization {
 	TestVariantResult
 }
 
@@ -18,6 +18,9 @@ import herd.asynctest {
  
  The runner repeats only test function execution! All `before`, `after` and `testRule` callbacks
  are executed _once_. In order to repeat overal test execution cycle see [[retry]].  
+ 
+ > Thread-safe.  
+ 
  "
 see( `function retry` )
 tagged( "Runner", "Repeat" )
@@ -34,7 +37,7 @@ shared abstract class RepeatRunner()
 	shared formal class Repeater() satisfies RepeatStrategy {}
 
 	
-	shared actual void run( AsyncMessageContext context, void testing(AsyncMessageContext context), TestInfo info ) {
+	shared actual void run( AsyncRunnerContext context, void testing(AsyncRunnerContext context), TestInfo info ) {
 		CollectorContext collect = CollectorContext();
 		RepeatStrategy strategy = Repeater();
 		while ( true ) {
@@ -58,25 +61,27 @@ shared abstract class RepeatRunner()
 }
 
 
-"Runner which repeats up to the first successfull run but no more then `maxRepeats`."
-see( `class RepeatUpToSuccessRun` )
+"Runner which repeats up to the first successfull run but no more then `maxRepeats`.  
+ Reports result from the latest run."
+see( `class RepeatUpToSuccessfulRun` )
 tagged( "Runner", "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class UpToSuccessRepeater( "Number of repeats limit." Integer maxRepeats = 1 )
+shared class UpToSuccessRepeater( "Maximum number of repeats." Integer maxRepeats = 1 )
 	extends RepeatRunner() 
 {
 	shared actual class Repeater() extends super.Repeater() {
-		RepeatStrategy strategy = RepeatUpToSuccessRun( maxRepeats );
+		RepeatStrategy strategy = RepeatUpToSuccessfulRun( maxRepeats );
 		shared actual TestVariantResult? completeOrRepeat( TestVariantResult variant ) => strategy.completeOrRepeat( variant );
 	}
 }
 
 
-"Runner which repeats up to the first failed run but no more then `maxRepeats`."
+"Runner which repeats up to the first failed run but no more then `maxRepeats`.  
+ Reports result from the latest run."
 see( `class RepeatUpToFailedRun` )
 tagged( "Runner", "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class UpToFailureRepeater( "Number of repeats limit." Integer maxRepeats = 1 )
+shared class UpToFailureRepeater( "Maximum number of repeats." Integer maxRepeats = 1 )
 		extends RepeatRunner() 
 {
 	shared actual class Repeater() extends super.Repeater() {
@@ -86,11 +91,12 @@ shared class UpToFailureRepeater( "Number of repeats limit." Integer maxRepeats 
 }
 
 
-"Runner which repeats up to the first failure message but no more then `maxRepeats`."
+"Runner which repeats up to the first failure message but no more then `maxRepeats`.  
+ Reports the first failure message only"
 see( `class RepeatUpToFailureMessage` )
 tagged( "Runner", "Repeat" )
 since( "0.6.0" ) by( "Lis" )
-shared class UpToFailureMessageRepeater( "Number of repeats limit." Integer maxRepeats = 1 )
+shared class UpToFailureMessageRepeater( "Maximum number of repeats." Integer maxRepeats = 1 )
 		extends RepeatRunner() 
 {
 	shared actual class Repeater() extends super.Repeater() {

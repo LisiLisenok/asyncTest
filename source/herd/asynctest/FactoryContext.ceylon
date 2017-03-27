@@ -48,10 +48,7 @@ class FactoryContext (
 		abortReason = null;
 		instantiatedObject = null;
 		try { factory( this ); }
-		catch ( Throwable err ) {
-			instantiatedObject = null;
-			abortReason = err;
-		}
+		catch ( Throwable err ) { abort( err ); }
 		await();
 	}
 	

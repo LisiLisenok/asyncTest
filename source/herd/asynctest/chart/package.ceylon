@@ -1,5 +1,7 @@
 "
- [[Chart]] is a set of plots, where each plot is a sequence of 2D points, [[Plot]].  
+ [[Chart]] is a set of plots, where each plot is a sequence of 2D points.  
+ 
+ 
  Chart may have title, names of each axis and optional format used by report processor ([[ReportFormat]]).
  Plot also may have title.  
  [[Plotter]] is used to fill in plot.  

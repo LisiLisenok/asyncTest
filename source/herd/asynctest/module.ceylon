@@ -12,18 +12,22 @@
  * multi-reporting: several failures or successes can be reported for a one particular test execution (test function),
    each report is represented as test variant and might be marked with \`String\` title  
  * reporting test results using charts (or plots)  
+ * benchmarks  
  
  
  The extension is based on:  
  * [[AsyncTestExecutor]] - the test executor which satisfies `ceylon.test.engine.spi::TestExecutor`
    and provides an interaction with `ceylon.test` module.  
  * [[AsyncTestContext]] which provides an interaction of the test function with the test framework.  
- * [[AsyncPrePostContext]] which provides an interaction of initialization / disposing logic with the test framework.  
+ * [[AsyncPrePostContext]] which provides an interaction of initialization / disposing logic with the test framework.
+ * [[package herd.asynctest.parameterization]] provides value- and type- parameterized testing capability.    
  * [[package herd.asynctest.rule]] package which contains rules used for test initialization / disposing
    and for modification of the test behaviour.  
  * [[package herd.asynctest.runner]] package which provides a control over a test function execution.  
  * [[package herd.asynctest.match]] package which contains matching API.  
- * [[package herd.asynctest.chart]] package which is intended to organize reporting with charts.  
+ * [[package herd.asynctest.chart]] package which is intended to organize reporting with charts.
+ * [[package herd.asynctest.benchmark]] package which contains library for thebenchmark testing.   
+ 
  
  It is recommended to read documentation on `module ceylon.test` before starting with **asyncTest**.
  
@@ -43,8 +47,9 @@
  8. [Matchers.](#matchers)  
  9. [Time out.](#timeout_section)
  10. [Retry test.](#retry_section)    
- 11. [Conditional execution.](#conditions)  
- 12. [Reporting test results using charts.](#charts)  
+ 11. [Conditional execution.](#conditions)
+ 12. [Benchmarking.](#benchmarking)  
+ 13. [Reporting test results using charts.](#charts)  
 
  
  -------------------------------------------
@@ -180,8 +185,8 @@
  provider has to return the same arguments list. But async version will additionally be provided
  with `AsyncPrePostContext` which has to be the first argument.  
  
- > [[arguments]] annotation is not applicable to test functions. [[parameterized]] annotation is aimed
-   to perform parameterized testing, see, section [Value- and type- parameterized testing](#parameterized_section) below.  
+ > [[arguments]] annotation is not applicable to test functions.
+   See package [[package herd.asynctest.parameterization]] for the parameterized testing.  
  
  
  #### Test rules  
@@ -199,9 +204,9 @@
  some complex logic or some asynchronous operations.
  If the class declaration is marked with [[factory]] annotation
  a given factory function is used to instantiate the class.  
-  
+ 
  If no factory function is provided instantiation is done using metamodel staff calling class initializer with arguments
- provided with [[arguments]] annotation or without arguments if the annotation is missed.  
+ provided with [[arguments]] annotation or without arguments if the annotation is omitted.  
  
  > Just a one instance of the test class is used for the overall test runcycle it may cause several misalignments:
    1. Test interrelation. Please, remember best-practices say the tests have to be independent.  
@@ -236,7 +241,7 @@
  
  For example:  
  * A package has three test classes.  
- * Two of them are annotated with [[concurrent]] and third is not annotated.  
+ * Two of them are annotated with [[concurrent]] and third is not.  
  * Two marked suites are executed via thread pool. Each suite in separated thread if number of
    available cores admits. But all test functions in the given suite are executed sequentially via a one thread.  
  * After completion the test of the first two suites the third one is executed.  
@@ -269,49 +274,12 @@
  -------------------------------------------
  ### <a name=\"parameterized_section\"></a> Value- and type- parameterized testing  
  
- In order to perform parameterized testing the test function has to be marked with annotation which supports
- [[TestVariantProvider]] interface. The interface has just a one method - `variants()`
- which has to provide [[TestVariantEnumerator]]. The enumerator produces a stream
- of the [[TestVariant]]'s and is iterated just a once.
- The test will be performed using all variants the enumerator produces.  
+ Parameterized testing is performed using annotations to specify a generator of the test variants.
+ Basically, each test variant is a list of test function type parameters and arguments.  
+ Package [[package herd.asynctest.parameterization]] provides parameterized testing capability
+ with a number of ways to generate test variants.  
  
- > The enumerator may return test variants lazily, dynamicaly or even non-determenisticaly.  
- > Each [[TestVariant]] contains a list of generic type parameters and a list of function arguments.  
-
   
- [[parameterized]] annotation satisfies [[TestVariantProvider]] interface and
- provides parameterized testing based on collection of test variants.  
- 
- 
- **Custom parameterization:**  
- 
- 1. Implement [[TestVariantEnumerator]] interface:
- 		class MyTestVariantEnumerator(...) satisfies TestVariantEnumerator {
- 			shared actual TestVariant|Finished current => ...;
- 
- 			shared actual void moveNext(TestVariantResult result) {
- 				if (testToBeCompleted) {
- 					// set `current` to `finished`
- 				} else {
- 					// set `current` to test variant to be tested next
- 				}
- 			}
- 		}
- 		
- 2. Make an annotation which satisfies [[TestVariantProvider]] interface:
- 		shared final annotation class MyParameterizedAnnotation(...)
- 			satisfies SequencedAnnotation<MyParameterizedAnnotation, FunctionDeclaration>&TestVariantProvider
- 		{
- 			shared actual TestVariantEnumerator variants() => MyTestVariantEnumerator(...);
- 		}
- 		
- 		shared annotation MyParameterizedAnnotation myParameterized(...) => MyParameterizedAnnotation(...);
- 		
- 
- 3. Mark test function with created annotation:
- 		myParameterized(...) void myTest(...) {...}
- 
- 
  -------------------------------------------
  ### <a name=\"runners\"></a> Test runners  
  
@@ -344,7 +312,7 @@
  test rule or factory.  
  
  Example, function `doMyTest` will be interrupted if not completed during 1 second:
- 		timeout( 1K ) test async void doMyTest(...) {...}
+ 		timeout(1K) test async void doMyTest(...) {...}
   
  
  -------------------------------------------
@@ -364,17 +332,23 @@
  All conditions at every level are evaluated before test execution started
  and if some conditions are _not_ met (are unsuccessfull) the test is skipped and all rejection reasons are reported.  
  
- For an example, see, `ceylon.test::ignore` annotation.
+ For an example, see `ceylon.test::ignore` annotation.
  
  > Conditions are evaluation up to the first unsatisfied condition.
    So, there is no guarantee for a condition to be evaluated.  
   
  
  -------------------------------------------
+ ### <a name=\"benchmarking\"></a> Benchmarking  
+ 
+ [[package herd.asynctest.benchmark]] package contains library to perform benchmark testing.  
+ 
+ 
+ -------------------------------------------
  ### <a name=\"charts\"></a> Reporting test results using charts  
  
  Chart is simply a set of plots, where each plot is a sequence of 2D points.  
- Test results can be represented and reported with charts using stuff provided by [[package herd.asynctest.chart]] package.  
+ Test results can be represented and reported with charts using [[package herd.asynctest.chart]] package.  
  
  
  --------------------------------------------
@@ -403,9 +377,10 @@ license (
 )
 by( "Lis" )
 native( "jvm" )
-module herd.asynctest "0.6.0" {
+module herd.asynctest "0.7.0" {
 	import java.base "8";
-	shared import ceylon.test "1.3.1";
-	import ceylon.collection "1.3.1";
-	shared import ceylon.file "1.3.1";
+	shared import ceylon.test "1.3.2";
+	import ceylon.collection "1.3.2";
+	shared import ceylon.file "1.3.2";
+	import java.management "8";
 }

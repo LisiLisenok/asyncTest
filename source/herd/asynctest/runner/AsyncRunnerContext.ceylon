@@ -1,12 +1,12 @@
 
 
 "Base interface to push test messages to.  
- The interface is mainly used by test runners [[herd.asynctest.runner::AsyncTestRunner]].  
- Test function receives derived interface [[AsyncTestContext]]."
-since( "0.6.0" ) by( "Lis" )
-shared interface AsyncMessageContext {
+ The interface is mainly used by test runners, see package [[package herd.asynctest.runner]] for details.  
+ Test function receives [[herd.asynctest::AsyncTestContext]]."
+since( "0.7.0" ) by( "Lis" )
+shared interface AsyncRunnerContext {
 	
-	"Completes the testing. To be called by test function when testing is completed.
+	"Completes the testing. To be called by the test function when testing is completed.
 	 This wakes up test thread and allows to continue testing and store results."
 	shared formal void complete (
 		"Optional title which is added to test variant name only if test is succeeded."

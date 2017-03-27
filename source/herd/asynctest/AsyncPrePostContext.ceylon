@@ -3,6 +3,9 @@ import herd.asynctest.rule {
 	SuiteRule,
 	TestRule
 }
+import herd.asynctest.runner {
+	TestInfo
+}
 
 
 "Allows prepost function functions to interract with test executor.  

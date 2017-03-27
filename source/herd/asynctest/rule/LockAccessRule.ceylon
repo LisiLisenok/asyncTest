@@ -4,6 +4,10 @@ import herd.asynctest {
 import java.util.concurrent.locks {
 	ReentrantLock
 }
+import java.util.concurrent.atomic {
+	AtomicLong
+}
+
 
 "Tool for controlling access to a shared resource of `Element` type by multiple threads.  
  
@@ -37,18 +41,36 @@ shared class LockAccessRule<Element> (
 {
 	
 	class Box( shared variable Element elem ) {
+		shared AtomicLong lockCountAtomic = AtomicLong( 0 );
+		shared AtomicLong unlockCountAtomic = AtomicLong( 0 );
 		ReentrantLock locker = ReentrantLock();
-		shared void lock() => locker.lock();
-		shared void unlock() => locker.unlock();
+		shared void lock() {
+			locker.lock();
+			lockCountAtomic.incrementAndGet();
+		}
+		shared void unlock() {
+			unlockCountAtomic.incrementAndGet();
+			locker.unlock();
+		}
+		
+		string => "lock access rule";
 	}
 	
-	variable Box stored = Box( if ( is Element() initial ) then initial() else initial );
+	CurrentTestStore<Box> stored = CurrentTestStore<Box> (
+		() => Box( if ( is Element() initial ) then initial() else initial )
+	);
+	
+	"Total number of times the lock has been obtained."
+	shared Integer lockCount => stored.element.lockCountAtomic.get();
+	
+	"Total number of times the lock has been released."
+	shared Integer unlockCount => stored.element.unlockCountAtomic.get();
 	
 	
 	"Locks the resource and provides access to.  
 	 Actual resource is stored when `release` is called, but not when `element` is modified."
 	shared class Lock() satisfies Obtainable {
-		Box box = stored;
+		Box box = stored.element;
 		variable Boolean locked = true;
 		box.lock();
 		"Access to the shared resource."
@@ -56,8 +78,8 @@ shared class LockAccessRule<Element> (
 		box.unlock();
 		
 		shared actual void obtain() {
-			locked = true;
 			box.lock();
+			locked = true;
 		}
 		
 		shared actual void release( Throwable? error ) {
@@ -70,11 +92,8 @@ shared class LockAccessRule<Element> (
 		
 	}
 	
-	shared actual void after( AsyncPrePostContext context ) => context.proceed();
+	shared actual void after( AsyncPrePostContext context ) => stored.after( context );
 	
-	shared actual void before( AsyncPrePostContext context ) {
-		stored = Box( if ( is Element() initial ) then initial() else initial );
-		context.proceed();
-	}
+	shared actual void before( AsyncPrePostContext context ) => stored.before( context );
 	
 }

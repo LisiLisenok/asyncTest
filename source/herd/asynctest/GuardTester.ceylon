@@ -4,8 +4,8 @@ import herd.asynctest.internal {
 import java.lang {
 	Thread
 }
-import java.util.concurrent.locks {
-	ReentrantLock
+import herd.asynctest.runner {
+	AsyncRunnerContext
 }
 
 
@@ -22,14 +22,10 @@ class GuardTester (
 	"Function to be executed."
 	TestFunction testFunction,
 	"Context the test function to be executed on."
-	AsyncMessageContext context
+	AsyncRunnerContext context
 )
 		extends ContextBase() satisfies AsyncTestContext
 {	
-	
-	"Callbacks locking."
-	ReentrantLock locker = ReentrantLock();
-	
 	
 	"Fails and completes the test with uncaught exception from some execution thread."
 	void failWithUncaughtException( Thread t, Throwable e ) {
@@ -55,26 +51,20 @@ class GuardTester (
 	
 	shared actual void complete( String title ) {
 		if ( running.compareAndSet( true, false ) ) {
-			locker.lock();
 			try { context.complete( title ); }
-			finally { locker.unlock(); }
-			signal();
+			finally { signal(); }
 		}
 	}
 	
 	shared actual void fail( Throwable|Anything() exceptionSource, String title ) {
 		if ( running.get() ) {
-			locker.lock();
-			try { context.fail( exceptionSource, title ); }
-			finally { locker.unlock(); }
+			context.fail( exceptionSource, title );
 		}
 	}
 	
 	shared actual void succeed( String message ) {
 		if ( running.get() ) {
-			locker.lock();
-			try { context.succeed( message ); }
-			finally { locker.unlock(); }
+			context.succeed( message );
 		}
 	}
 	

@@ -9,7 +9,9 @@ import ceylon.language.meta.model {
 
 
 "Represents test variant, i.e. test function generic type parameters and arguments."
-see( `interface TestVariantEnumerator`, `interface TestVariantProvider` )
+tagged( "Base" )
+see( `interface TestVariantEnumerator`, `interface TestVariantProvider`,
+	`class ParameterizedAnnotation`, `class CombinatorialAnnotation` )
 since( "0.6.0" ) by( "Lis" )
 shared class TestVariant (	
 	"Generic type parameters."
@@ -85,21 +87,4 @@ shared class TestVariant (
 		return memoizedHash;
 	}
 	
-}
-
-
-"Test variant without any arguments."
-since( "0.6.0" ) by( "Lis" )
-object emptyTestVariant extends TestVariant( [], [] ) {
-	shared actual String variantName = "";
-	shared actual Boolean equals( Object that ) {
-		if ( is TestVariant that ) {
-			return that === this;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	shared actual Integer hash => 37;	
 }

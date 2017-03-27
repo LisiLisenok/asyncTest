@@ -1,35 +1,13 @@
-import ceylon.test {
-
-	TestState
-}
 import ceylon.test.engine.spi {
-
 	TestExecutionContext
 }
-
-
-"Represents a one report."
-see( `class TestVariantResult` )
-since( "0.0.1" ) by( "Lis" )
-shared final class TestOutput (
-	"Test state of this report." shared TestState state,
-	"Error if occured." shared Throwable? error,
-	"Time in milliseconds elapsed before reporting." shared Integer elapsedTime,
-	"Output title." shared String title
-) {
-	string => "``state``: ``title``";
+import ceylon.test {
+	TestState
 }
 
-
-"Results of a one test function run with some arguments."
-see( `interface TestVariantEnumerator`, `class TestVariant`, `class VariantResultBuilder` )
-since( "0.6.0" ) by( "Lis" )
-shared final class TestVariantResult (
-	"Outputs from test." shared TestOutput[] testOutput,
-	"Overall time in milliseconds elapsed on the test run." shared Integer overallElapsedTime,
-	"Overall state of the test run." shared TestState overallState
-) {
-	string => "``overallState`` at ``overallElapsedTime``ms.";
+import herd.asynctest.parameterization {
+	TestOutput,
+	TestVariantResult
 }
 
 
@@ -45,9 +23,9 @@ final class VariantTestOutput (
 ) {
 	
 	shared TestVariantResult variantResult => TestVariantResult (
-		 		initOutput.append( testOutput ).append( disposeOutput ),
-		 		totalElapsedTime, totalState
-		 	);
+		initOutput.append( testOutput ).append( disposeOutput ),
+		totalElapsedTime, totalState
+	);
 	
 	"`true` if `initOutput`, `testOutput` and `disposeOutput` all together are empty and `false` otherwise."
 	shared Boolean emptyOutput => initOutput.empty && testOutput.empty && disposeOutput.empty;

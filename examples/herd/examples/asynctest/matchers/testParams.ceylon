@@ -1,5 +1,5 @@
-import herd.asynctest {
 
+import herd.asynctest.parameterization {
 	TestVariant
 }
 

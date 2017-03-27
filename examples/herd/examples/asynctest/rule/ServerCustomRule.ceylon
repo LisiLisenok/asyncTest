@@ -39,7 +39,7 @@ import ceylon.uri {
 	parse
 }
 import herd.asynctest.match {
-	EqualObjects
+	EqualTo
 }
 	
 	
@@ -104,7 +104,7 @@ class ServerCustomRule (
 		Integer start = system.milliseconds;
 		value content = req.execute().contents;
 		Integer end = system.milliseconds;
-		context.assertThat(content, EqualObjects(responseString), "", true);
+		context.assertThat(content, EqualTo(responseString), "", true);
 		context.succeed("request-response has been taking ``end-start``ms");
 		context.complete();
 	}

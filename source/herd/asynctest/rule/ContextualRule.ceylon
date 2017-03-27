@@ -37,7 +37,7 @@ shared class ContextualRule<Element>( "Initial value source." Element | Element(
 	class Nil {shared new instance {}}
 	
 	Element&Object|Nil getElement( Element | Element() source )
-		=> if ( exists ret = if ( is Element() source ) then source() else source)
+		=> if ( exists ret = if ( is Element() source ) then source() else source )
 				then ret else Nil.instance;
 
 	

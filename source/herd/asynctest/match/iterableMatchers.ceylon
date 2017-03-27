@@ -85,6 +85,18 @@ shared class DoesNotContain<Value>( "Item to check if matching stream doesn't co
 }
 
 
+"Verifies if matching stream of `Sequence` does _not_ contain duplicate elements."
+tagged( "Streams" ) since( "0.7.0" ) by( "Lis" )
+shared class ContainsNoDuplicates<Value>()
+		satisfies Matcher<[Value*]>
+{
+	shared actual MatchResult match( [Value*] val )
+			=> MatchResult( "stream doesn't contain duplicates", val.distinct.size == val.size );
+	
+	shared actual String string => "stream doesn't contain duplicates";
+}
+
+
 "Verifies if matching stream of `Iterable` contains every item from the given `elements` stream."
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class ContainsEvery<Value>( "Elements to check if matching stream contains every item from." {Value&Object*} elements )
@@ -270,7 +282,7 @@ shared class Contained<Value> (
  > Note: `Iterable` is lazy and there is no quarantee to get the same stream
  when it is iterating second time. While `Sequence` is eager and repeatably iterated."
 tagged( "Streams" ) since( "0.6.0" ) by( "Lis" )
-shared class IsNotContained<Value> (
+shared class NotContained<Value> (
 	"Stream to check if it doesn't contain matching value." [Value*] stream
 )
 		satisfies Matcher<Value&Object>

@@ -1,7 +1,4 @@
-import herd.asynctest {
-	AsyncMessageContext,
-	TestInfo
-}
+
 import ceylon.test.engine {
 	MultipleFailureException
 }
@@ -19,7 +16,7 @@ tagged( "Runner" )
 since( "0.6.0" ) by( "Lis" )
 shared class ErrorCollectorRunner() satisfies AsyncTestRunner {
 		
-	shared actual void run( AsyncMessageContext context, void testing(AsyncMessageContext context), TestInfo info ) {
+	shared actual void run( AsyncRunnerContext context, void testing(AsyncRunnerContext context), TestInfo info ) {
 		CollectorContext collect = CollectorContext();
 		collect.start();
 		testing( collect );

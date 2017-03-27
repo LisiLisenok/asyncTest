@@ -3,17 +3,18 @@ import ceylon.test {
 	test
 }
 import herd.asynctest {
-
 	AsyncTestContext,
-	parameterized,
 	async,
-	TestVariant,
 	timeout
 }
 import herd.asynctest.match {
 
 	EqualTo,
 	Mapping
+}
+import herd.asynctest.parameterization {
+	TestVariant,
+	parameterized
 }
 
 
@@ -38,8 +39,8 @@ see( `function runFibonacciTest` )
  
  The function is marked with `testExecutor` annotation in order to perform asynchronous test.
  Alternatively `testExecutor` annotation can be used at module level."
-test async parameterized( `value fibonacciNumbers` )
-timeout( 5000 )
+test async parameterized(`value fibonacciNumbers`)
+timeout(5000)
 shared void runFibonacciTest (
 	"Context to send test results." AsyncTestContext context,
 	"Index of Fibonacci number to be calculated." Integer indexOfFibonacciNumber,
@@ -50,7 +51,7 @@ shared void runFibonacciTest (
 		(Integer val) {
 			context.assertThat<Integer> (
 				val,
-				EqualTo( expectedFibonacciNumber ).and( Mapping( fibonacciNumberIndex, EqualTo( indexOfFibonacciNumber ) ) ),
+				EqualTo(expectedFibonacciNumber).and(Mapping(fibonacciNumberIndex, EqualTo(indexOfFibonacciNumber))),
 				"", true
 			);
 			context.complete();

@@ -2,13 +2,14 @@ import ceylon.test {
 	test
 }
 import herd.asynctest {
-	parameterized,
-	AsyncTestContext,
-	TestVariant
+	AsyncTestContext
 }
 import herd.asynctest.match {
-	EqualObjects,
 	EqualTo
+}
+import herd.asynctest.parameterization {
+	parameterized,
+	TestVariant
 }
 
 
@@ -26,7 +27,7 @@ shared test parameterized(`value identityArgs`)
 void testIdentity<Value>(AsyncTestContext context, Value arg)
 	given Value satisfies Object
 {
-	context.assertThat(identity<Value>(arg), EqualObjects<Value>(arg), "", true );
+	context.assertThat(identity<Value>(arg), EqualTo<Value>(arg), "", true );
 	context.complete();
 }
 
@@ -72,6 +73,6 @@ parameterized(`value sortArgsString`)
 void testSort<Element>(AsyncTestContext context, Element[] stream, Element[] merit)
 		given Element satisfies Comparable<Element>
 {
-	context.assertThat(sort<Element>(stream), EqualObjects<Element[]>(merit), "", true );
+	context.assertThat(sort<Element>(stream), EqualTo<Element[]>(merit), "", true );
 	context.complete();
 }
