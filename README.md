@@ -54,3 +54,8 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
 * [Matchers](examples/herd/examples/asynctest/matchers) - matchers usage.  
 * [Parameterized](examples/herd/examples/asynctest/parameterized) - type- and value- parameterized testing.  
 * [Rules](examples/herd/examples/asynctest/rule) - test rules usage.  
+
+
+**Gratipay**  
+<img src="http://img.shields.io/gratipay/user/LisiLisenok.svg">
+
