@@ -82,6 +82,16 @@ class TestGroupExecutor (
 	"Executions the group contains."
 	LinkedList<TestDescription> executions = LinkedList<TestDescription>();
 
+
+	void fillFactoryContext( AsyncFactoryContext context, Anything item, String factoryFunction ) {
+		if ( exists item ) {
+			context.fill( item );
+		}
+		else {
+			context.abort( FactoryReturnsNothing( "``factoryFunction``" ) );
+		}
+	}
+	
 	
 	"Instantiates a test container if `ClassDeclaration`.
 	 Returns `null` if top-level function is tested.
@@ -96,26 +106,46 @@ class TestGroupExecutor (
 			else {
 				if ( exists factory = optionalAnnotation( `FactoryAnnotation`, declaration ) ) {
 					// factory exists - use this to instantiate object
-					value args = resolveArgumentList( factory.factoryFunction, null );
-					if ( declarationVerifier.isAsyncFactoryDeclaration( factory.factoryFunction ) ) {
-						return FactoryContext( "``factory.factoryFunction.name``", group ).run (
+					value factoryFunction = factory.factoryFunction;
+					value args = resolveArgumentList( factoryFunction, null );
+					if ( declarationVerifier.isAsyncFactoryDeclaration( factoryFunction ) ) {
+						return FactoryContext( "``factoryFunction.name``", group ).run (
 							( AsyncFactoryContext context ) {
-								factory.factoryFunction.apply<>().apply( context, *args );
+								if ( factoryFunction.static ) {
+									factoryFunction.staticInvoke( declaration.classApply<Object>(), [], context, *args );
+								}
+								else if ( factoryFunction.toplevel ) {
+									factoryFunction.invoke( [], context, *args );
+								}
+								else {
+									context.abort( MemberFactoryException( declaration, factoryFunction ) );
+								}
 							},
-							extractTimeout( factory.factoryFunction )
+							extractTimeout( factoryFunction )
 						);
 					}
 					else {
-						return FactoryContext( "``factory.factoryFunction.name``", group ).run (
+						return FactoryContext( "``factoryFunction.name``", group ).run (
 							( AsyncFactoryContext context ) {
-								if ( exists ret = factory.factoryFunction.apply<>().apply( *args ) ) {
-									context.fill( ret );
+								if ( factoryFunction.static ) {
+									fillFactoryContext (
+										context,
+										factoryFunction.staticInvoke( declaration.classApply<Object>(), [], *args ),
+										factoryFunction.name
+									);
+								}
+								else if ( factoryFunction.toplevel ) {
+									fillFactoryContext (
+										context,
+										factoryFunction.invoke( [], *args ),
+										factoryFunction.name
+									);
 								}
 								else {
-									context.abort( FactoryReturnsNothing( "``factory.factoryFunction.name``" ) );
+									context.abort( MemberFactoryException( declaration, factoryFunction ) );
 								}
 							},
-							extractTimeout( factory.factoryFunction )
+							extractTimeout( factoryFunction )
 						);
 					}
 				}

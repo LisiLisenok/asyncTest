@@ -5,7 +5,8 @@ import ceylon.test.engine {
 	TestAbortedException
 }
 import ceylon.language.meta.declaration {
-	ClassDeclaration
+	ClassDeclaration,
+	FunctionDeclaration
 }
 
 
@@ -21,6 +22,18 @@ see( `function factory`, `interface AsyncFactoryContext` )
 since( "0.6.0" ) by( "Lis" )
 shared class FactoryReturnsNothing( String factoryTitle )
 		extends Exception( "Factory ``factoryTitle`` has neither instantiated object or throwed." )
+{}
+
+
+"Thrown when class is instantiated using member factory function (neither static nor toplevel)."
+since( "0.7.1" ) by( "Lis" )
+shared class MemberFactoryException (
+	"Declaration of the trying to instantiate class."
+	shared ClassDeclaration declaration,
+	"Factory function"
+	shared FunctionDeclaration factory
+)
+		extends Exception ( "Factory function ``factory.qualifiedName`` of class ``declaration.qualifiedName`` has to be either toplevel or static." )
 {}
 
 
