@@ -60,13 +60,13 @@ shared class DoesNotContainItem<Value>( "Item to check if map doesn't contain." 
 }
 
 
-"Verifies if matching map contains the given item `[[item]] with the given key [[key]].
+"Verifies if matching map contains the given item [[item]] with the given key [[key]].
  Items are compared using operator `==`."
 see( `class ItemAtKey` )
 tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
 shared class ItemByKey<Value> (
-	"Key to look [[item]] at." Object key,
-	"Item to check if map contains under the given [[key]]." Value item
+	"Key to look `item` at." Object key,
+	"Item to check if map contains under the given `key`." Value item
 )
 		satisfies Matcher<Map<Value, Anything>>
 		given Value satisfies Object
@@ -83,8 +83,8 @@ shared class ItemByKey<Value> (
 see( `class ItemByKey` )
 tagged( "Streams", "Maps" ) since( "0.7.0" ) by( "Lis" )
 shared class ItemAtKey<Value> (
-	"Map which is expected to contain [[item]] under matching key." Map<Object, Value> map,
-	"Item to check if [[map]] contains under matching key." Value item
+	"Map which is expected to contain `item` under matching key." Map<Object, Value> map,
+	"Item to check if `map` contains under matching key." Value item
 )
 		satisfies Matcher<Value>
 		given Value satisfies Object
