@@ -4,7 +4,7 @@ import herd.asynctest.internal {
 }
 
 
-"Verifies if matching map defines the given key [[key]], see `Map.defines`."
+"Verifies if matching map defines the given key `key`, see `Map.defines`."
 see( `class DoesNotContainItem`, `class DoesNotDefineKey`, `class ContainsItem` )
 tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
 shared class DefinesKey<Value>( "Key to check if map defines." Value key )
@@ -18,7 +18,7 @@ shared class DefinesKey<Value>( "Key to check if map defines." Value key )
 }
 
 
-"Verifies if matching map doesn't define the given key [[key]], see `Map.defines`."
+"Verifies if matching map doesn't define the given key `key`, see `Map.defines`."
 see( `class DoesNotContainItem`, `class ContainsItem`, `class DefinesKey` )
 tagged( "Streams", "Maps" ) since( "0.7.0" ) by( "Lis" )
 shared class DoesNotDefineKey<Value>( "Key to check if map doesn't define." Value key )
@@ -32,7 +32,7 @@ shared class DoesNotDefineKey<Value>( "Key to check if map doesn't define." Valu
 }
 
 
-"Verifies if matching map contains the given item [[item]]."
+"Verifies if matching map contains the given item `item`."
 see( `class DoesNotContainItem`, `class DoesNotDefineKey`, `class DefinesKey` )
 tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
 shared class ContainsItem<Value>( "Item to check if map contains." Value item )
@@ -46,7 +46,7 @@ shared class ContainsItem<Value>( "Item to check if map contains." Value item )
 }
 
 
-"Verifies if matching map doesn't contain the given item [[item]]."
+"Verifies if matching map doesn't contain the given item `item`."
 see( `class ContainsItem`, `class DoesNotDefineKey`, `class DefinesKey` )
 tagged( "Streams", "Maps" ) since( "0.7.0" ) by( "Lis" )
 shared class DoesNotContainItem<Value>( "Item to check if map doesn't contain." Value item )
@@ -60,7 +60,7 @@ shared class DoesNotContainItem<Value>( "Item to check if map doesn't contain." 
 }
 
 
-"Verifies if matching map contains the given item [[item]] with the given key [[key]].
+"Verifies if matching map contains the given item `item` with the given key `key`.
  Items are compared using operator `==`."
 see( `class ItemAtKey` )
 tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
@@ -78,7 +78,7 @@ shared class ItemByKey<Value> (
 }
 
 
-"Verifies if the given [[map]] contains the given item [[item]] at the matching value as key.
+"Verifies if the given `map` contains the given item `item` at the matching value as key.
  Items are compared using operator `==`."
 see( `class ItemByKey` )
 tagged( "Streams", "Maps" ) since( "0.7.0" ) by( "Lis" )
@@ -96,7 +96,7 @@ shared class ItemAtKey<Value> (
 }
 
 
-"Verifies if matching value is a key in the given [[map]], see `Map.defines`."
+"Verifies if matching value is a key in the given `map`, see `Map.defines`."
 tagged( "Streams", "Maps" ) since( "0.4.0" ) by( "Lis" )
 shared class HasKey<Value>( "Map which is expected to define matching key." Map<Value, Anything> map )
 		satisfies Matcher<Value>

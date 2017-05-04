@@ -5,9 +5,8 @@
  * line with plot titles
  * lines with points for each plot
  
- Each item is separated using [[ReportFormat.delimiter]] (see [[defaultFormat]]).    
- Numbers are reported using language [[formatFloat]]
- with given decimalPlaces (see [[defaultFormat]]).  
+ Each item is separated using [[ReportFormat.delimiter]].    
+ Numbers are reported using language [[formatFloat]] with given decimalPlaces.  
  "
 since( "0.3.0" )
 by( "Lis" )

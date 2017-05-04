@@ -86,7 +86,7 @@ shared interface AsyncTestContext
 		
 	}
 	
-	"Fails the test if [[source]] doesn't match [[matcher]] or succeeds the test otherwise.  
+	"Fails the test if `source` doesn't match `matcher` or succeeds the test otherwise.  
 	 If value source function throws corresponding failure is reported."
 	see( `package herd.asynctest.match`, `function assertThatListener` )
 	since( "0.4.0" )
@@ -133,7 +133,7 @@ shared interface AsyncTestContext
 		=> assertThat<Value>( source, matcher, title, reportSuccess );
 	
 	
-	"Creates a function which throws and to be checked on exception with `assertThat`."
+	"Creates a function which throws and to be checked on exception with [[assertThat]]."
 	since( "0.6.0" )
 	Throwable toThrow( Throwable | Anything() source )() {
 		if ( is Anything() source ) {
@@ -146,7 +146,7 @@ shared interface AsyncTestContext
 		}
 	}
 	
-	"Fails the test if a given exception doesn't match [[matcher]] or succeeds the test otherwise.  
+	"Fails the test if a given exception doesn't match `matcher` or succeeds the test otherwise.  
 	 The exception source may be an exception itself or function throwing an exception."
 	see( `package herd.asynctest.match`, `function assertThatExceptionListener` )
 	since( "0.6.0" )

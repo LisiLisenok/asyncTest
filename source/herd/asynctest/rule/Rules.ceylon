@@ -69,7 +69,7 @@ tagged( "Statement" ) since( "0.6.0" ) by( "Lis" )
 shared interface TestStatement
 {
 	
-	"Applies this statement using [[context]].  
+	"Applies this statement using `context`.  
 	 The method is called by test executor for each attribute or top-level value annotated with [[testRule]]
 	 after _each_ test function in the scope (package for top-level value or class for attribute) is executed.  
 	 

@@ -5,8 +5,8 @@ import ceylon.language.meta.declaration {
 
 
 "Indicates that the test has to be performed by applying a list of values to the marked test function argument.  
- [[source]] has to provide the values.  
- [[kind]] indicates the kind of the provided values.
+ `source` has to provide the values.  
+ `kind` indicates the kind of the provided values.
  The kind is used by _variant generator_ in order to identify strategy for the variant generations."
 tagged( "Data source" )
 see( `class CombinatorialAnnotation` )

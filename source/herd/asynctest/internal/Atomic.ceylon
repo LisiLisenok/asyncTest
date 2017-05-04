@@ -49,11 +49,11 @@ shared interface Atomic<Element> {
 	"Atomically sets to the given value and returns the old value."
 	shared formal Element getAndSet( "Value to be stored." Element newValue );
 	
-	"Atomically sets the value to the given updated value if the current value == [[expected]].  
+	"Atomically sets the value to the given updated value if the current value == `expected`.  
 	 Returns `false` if current value is not equal to expected one otherwise returns `true`."
 	shared formal Boolean compareAndSet (
 		"Value to be compared with current one." Element expected,
-		"Value to be stored if [[expected]] == current one." Element newValue
+		"Value to be stored if `expected` == current one." Element newValue
 	);
 }
 

@@ -1,7 +1,7 @@
 
 
 "Flow which selects another bench function each given number of benchmark iterations.  
- [[select]] has to return currently selected bench function.  
+ `select` has to return currently selected bench function.  
  The bench functions are selected independently for each execution thread."
 tagged( "Bench flow" )
 see( `class SingleBench`, `class MultiBench` )

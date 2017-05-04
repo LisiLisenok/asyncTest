@@ -19,7 +19,11 @@ import ceylon.collection {
  If matcher rejects verification the fail report is added to the final test report."
 see( `function AsyncTestContext.assertThat`, `package herd.asynctest.match` )
 tagged( "Statement", "TestRule" ) since ( "0.6.0" ) by( "Lis" )
-shared class GaugeStatement<Element>( Matcher<Element> matcher ) satisfies TestStatement & TestRule
+shared class GaugeStatement<Element> (
+	"Matcher to be verified when [[gauge]] is called."
+	Matcher<Element> matcher
+)
+		satisfies TestStatement & TestRule
 {
 	
 	"Only current test has access."

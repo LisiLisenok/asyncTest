@@ -11,8 +11,8 @@ shared class Options (
 	 Warmup round is skipped if `null`."
 	shared CompletionCriterion? warmupCriterion = null,
 	"Number of iterations per a one loop.  
-	 Total number of loops are identified by [[warmupCriterion]] for warmup round
-	 and by [[measureCriterion]] for measure round."
+	 Total number of loops are identified by `warmupCriterion` for warmup round
+	 and by `measureCriterion` for measure round."
 	shared Integer iterationsPerLoop = 10,
 	"Time unit the results have to be reported with."
 	shared TimeUnit timeUnit = TimeUnit.seconds,

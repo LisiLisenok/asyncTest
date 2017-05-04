@@ -1,6 +1,6 @@
 
 
-"Benchmark run result for a given [[parameter]] and a set of benches."
+"Benchmark run result for a given `parameter` and a set of benches."
 tagged( "Result" )
 see( `class Result` )
 since( "0.7.0" ) by( "Lis" )

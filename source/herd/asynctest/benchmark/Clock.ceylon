@@ -32,7 +32,7 @@ shared interface Clock
 	shared formal void start();
 	
 	"Measures time interval from the last [[start]] call (in the same thread as `measure` called) and up to now.  
-	 Returns time interval in the given time units [[units]]."
+	 Returns time interval in the given time units."
 	shared formal Float measure( "Units the time interval is to be measured in." TimeUnit units );
 	
 }
