@@ -51,18 +51,17 @@ shared test void testEchoVerticle(AsyncTestContext context) {
 						switch (rep)
 						case (is Throwable) {
 							context.fail(rep);
-							context.complete();
+							
 						}
 						case (is Message<String?>) {
 							if (exists str = rep.body()) {
 								context.assertThat(str, EqualTo(address), "", true);
-								context.complete();
 							}
 							else {
 								context.fail(AssertionError("Empty message has been received"));
-								context.complete();
 							}
 						}
+						context.complete();
 					}
 				);
 			}
