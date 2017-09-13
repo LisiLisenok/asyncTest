@@ -59,3 +59,4 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
 
 **Gratipay**  
 <img src="http://img.shields.io/gratipay/user/LisiLisenok.svg">  
+
