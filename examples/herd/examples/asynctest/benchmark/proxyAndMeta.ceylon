@@ -1,5 +1,4 @@
 import ceylon.interop.java {
-	javaClass,
 	createJavaObjectArray
 }
 import java.lang.reflect {
@@ -8,7 +7,8 @@ import java.lang.reflect {
 	InvocationHandler
 }
 import java.lang {
-	ObjectArray
+	ObjectArray,
+	Types
 }
 import herd.asynctest.benchmark {
 	benchmark,
@@ -49,8 +49,8 @@ I instanceDecl() {
 T proxyInstance<T>(T delegate) given T satisfies Object {
 	assert (
 		is T ret = Proxy.newProxyInstance (
-			javaClass<T>().classLoader,
-			createJavaObjectArray({javaClass<T>()}),
+			Types.classForType<T>().classLoader,
+			createJavaObjectArray({Types.classForType<T>()}),
 			object satisfies InvocationHandler {
 				shared actual Object invoke(Object? proxy, Method method, ObjectArray<Object>? objectArray) {
 					method.accessible = true;
