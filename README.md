@@ -25,16 +25,16 @@ develop branch contains the currently developed version
 
 #### Ceylon compiler / platform  
 
-Compiled with Ceylon 1.3.2  
+Compiled with Ceylon 1.3.3  
 Available on JVM only  
 
 
 #### Dependencies  
 
-* ceylon.collection/1.3.2  
-* ceylon.file/1.3.2 shared  
-* ceylon.language/1.3.2  
-* ceylon.test/1.3.2 shared  
+* ceylon.collection/1.3.3  
+* ceylon.file/1.3.3 shared  
+* ceylon.language/1.3.3  
+* ceylon.test/1.3.3.1 shared  
 * java.base/8 JDK
 * java.management/8 JDK  
 
