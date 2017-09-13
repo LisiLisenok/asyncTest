@@ -1,13 +1,14 @@
 import ceylon.interop.java {
-	javaClass,
 	createJavaObjectArray
 }
 import java.lang.reflect {
 	Proxy,
-	Method
+	Method,
+	InvocationHandler
 }
 import java.lang {
-	ObjectArray
+	ObjectArray,
+	Types
 }
 import herd.asynctest.benchmark {
 	benchmark,
@@ -26,38 +27,41 @@ import ceylon.test {
 
 
 interface I {
-	shared formal Integer plusOne( Integer i );
+	shared formal Integer plusOne(Integer i);
 }
 
 class II() satisfies I {
-	shared actual Integer plusOne( Integer i ) => i + 1;
+	shared actual Integer plusOne(Integer i) => i + 1;
 }
 
 
 I instanceDecl() {
 	return object satisfies I {
 		II ii = II();
-		value f = `I.plusOne`.bind( ii );
-		shared actual Integer plusOne( Integer i ) {
-			return f.apply( i );
+		value f = `I.plusOne`.bind(ii);
+		shared actual Integer plusOne(Integer i) {
+			return f.apply(i);
 		}
 	};
 }
 
 
-T proxyInstance<T>( T delegate ) given T satisfies Object {
+T proxyInstance<T>(T delegate) given T satisfies Object {
 	assert (
 		is T ret = Proxy.newProxyInstance (
-			javaClass<T>().classLoader,
-			createJavaObjectArray( {javaClass<T>()} ),
-			( Object? proxyObject, Method method, ObjectArray<Object>? objectArray ) {
-				method.accessible = true;
-				if ( exists objectArray ) {
-					return method.invoke( delegate, *objectArray.iterable );
-					//return method.invoke( delegate, *objectArray );
-				}
-				else {
-					return method.invoke( delegate );
+			Types.classForType<T>().classLoader,
+			createJavaObjectArray({Types.classForType<T>()}),
+			object satisfies InvocationHandler {
+				shared actual Object invoke(Object? proxy, Method method, ObjectArray<Object>? objectArray) {
+					method.accessible = true;
+					if (exists objectArray) {
+						//return method.invoke(delegate, *objectArray.iterable);
+						return method.invoke(delegate, *objectArray);
+					}
+					else {
+						return method.invoke(delegate);
+					}
+					
 				}
 			}
 		)

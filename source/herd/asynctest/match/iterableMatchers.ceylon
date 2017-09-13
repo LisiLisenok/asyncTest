@@ -31,7 +31,10 @@ shared class NotEmpty() satisfies Matcher<{Anything*}>
 tagged( "Streams" ) since( "0.4.0" ) by( "Lis" )
 shared class SizeOf( "Target size the matching stream to be exactly." Integer size ) satisfies Matcher<{Anything*}>
 {
-	shared actual MatchResult match( {Anything*} val ) => MatchResult( "stream of size ``size``", val.size == size );
+	shared actual MatchResult match( {Anything*} val ) {
+		Integer actualSize = val.size;
+		return MatchResult( "stream of size ``actualSize``, expected is ``size``", actualSize == size );
+	}
 	
 	shared actual String string => "stream of size ``size``";
 }

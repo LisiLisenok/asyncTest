@@ -6,7 +6,7 @@ import herd.asynctest {
 }
 
 
-"Verifies if the stored value matches a given [[matcher]] when the statement is applied
+"Verifies if the stored value matches a given `matcher` when the statement is applied
  The initial value is evaluated _before_ each test. This is main difference with [[Verifier]]
  which evaluates value _after_ each test. 
  ."

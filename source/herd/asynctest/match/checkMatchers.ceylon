@@ -117,10 +117,10 @@ shared class ValueEquality<Value> (
 }
 
 
-"Verifies if matching value is equal to [[merit]] using given [[comparator]]."
+"Verifies if matching value is equal to `merit` using given `comparator`."
 tagged( "Checkers" ) since( "0.4.0" ) by( "Lis" )
 shared class EqualWith<Value> (
-	"Value which is expected to be equal to matching one with the given [[comparator]]."
+	"Value which is expected to be equal to matching one with the given `comparator`."
 	Value merit,
 	"Comparator used to compare matching value and merit.  
 	 Has to return `true` if values are equal and `false` otherwise."
@@ -141,10 +141,10 @@ shared class EqualWith<Value> (
 }
 
 
-"Verifies if matching value is _not_ equal to [[merit]] using given [[comparator]]."
+"Verifies if matching value is _not_ equal to `merit` using given `comparator`."
 tagged( "Checkers" ) since( "0.7.0" ) by( "Lis" )
 shared class NotEqualWith<Value> (
-	"Value which is expected to be _not_ equal to matching one with the given [[comparator]]."
+	"Value which is expected to be _not_ equal to matching one with the given `comparator`."
 	Value merit,
 	"Comparator used to compare matching value and merit.  
 	 Has to return `true` if values are equal and `false` otherwise."

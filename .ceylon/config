@@ -6,4 +6,5 @@ source=examples
 
 [defaults]
 encoding=UTF-8
+overrides=overrides.xml
 

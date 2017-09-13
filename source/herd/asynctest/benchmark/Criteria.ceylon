@@ -1,6 +1,6 @@
 
 
-"Continues benchmark iterations while total number of benchmark loops doesn't exceed [[numberOfLoops]].  
+"Continues benchmark iterations while total number of benchmark loops doesn't exceed `numberOfLoops`.  
  "
 tagged( "Criteria" )
 see( `class Options` )
@@ -26,8 +26,8 @@ shared class NumberOfLoops (
 }
 
 
-"Continues benchmark iterations while relative sample error doesn't exceed [[maxRelativeError]].  
- I.e. [[Statistic.relativeSampleError]] is compared against [[maxRelativeError]]."
+"Continues benchmark iterations while relative sample error doesn't exceed `maxRelativeError`.  
+ I.e. [[Statistic.relativeSampleError]] is compared against `maxRelativeError`."
 tagged( "Criteria" )
 see( `class Options` )
 throws( `class AssertionError`, "Maximum allowed error is <= 0." )
@@ -53,7 +53,7 @@ shared class ErrorCriterion (
 }
 
 
-"Continues benchmark iterations while total execution time doesn't exceed [[timeLimit]].  
+"Continues benchmark iterations while total execution time doesn't exceed `timeLimit`.  
  Execution time is overall time spent on test execution.
  I.e. it summarizes time spent on benchmark function execution as well as on internal calculations.  
  
@@ -64,8 +64,8 @@ see( `class Options`, `class TotalBenchTime` )
 throws( `class AssertionError`, "Maximum permited execution is <= 0." )
 since( "0.7.0" ) by( "Lis" )
 shared class TotalExecutionTime (
-	"Maximum permited execution time in [[timeUnit]] units." Integer timeLimit,
-	"Unit the [[timeLimit]] is measured in.  Default is milliseconds." TimeUnit timeUnit = TimeUnit.milliseconds	
+	"Maximum permited execution time in `timeUnit` units." Integer timeLimit,
+	"Unit the `timeLimit` is measured in.  Default is milliseconds." TimeUnit timeUnit = TimeUnit.milliseconds	
 )
 		satisfies CompletionCriterion
 {
@@ -88,7 +88,7 @@ shared class TotalExecutionTime (
 
 
 "Continues benchmark iterations while overall time accumulated by benchmark iterations doesn't exceed
- [[totalTime]].  
+ `totalTime`.  
  This criterion summarizes only time spent on benchmark function execution for all execution threads jointly.  
  "
 tagged( "Criteria" )
@@ -96,8 +96,8 @@ see( `class Options`, `class TotalExecutionTime` )
 throws( `class AssertionError`, "Total benchmark time is <= 0." )
 since( "0.7.0" ) by( "Lis" )
 shared class TotalBenchTime (
-	"Maximum time (in [[timeUnit]] units) to be accumulated by benchmark iterations." Integer totalTime,
-	"Unit the [[totalTime]] is measured in.  Default is milliseconds." TimeUnit timeUnit = TimeUnit.milliseconds	
+	"Maximum time (in `timeUnit` units) to be accumulated by benchmark iterations." Integer totalTime,
+	"Unit the `totalTime` is measured in.  Default is milliseconds." TimeUnit timeUnit = TimeUnit.milliseconds	
 )
 		satisfies CompletionCriterion
 {

@@ -375,12 +375,12 @@ license (
 	 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	 SOFTWARE."
 )
-by( "Lis" )
-native( "jvm" )
-module herd.asynctest "0.7.0" {
+by("Lis")
+native("jvm")
+module herd.asynctest "0.7.1" {
 	import java.base "8";
-	shared import ceylon.test "1.3.2";
-	import ceylon.collection "1.3.2";
-	shared import ceylon.file "1.3.2";
+	shared import ceylon.test "1.3.3.1";
+	import ceylon.collection "1.3.3";
+	shared import ceylon.file "1.3.3";
 	import java.management "8";
 }

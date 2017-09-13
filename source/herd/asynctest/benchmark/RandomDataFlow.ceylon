@@ -6,7 +6,7 @@ import java.util {
 }
 
 
-"Randomly chooses bench function argument from [[sourceData]] and pass selected argument to [[benchFunction]].  
+"Randomly chooses bench function argument from `sourceData` and pass selected argument to `benchFunction`.  
  The argument is selected independently for each execution thread.
  "
 tagged( "Bench flow" )

@@ -41,7 +41,7 @@ shared class ResourceRule (
 		return r.uri;
 	}
 	
-	"Retrieves the contents of the resource as a [[String]],
+	"Retrieves the contents of the resource as a `String`,
 	 using the specified encoding."
 	shared actual String textContent( String encoding ) {
 		"Resource has to be loaded before usage."

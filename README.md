@@ -14,7 +14,7 @@ is an extension to SDK `ceylon.test` module with following capabilities:
 * benchmarks
 
 The module is available on [Ceylon Herd](https://herd.ceylon-lang.org/modules/herd.asynctest).  
-Current version is 0.7.0.  
+Current version is 0.7.1.  
 
 
 #### Project structure
@@ -25,16 +25,16 @@ develop branch contains the currently developed version
 
 #### Ceylon compiler / platform  
 
-Compiled with Ceylon 1.3.2  
+Compiled with Ceylon 1.3.3  
 Available on JVM only  
 
 
 #### Dependencies  
 
-* ceylon.collection/1.3.2  
-* ceylon.file/1.3.2 shared  
-* ceylon.language/1.3.2  
-* ceylon.test/1.3.2 shared  
+* ceylon.collection/1.3.3  
+* ceylon.file/1.3.3 shared  
+* ceylon.language/1.3.3  
+* ceylon.test/1.3.3.1 shared  
 * java.base/8 JDK
 * java.management/8 JDK  
 
@@ -42,7 +42,7 @@ Available on JVM only
 #### Usage and documentation  
  
 The extension is aimed to be run using Ceylon test tool.  
-See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.7.0/module-doc/api/index.html).
+See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/herd/asynctest/0.7.1/module-doc/api/index.html).
  
  
 #### Examples  
@@ -54,8 +54,9 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
 * [Matchers](examples/herd/examples/asynctest/matchers) - matchers usage.  
 * [Parameterized](examples/herd/examples/asynctest/parameterized) - type- and value- parameterized testing.  
 * [Rules](examples/herd/examples/asynctest/rule) - test rules usage.  
+* [Vert.x](examples/herd/examples/asynctest/vertx) - unit testing of Vert.x application.  
 
 
 **Gratipay**  
-<img src="http://img.shields.io/gratipay/user/LisiLisenok.svg">
+<img src="http://img.shields.io/gratipay/user/LisiLisenok.svg">  
 

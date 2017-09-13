@@ -10,7 +10,7 @@
  is [[MatchResult]] which is simply satisfied / unsatisfied `Boolean` and `String` message describing
  matching operation.  
  
- Matchers may be combined with each other using logical operators: `and or `or` which are
+ Matchers may be combined with each other using logical operators: `and` or `or` which are
  methods of [[Matcher]] interface. Also a matcher can be reverted from _satisfied_ to _unsatisfied_ state
  and visa versa using [[Matcher.not]] method.  
  

@@ -8,7 +8,7 @@ import ceylon.language.meta {
 }
 
 
-"Calls [[source]] to get source value."
+"Calls `source` to get source value."
 since( "0.6.0" ) by( "Lis" )
 shared Result extractSourceValue<Result>( FunctionOrValueDeclaration source, Object? instance ) {
 	switch ( source )

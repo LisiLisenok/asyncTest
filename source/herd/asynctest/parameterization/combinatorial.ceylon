@@ -16,7 +16,7 @@ import herd.asynctest.internal {
  of the test function agrument values.  
  [[DataSourceAnnotation]] annotation has to be applied to the each argument of the test function in order to
  specify a list of possible argument values.  
- [[combinator]] function is responsible to generate test variants and to provide [[TestVariantEnumerator]].
+ `combinator` function is responsible to generate test variants and to provide [[TestVariantEnumerator]].
  "
 tagged( "Applying combinatorial" )
 see( `function combinatorial`, `class ParameterizedAnnotation`, `class DataSourceAnnotation`,
