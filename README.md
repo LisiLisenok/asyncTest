@@ -57,6 +57,3 @@ See usage details in [API documentation](https://modules.ceylon-lang.org/repo/1/
 * [Vert.x](examples/herd/examples/asynctest/vertx) - unit testing of Vert.x application.  
 
 
-**Gratipay**  
-<img src="http://img.shields.io/gratipay/user/LisiLisenok.svg">  
-
